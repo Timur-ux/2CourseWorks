@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# Directotyes
+build/
+.vscode/
+CMakeFiles/
+
+#CMake files
+CMakeCache.txt

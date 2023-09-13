@@ -6,6 +6,10 @@ int main(int argc, char * argw[])
 {
     string s;
     getline(cin, s);
-    if()
+    if(isBracketsValid(s)) {
+        cout << "Brackets is valid" << endl;
+    } else {
+        cout << "Brackets is invalid, kek" << endl;
+    }
     return 0;
 }

@@ -4,4 +4,4 @@
 #include <iostream>
 #include <stack>
 
-bool brackets_check(const std::string);
+bool isBracketsValid(const std::string);

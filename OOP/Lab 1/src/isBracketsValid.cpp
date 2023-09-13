@@ -2,7 +2,8 @@
 
 bool isBracketsValid(const std::string string_of_brackets) {
     std::stack<char> stackOfBrackets;
-    for(char c : stackOfBrackets) {
+
+    for(char c : string_of_brackets) {
         if(c == '(') {
             stackOfBrackets.push('(');
             continue;

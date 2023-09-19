@@ -1,63 +1,45 @@
 #include <iostream>
 #include <unistd.h>
 #include <string>
-#include <vector>
-#include <cstddef>
 
 using namespace std;
 
-enum PIPES {READ, WRITE};
-
-int calc(const char * s, int len) {
+int calc(const string & s) {
     int result = 0, temp = 0;
-    for (size_t i = 0; i < len; ++i)
+    for (char c : s)
     {
-        if(s[i] == ' ') {
+        if(c == ' ') {
             result += temp;
             temp = 0;
             continue;
         }
-        temp = temp*10 + (s[i]-'0');
+        temp = temp*10 + (c - '0');
     }
     result += temp;
     return result;
 }
 
-bool isExit(const char * s) {
-    const char * exitCommand = "Exit";
-    for(int i = 0; i < 4; ++i) {
-        if(s[i] != exitCommand[i]) {
-            return false;
-        }
-    }
-    return true;
-}
-
 int main(int argc, char * argv[]) {
-    if(argc < 3) {
-        cerr << "Error: no input/output file descritors given" << endl;
+    
+    if(argc < 2) {
+        cerr << "Error: no ouput file's name given" << endl;
     }
-    
-    int writeFD = atoi(argv[1]);
-    int readFD = atoi(argv[2]);
 
-    cout << "SP is running..." << endl;
+    int writeFD;
+    read(fileno(stdin), &writeFD, sizeof(int)); // read pipe's write-end
     
-    FILE * outFile = fopen("Output.txt", "w");
-    dup2(readFD, fileno(stdin));
+    FILE * outFile = fopen(argv[1], "w");
     dup2(fileno(outFile), fileno(stdout));
     while(true) {
-        int len;
-        char command[256];   
-        if(read(readFD, &len, sizeof(int)) != sizeof(int) || read(readFD, command, len) != len ||
-            isExit(command)) {
+        string command;
+        getline(cin, command);
+        if(command == "Exit") {
             break;
         }
-        int result = calc(command, len);
+        int result = calc(command);
         cout << result << endl;
         write(writeFD, "Done", 4);
     }
     fclose(outFile);
     close(writeFD);
-    close(readFD);
 }

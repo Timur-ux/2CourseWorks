@@ -40,24 +40,22 @@ int main(int argc, char * argv[]) {
     
     int writeFD = atoi(argv[1]);
     int readFD = atoi(argv[2]);
+
     cout << "SP is running..." << endl;
+    
     FILE * outFile = fopen("Output.txt", "w");
-    // int outStore = dup(fileno(stdout));
-    // if(dup2(fileno(stdin), readFD) == -1 || 0) {
-    //     dup2(fileno(outFile), fileno(stdout)) == -1) {
-    //         cerr << "Error: dup2 failed" << endl;
-    // }
+    dup2(readFD, fileno(stdin));
+    dup2(fileno(outFile), fileno(stdout));
     while(true) {
-        dup2(readFD, fileno(stdin));
-        dup2(fileno(outFile), fileno(stdout));
         int len;
-        char command[256];     
+        char command[256];   
         if(read(readFD, &len, sizeof(int)) != sizeof(int) || read(readFD, command, len) != len ||
             isExit(command)) {
             break;
         }
         int result = calc(command, len);
-        cout << result << '\n';
+        cout << result << endl;
+        write(writeFD, "Done", 4);
     }
     fclose(outFile);
     close(writeFD);

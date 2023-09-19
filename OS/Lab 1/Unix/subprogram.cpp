@@ -18,7 +18,11 @@ int calc(const string & s) {
     result += temp;
     return result;
 }
-
+void writeToParent(int fd, const string &s) {
+    int len = s.size();
+    write(fd, &len, sizeof(int));
+    write(fd, s.c_str(), len);
+}
 int main(int argc, char * argv[]) {
     
     if(argc < 2) {
@@ -31,14 +35,21 @@ int main(int argc, char * argv[]) {
     FILE * outFile = fopen(argv[1], "w");
     dup2(fileno(outFile), fileno(stdout));
     while(true) {
-        string command;
+        string command, report;
         getline(cin, command);
+        if(command == "") {
+            report = "Out: clear string, nothing to calc";
+            writeToParent(writeFD, report);
+            continue;
+        }
         if(command == "Exit") {
             break;
         }
         int result = calc(command);
         cout << result << endl;
-        write(writeFD, "Done", 4);
+
+        report = "Out: done";
+        writeToParent(writeFD, report);
     }
     fclose(outFile);
     close(writeFD);

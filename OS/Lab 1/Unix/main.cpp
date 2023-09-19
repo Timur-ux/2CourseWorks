@@ -6,6 +6,8 @@ using namespace std;
 
 enum PIPE {READ, WRITE};
 
+string readFromChild(int fd);
+
 int main() {
     int fd1[2], fd2[2];
     
@@ -49,8 +51,7 @@ int main() {
             if(command == "Exit\n") {
                 break;
             }
-            char childReport[4];
-            read(fd2[READ], childReport, 4);
+            string childReport = readFromChild(fd2[READ]);
             cout << childReport << endl;
         }
 
@@ -58,4 +59,13 @@ int main() {
         close(fd2[READ]);
     }
     return 0;
+}
+
+string readFromChild(int fd) {
+    int len;
+    read(fd, &len, sizeof(int));
+    char buff[len+1];
+    read(fd, buff, len);
+    buff[len] = '\0';
+    return buff;
 }

@@ -3,11 +3,12 @@
 Octal::Octal(const string &s)
 {
     if(s.size() > MAXBUFFSIZE) {
-        throw out_of_range("Octal should be 30 digits max");
+        string error = string("Octal should be ") + string(MAXBUFFSIZE) + string(" digits max");
+        throw out_of_range(error);
     }
 
     for(int i = s.size()-1, j = 0; i >= 0; ++i, ++j) {
-        if(!(s[i] >= '0' and s[i] < '8')) {
+        if(not(s[i] >= '0' and s[i] < '8')) {
             throw invalid_argument("String representation of octal number must contain only octal digits");
         }
 
@@ -19,19 +20,29 @@ Octal::Octal(int n)
 {
     for(int i = 0; n > 0; ++i) {
         if(i > MAXBUFFSIZE) {
-            throw out_of_range("Octal should be 30 digits max");
+            string error = string("Octal should be ") + string(MAXBUFFSIZE) + string(" digits max");
+            throw out_of_range(error);
         }
-        int cur = n % 
+
+        int cur = n % 10;
+
+        if(cur >= 8) {
+            throw invalid_argument("String representation of octal number must contain only octal digits");
+        }
+
+        buff[i] = cur;
+        n /= 10;
     }
 }
 
 Octal::~Octal()
 {
+    free(buff);
 }
 
 bool Octal::operator=(const string &s)
 {
-    return false;
+    for(char c)
 }
 
 bool Octal::operator=(int n)

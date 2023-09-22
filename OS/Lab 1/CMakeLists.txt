@@ -6,4 +6,4 @@ project(
 )
 
 add_subdirectory(Unix)
-add_subdirectory(Windows)
+# add_subdirectory(Windows)

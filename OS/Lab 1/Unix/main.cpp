@@ -34,7 +34,7 @@ int main() {
     int pid = fork();
     
     if( pid < 0 ) {
-        cerr << "Error MP: fork creating Error MP" << endl;
+        cerr << "Error MP: fork creating failed" << endl;
     } else if( pid == 0 )  { // Child process
         close(fd1[WRITE]);
         close(fd2[READ]);

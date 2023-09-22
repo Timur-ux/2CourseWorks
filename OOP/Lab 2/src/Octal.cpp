@@ -1,19 +1,51 @@
-#include "isBracketsValid.h"
+#include "Octal.hpp"
 
-bool isBracketsValid(const std::string string_of_brackets) {
-    std::stack<char> stackOfBrackets;
+Octal::Octal(const string & str)
+{
+}
 
-    for(char c : string_of_brackets) {
-        if(c == '(') {
-            stackOfBrackets.push('(');
-            continue;
-        }
+Octal::Octal(int n)
+{
+}
 
-        if(stackOfBrackets.empty() or stackOfBrackets.top() == ')') {
-            return false;
-        }
-        
-        stackOfBrackets.pop();
-    }
-    return stackOfBrackets.empty();
+void Octal::operator=(Octal &rhs)
+{
+}
+
+void Octal::operator=(const string &rhs)
+{
+}
+
+void Octal::operator=(int n)
+{
+}
+
+Octal Octal::operator+(Octal &rhs)
+{
+    return Octal();
+}
+
+Octal Octal::operator-(Octal &rhs)
+{
+    return Octal();
+}
+
+Octal Octal::copy()
+{
+    return Octal();
+}
+
+bool Octal::operator==(Octal &rhs)
+{
+    return false;
+}
+
+bool Octal::operator>(Octal &rhs)
+{
+    return false;
+}
+
+bool Octal::operator<(Octal &rhs)
+{
+    return false;
 }

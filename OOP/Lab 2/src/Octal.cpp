@@ -1,86 +1,163 @@
 #include "Octal.hpp"
 
+int to10SS(Octal & octal);
+Octal to8CC(int n);
+
+Octal::Octal(initializer_list<unsigned char> n)
+{
+    if(n.size() > MAXBUFFSIZE) {
+        string error = string("Octal should be ") + to_string(MAXBUFFSIZE) + string(" digits max");
+        throw out_of_range(error);
+    }
+    int j = 0;
+    for(auto it = prev(n.end()); j < n.size(); --it, ++j) {
+        if(not(*it >= (unsigned char)'0' and *it < (unsigned char)'8')) {
+            throw invalid_argument("Representation of octal number must contain only octal digits");
+        }
+
+        buff[j] = *it;
+    }
+    _size = n.size();
+}
+
 Octal::Octal(const string &s)
 {
     if(s.size() > MAXBUFFSIZE) {
-        string error = string("Octal should be ") + string(MAXBUFFSIZE) + string(" digits max");
+        string error = string("Octal should be ") + to_string(MAXBUFFSIZE) + string(" digits max");
         throw out_of_range(error);
     }
 
-    for(int i = s.size()-1, j = 0; i >= 0; ++i, ++j) {
+    for(int i = s.size()-1, j = 0; i >= 0; --i, ++j) {
         if(not(s[i] >= '0' and s[i] < '8')) {
-            throw invalid_argument("String representation of octal number must contain only octal digits");
+            throw invalid_argument("Representation of octal number must contain only octal digits");
         }
 
         buff[j] = s[i];
     }
+    _size = s.size();
 }
 
-Octal::Octal(int n)
+Octal::Octal(const Octal &other) noexcept
 {
-    for(int i = 0; n > 0; ++i) {
-        if(i > MAXBUFFSIZE) {
-            string error = string("Octal should be ") + string(MAXBUFFSIZE) + string(" digits max");
-            throw out_of_range(error);
-        }
-
-        int cur = n % 10;
-
-        if(cur >= 8) {
-            throw invalid_argument("String representation of octal number must contain only octal digits");
-        }
-
-        buff[i] = cur;
-        n /= 10;
+    _size = other._size;
+    for(int i = 0; i < _size; ++i) {
+        buff[i] = other.buff[i];
     }
+}
+
+Octal::Octal(Octal &&other) noexcept
+{
+    buff = other.buff;
+    _size = other._size;
+
+    other.buff = nullptr;
+    other._size = 0;
 }
 
 Octal::~Octal()
 {
-    free(buff);
+    delete[] buff;
 }
 
 bool Octal::operator=(const string &s)
 {
-    for(char c)
+    Octal &&temp(s);
+
+    _size = temp._size;
+    buff = temp.buff;
+
+    temp._size = 0;
+    temp.buff = nullptr;
+
+    return true;
 }
 
-bool Octal::operator=(int n)
+bool Octal::operator=(const Octal &rhs)
 {
+    Octal && temp(rhs.get());
+
+    _size = temp._size;
+    buff = temp.buff;
+
+    temp._size = 0;
+    temp.buff = nullptr; 
+    return true;
+}
+
+bool Octal::operator=(Octal &&rhs)
+{
+    _size = rhs._size;
+    buff = rhs.buff;
+
+    rhs._size = 0;
+    rhs.buff = nullptr;
+    return true;
+}
+
+bool Octal::operator==(const Octal &rhs) const
+{
+    return get() == rhs.get();
+}
+
+bool Octal::operator>(const Octal &rhs) const
+{
+    if(_size != rhs._size) {
+        return _size > rhs._size;
+    }
+    for(int i = _size; i >= 0; --i) {
+        if(buff[i] != rhs.buff[i]) {
+            return buff[i] > rhs.buff[i];
+        }
+    }
     return false;
 }
 
-bool Octal::operator=(Octal &rhs)
+bool Octal::operator<(const Octal &rhs) const
 {
-    return false;
-}
-
-bool Octal::operator==(const Octal &rhs)
-{
-    return false;
-}
-
-bool Octal::operator>(const Octal &rhs)
-{
-    return false;
-}
-
-bool Octal::operator<(const Octal &rhs)
-{
-    return false;
+    return not(*this == rhs) and not(*this > rhs);
 }
 
 Octal Octal::operator+(Octal &rhs)
 {
-    return Octal();
+    return to8CC(to10SS(*this) + to10SS(rhs));
 }
 
 Octal Octal::operator-(Octal &rhs)
 {
-    return Octal();
+    return to8CC(to10SS(*this) - to10SS(rhs));
 }
 
-Octal Octal::copy()
+Octal Octal::copy() const
 {
-    return Octal();
+    return Octal(get());
+}
+
+string Octal::get() const
+{
+    string result = string((char*)buff);
+    reverse(result.begin(), result.end());
+    return result;
+}
+
+size_t Octal::size() const
+{
+    return _size;
+}
+
+
+int to10SS(Octal & octal) {
+    string s = octal.get();
+    int result = 0;
+    for(unsigned char c : s) {
+        result = result * 8 + (c - (unsigned char)'0');
+    }
+    return result;
+}
+Octal to8CC(int n) {
+    string result = "";
+    while(n > 0) {
+        result = to_string(n%8) + result;
+        n /= 8;
+    }
+    return Octal{result};
 }

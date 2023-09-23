@@ -1,22 +1,12 @@
 #include "Octal.hpp"
 #include <gtest/gtest.h>
 
-TEST(test_get, basic_metods_set) {
+TEST(test_toString, basic_metods_set) {
 
     Octal octal("12345670");
     string sOctal = "12345670";
 
-    bool cmp = (octal.get() == sOctal);
-
-    ASSERT_TRUE(cmp);
-}
-
-TEST(test_size, basic_metods_set) {
-
-    string sOctal = "12345670";
-    Octal octal(sOctal);
-
-    bool cmp = (octal.size() == sOctal.size());
+    bool cmp = (octal.toString() == sOctal);
 
     ASSERT_TRUE(cmp);
 }
@@ -26,7 +16,7 @@ TEST(test_copy, basic_metods_set) {
     string sOctal = "12345670";
     Octal octal(sOctal);
 
-    bool cmp = (octal.get() == octal.copy().get());
+    bool cmp = (octal.toString() == Octal(octal).toString());
 
     ASSERT_TRUE(cmp);
 }
@@ -81,7 +71,7 @@ TEST(test_with_string, assingn_test_set) {
     string sOctal = "12345670";
     Octal octal = sOctal;
 
-    bool cmp = (octal.get() == sOctal);
+    bool cmp = (octal.toString() == sOctal);
 
     ASSERT_TRUE(cmp);
 }
@@ -102,7 +92,7 @@ TEST(test_with_DoubleLinkOctal, assingn_test_set) {
     string sOctal = "12345670";
     Octal octal = Octal(sOctal);
 
-    bool cmp = (octal.get() == sOctal);
+    bool cmp = (octal.toString() == sOctal);
 
     ASSERT_TRUE(cmp);
 }

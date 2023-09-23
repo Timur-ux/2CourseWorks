@@ -6,10 +6,15 @@ Octal to8CC(int n);
 Octal::Octal(initializer_list<unsigned char> n)
 {
     if(n.size() > MAXBUFFSIZE) {
-        string error = string("Octal should be ") + to_string(MAXBUFFSIZE) + string(" digits max");
+        string error = string("Octal should be ")
+                     + to_string(MAXBUFFSIZE) 
+                     + string(" digits max");
+
         throw out_of_range(error);
     }
+
     int j = 0;
+
     for(auto it = prev(n.end()); j < n.size(); --it, ++j) {
         if(not(*it >= (unsigned char)'0' and *it < (unsigned char)'8')) {
             throw invalid_argument("Representation of octal number must contain only octal digits");
@@ -17,6 +22,7 @@ Octal::Octal(initializer_list<unsigned char> n)
 
         buff[j] = *it;
     }
+
     _size = n.size();
 }
 
@@ -74,7 +80,7 @@ bool Octal::operator=(const string &s)
 
 bool Octal::operator=(const Octal &rhs)
 {
-    Octal && temp(rhs.get());
+    Octal && temp(rhs.toString());
 
     _size = temp._size;
     buff = temp.buff;
@@ -96,7 +102,7 @@ bool Octal::operator=(Octal &&rhs)
 
 bool Octal::operator==(const Octal &rhs) const
 {
-    return get() == rhs.get();
+    return toString() == rhs.toString();
 }
 
 bool Octal::operator>(const Octal &rhs) const
@@ -127,33 +133,26 @@ Octal Octal::operator-(Octal &rhs)
     return to8CC(to10SS(*this) - to10SS(rhs));
 }
 
-Octal Octal::copy() const
-{
-    return Octal(get());
-}
-
-string Octal::get() const
+string Octal::toString() const
 {
     string result = string((char*)buff);
     reverse(result.begin(), result.end());
     return result;
 }
 
-size_t Octal::size() const
-{
-    return _size;
-}
-
-
 int to10SS(Octal & octal) {
-    string s = octal.get();
+    string s = octal.toString();
     int result = 0;
     for(unsigned char c : s) {
         result = result * 8 + (c - (unsigned char)'0');
     }
     return result;
 }
+
 Octal to8CC(int n) {
+    if(n < 0) {
+        return Octal("0");
+    }
     string result = "";
     while(n > 0) {
         result = to_string(n%8) + result;

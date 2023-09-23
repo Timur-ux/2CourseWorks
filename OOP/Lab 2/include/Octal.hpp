@@ -32,8 +32,6 @@ public:
 
     Octal operator+(Octal &rhs);
     Octal operator-(Octal &rhs);
-    Octal copy() const;
 
-    string get() const;
-    size_t size() const;
+    string toString() const;
 };

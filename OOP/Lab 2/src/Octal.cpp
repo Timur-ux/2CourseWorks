@@ -29,7 +29,9 @@ Octal::Octal(initializer_list<unsigned char> n)
 Octal::Octal(const string &s)
 {
     if(s.size() > MAXBUFFSIZE) {
-        string error = string("Octal should be ") + to_string(MAXBUFFSIZE) + string(" digits max");
+        string error = string("Octal should be ") 
+                     + to_string(MAXBUFFSIZE) 
+                     + string(" digits max");
         throw out_of_range(error);
     }
 

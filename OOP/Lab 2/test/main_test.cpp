@@ -2,8 +2,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
 
-string readFromIFStream(ifstream & iFileStream);
-
 TEST(test_toString, basic_metods_set) {
 
     Octal octal("12345670");
@@ -142,9 +140,9 @@ TEST(test_serialize, serializer_test_set) {
     iFileStream.open("buffer.bin", ios::in | ios::binary);
     
     for(int i = 0; i < OCTALS_QUANTITY; ++i) {
-        string readedNum = readFromIFStream(iFileStream);
-        cout << "Serealization's test: " << readedNum << endl;
-        reverse(readedNum.begin(), readedNum.end()); //Octal stores reversed num
+        string readedNum;
+        iFileStream >> readedNum;
+        cout << readedNum << ' ' << nums[i] << endl;
         check = check and (readedNum == nums[i]);
     }
 
@@ -178,7 +176,7 @@ TEST(test_deserialize, serializer_test_set) {
     ASSERT_TRUE(check);
 }
 
-TEST(test_print, print_test_set) {
+TEST(test_print, io_test_set) {
     ofstream oFileStream;
     ifstream iFileStream;
     string strOctal;
@@ -198,15 +196,27 @@ TEST(test_print, print_test_set) {
     ASSERT_TRUE(check);
 }
 
+TEST(test_read, io_test_set) {
+    ofstream oFileStream;
+    ifstream iFileStream;
+    string strOctal;
+    Octal octals[2];
+
+    octals[0] = "12345";
+    oFileStream.open("buffer.txt");
+    oFileStream << octals[0] << endl;
+    oFileStream.close();
+
+    iFileStream.open("buffer.txt");
+    iFileStream >> octals[1];
+    iFileStream.close();
+
+    bool check = (octals[0] == octals[1]);
+
+    ASSERT_TRUE(check);
+}
+
 int main(int argc, char * argw[]) {
     testing::InitGoogleTest(&argc, argw);
     return RUN_ALL_TESTS();
-}
-
-string readFromIFStream(ifstream & iFileStream) {
-    size_t len;
-    iFileStream.read(reinterpret_cast<char *>(&len), sizeof(size_t));
-    char readedNum[len+1]{'\0'};
-    iFileStream.read(readedNum, len);
-    return string(readedNum);
 }

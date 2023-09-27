@@ -4,11 +4,11 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
-#include "Serializer.hpp"
+#include "Serializible.hpp"
 
 using namespace std;
 
-class Octal : public Serializer{
+class Octal : public Serializible {
 private:
     const int MAXBUFFSIZE{30};
     unsigned char *buff = new unsigned char[MAXBUFFSIZE]{'\0'};  
@@ -41,3 +41,4 @@ public:
 };
 
 ostream & operator<<(ostream &os, Octal & octal);
+istream & operator>>(istream &is, Octal &octal);

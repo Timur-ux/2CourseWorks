@@ -19,13 +19,13 @@ set(TEST_DIR ./test)
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES FALSE ${TEST_DIR}/*.cpp)
 
-add_library(main_lib ${SOURCES})
+add_library(Lab2main_lib ${SOURCES})
 
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 enable_testing()
-add_executable(main_test ${TEST_SOURCES})
-target_link_libraries(main_test ${GTEST_LIBRARIES} main_lib)
+add_executable(Lab2main_test ${TEST_SOURCES})
+target_link_libraries(Lab2main_test ${GTEST_LIBRARIES} Lab2main_lib)
 
-add_test(NAME BASIC COMMAND main_tests)
+add_test(NAME BASIC COMMAND Lab2main_tests)

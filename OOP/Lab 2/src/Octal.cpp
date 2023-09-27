@@ -140,6 +140,30 @@ string Octal::toString() const
     return result;
 }
 
+size_t Octal::serialize(ostream &os)
+{
+    size_t len = _size;
+    os.write(reinterpret_cast<const char*>(&len), sizeof(size_t));
+    auto startPos = os.tellp();
+    os.write(reinterpret_cast<const char *>(buff), len);
+    return static_cast<size_t>(os.tellp() - startPos);
+}
+
+size_t Octal::deserialize(istream &is)
+{
+    size_t len;
+    is.read(reinterpret_cast<char*>(&len), sizeof(size_t));
+    auto startPos = is.tellg();
+    is.read(reinterpret_cast<char*>(buff), len);
+    _size = len;
+    return static_cast<size_t>(is.tellg() - startPos);
+}
+
+ostream & operator<<(ostream &os, Octal & octal) {
+    os << octal.toString();
+    return os;
+}
+
 int to10SS(Octal & octal) {
     string s = octal.toString();
     int result = 0;

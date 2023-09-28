@@ -2,6 +2,26 @@
 #include <gtest/gtest.h>
 #include <fstream>
 
+class SerializableTest : public testing::Test {
+public:
+    static const int OCTALS_COUNT = 3;
+    Octal octals[OCTALS_COUNT];
+    string nums[OCTALS_COUNT] = {"123", "456", "70123"};
+    string bufferName = "buffer.bin";
+    void SetUp() {
+        ofstream oFileStream(bufferName);
+        for(int i = 0; i < OCTALS_COUNT; ++i) {
+            octals[i] = nums[i];
+            octals[i].serialize(oFileStream);
+        }
+        oFileStream.close();
+    }
+    void TearDown() {
+        delete [] octals;
+        delete [] nums;
+    }
+};
+
 TEST(test_toString, basic_metods_set) {
 
     Octal octal("12345670");
@@ -120,56 +140,28 @@ TEST(test_substraction, operations_test_set) {
     ASSERT_TRUE(cmp);
 }
 
-TEST(test_serialize, serializer_test_set) {
-    const int OCTALS_QUANTITY = 3;
-    ofstream oFileStream;
-    ifstream iFileStream;
-    Octal octals[OCTALS_QUANTITY];
-    string nums[OCTALS_QUANTITY] = {"123", "321", "444"};
+TEST_F(SerializableTest, serialize_test) {
     bool check = true;
+    ifstream iFileStream(bufferName);
 
-    oFileStream.open("buffer.bin", ios::out | ios::binary);
-    for(int i = 0; i < OCTALS_QUANTITY; ++i){
-        octals[i] = nums[i];
-        octals[i].serialize(oFileStream);
-    }
-    
-    oFileStream.close();
-    // next we read from file using ifstream(not Octal.deserialize
-    // because it isn't tested yet)
-    iFileStream.open("buffer.bin", ios::in | ios::binary);
-    
-    for(int i = 0; i < OCTALS_QUANTITY; ++i) {
+    for(int i = 0; i < OCTALS_COUNT; ++i) {
         string readedNum;
         iFileStream >> readedNum;
-        cout << readedNum << ' ' << nums[i] << endl;
         check = check and (readedNum == nums[i]);
     }
-
     iFileStream.close();
 
     ASSERT_TRUE(check);
 }
 
-TEST(test_deserialize, serializer_test_set) {
-    const int OCTALS_QUANTITY = 3;
-    ofstream oFileStream;
-    ifstream iFileStream;
-    Octal octals[2*OCTALS_QUANTITY];
-    string nums[OCTALS_QUANTITY] = {"123", "321", "444"};
+TEST_F(SerializableTest, deserialize_test) {
     bool check = true;
-
-    oFileStream.open("buffer.bin", ios::out | ios::binary);
-    for(int i = 0; i < OCTALS_QUANTITY; ++i) {
-        octals[i] = nums[i];
-        octals[i].serialize(oFileStream);
-    }
-    oFileStream.close();
-    // next we read from file using Octal.deserialize
-    iFileStream.open("buffer.bin", ios::in | ios::binary);
-    for(int i = OCTALS_QUANTITY; i < 2*OCTALS_QUANTITY; ++i) {
-        octals[i].deserialize(iFileStream);
-        check = check and (octals[i] == octals[i - OCTALS_QUANTITY]);
+    Octal scanOctals[OCTALS_COUNT];
+    ifstream iFileStream("buffer.bin");
+    
+    for(int i = 0; i < OCTALS_COUNT; ++i) {
+        scanOctals[i].deserialize(iFileStream);
+        check = check and (scanOctals[i] == octals[i]);
     }
     iFileStream.close();
 

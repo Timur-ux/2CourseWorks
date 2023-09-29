@@ -5,20 +5,31 @@
 class SerializableTest : public testing::Test {
 public:
     static const int OCTALS_COUNT = 3;
+
     Octal octals[OCTALS_COUNT];
     string nums[OCTALS_COUNT] = {"123", "456", "70123"};
     string bufferName = "buffer.bin";
+
     void SetUp() {
         ofstream oFileStream(bufferName);
+        
         for(int i = 0; i < OCTALS_COUNT; ++i) {
             octals[i] = nums[i];
             octals[i].serialize(oFileStream);
         }
         oFileStream.close();
     }
+
     void TearDown() {
         delete [] octals;
         delete [] nums;
+    }
+    string readNum(istream &is) {
+        string readedNum;
+        
+        is >> readedNum;
+
+        return readedNum;
     }
 };
 
@@ -145,9 +156,7 @@ TEST_F(SerializableTest, serialize_test) {
     ifstream iFileStream(bufferName);
 
     for(int i = 0; i < OCTALS_COUNT; ++i) {
-        string readedNum;
-        iFileStream >> readedNum;
-        check = check and (readedNum == nums[i]);
+        check = check and (readNum() == nums[i]);
     }
     iFileStream.close();
 
@@ -203,9 +212,7 @@ TEST(test_read, io_test_set) {
     iFileStream >> octals[1];
     iFileStream.close();
 
-    bool check = (octals[0] == octals[1]);
-
-    ASSERT_TRUE(check);
+    ASSERT_TRUE(octals[0] == octals[1]);
 }
 
 int main(int argc, char * argw[]) {

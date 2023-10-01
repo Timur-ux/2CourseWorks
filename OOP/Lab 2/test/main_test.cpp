@@ -190,9 +190,7 @@ TEST(test_print, io_test_set) {
     iFileStream >> strOctal;
     iFileStream.close();
 
-    bool check = (strOctal == octal.toString());
-
-    ASSERT_TRUE(check);
+    ASSERT_TRUE(strOctal == octal.toString());
 }
 
 TEST(test_read, io_test_set) {

@@ -20,10 +20,6 @@ public:
         oFileStream.close();
     }
 
-    void TearDown() {
-        delete [] octals;
-        delete [] nums;
-    }
     string readNum(istream &is) {
         string readedNum;
         
@@ -31,6 +27,9 @@ public:
 
         return readedNum;
     }
+
+    void TearDown() {};
+
 };
 
 TEST(test_toString, basic_metods_set) {
@@ -154,9 +153,10 @@ TEST(test_substraction, operations_test_set) {
 TEST_F(SerializableTest, serialize_test) {
     bool check = true;
     ifstream iFileStream(bufferName);
-
+    string readedNum;
     for(int i = 0; i < OCTALS_COUNT; ++i) {
-        check = check and (readNum() == nums[i]);
+        readedNum = readNum(iFileStream);
+        check = check and (readedNum == nums[i]);
     }
     iFileStream.close();
 

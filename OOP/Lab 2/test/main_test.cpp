@@ -1,5 +1,36 @@
 #include "Octal.hpp"
 #include <gtest/gtest.h>
+#include <fstream>
+
+class SerializableTest : public testing::Test {
+public:
+    static const int OCTALS_COUNT = 3;
+
+    Octal octals[OCTALS_COUNT];
+    string nums[OCTALS_COUNT] = {"123", "456", "70123"};
+    string bufferName = "buffer.bin";
+
+    void SetUp() {
+        ofstream oFileStream(bufferName);
+        
+        for(int i = 0; i < OCTALS_COUNT; ++i) {
+            octals[i] = nums[i];
+            octals[i].serialize(oFileStream);
+        }
+        oFileStream.close();
+    }
+
+    string readNum(istream &is) {
+        string readedNum;
+        
+        is >> readedNum;
+
+        return readedNum;
+    }
+
+    void TearDown() {};
+
+};
 
 TEST(test_toString, basic_metods_set) {
 
@@ -117,6 +148,67 @@ TEST(test_substraction, operations_test_set) {
     bool cmp = (firstOctal - secondOctal == resultOctal);
 
     ASSERT_TRUE(cmp);
+}
+
+TEST_F(SerializableTest, serialize_test) {
+    bool check = true;
+    ifstream iFileStream(bufferName);
+    for(int i = 0; i < OCTALS_COUNT; ++i) {
+        check = check and (readNum(iFileStream) == nums[i]);
+    }
+    iFileStream.close();
+
+    ASSERT_TRUE(check);
+}
+
+TEST_F(SerializableTest, deserialize_test) {
+    bool check = true;
+    Octal scanOctals[OCTALS_COUNT];
+    ifstream iFileStream("buffer.bin");
+    
+    for(int i = 0; i < OCTALS_COUNT; ++i) {
+        scanOctals[i].deserialize(iFileStream);
+        check = check and (scanOctals[i] == octals[i]);
+    }
+    iFileStream.close();
+
+    ASSERT_TRUE(check);
+}
+
+TEST(test_print, io_test_set) {
+    ofstream oFileStream;
+    ifstream iFileStream;
+    string strOctal;
+    Octal octal;
+
+    octal = "12345";
+    oFileStream.open("buffer.txt");
+    oFileStream << octal << endl;
+    oFileStream.close();
+
+    iFileStream.open("buffer.txt");
+    iFileStream >> strOctal;
+    iFileStream.close();
+
+    ASSERT_TRUE(strOctal == octal.toString());
+}
+
+TEST(test_read, io_test_set) {
+    ofstream oFileStream;
+    ifstream iFileStream;
+    string strOctal;
+    Octal octals[2];
+
+    octals[0] = "12345";
+    oFileStream.open("buffer.txt");
+    oFileStream << octals[0] << endl;
+    oFileStream.close();
+
+    iFileStream.open("buffer.txt");
+    iFileStream >> octals[1];
+    iFileStream.close();
+
+    ASSERT_TRUE(octals[0] == octals[1]);
 }
 
 int main(int argc, char * argw[]) {

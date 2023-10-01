@@ -142,6 +142,41 @@ string Octal::toString() const
     return result;
 }
 
+size_t Octal::serialize(ostream &os)
+{
+    auto startPos = os.tellp();
+
+    os << toString() << endl;
+    
+    return static_cast<size_t>(os.tellp() - startPos);
+}
+
+size_t Octal::deserialize(istream &is)
+{
+    string readedNum;
+    auto startPos = is.tellg();
+
+    is >> readedNum;
+    *this = readedNum;
+    
+    return static_cast<size_t>(is.tellg() - startPos);
+}
+
+ostream & operator<<(ostream &os, Octal & octal) {
+    os << octal.toString();
+    
+    return os;
+}
+
+istream & operator>>(istream &is, Octal &octal) {
+    string readedNum;
+    is >> readedNum;
+    
+    octal = readedNum;
+    
+    return is;
+}
+
 int to10SS(Octal & octal) {
     string s = octal.toString();
     int result = 0;

@@ -8,10 +8,12 @@ using namespace std;
 class HronoMeter {
 private:
     bool watching = false;
-    retType watchingTime = NULL;
+    chrono::milliseconds watchingTime;
+    chrono::time_point<chrono::steady_clock> start;
+    chrono::time_point<chrono::steady_clock> end;
 public:
     HronoMeter();
-    void start();
-    void stop();
-    retType getTime();
-}
+    void startWatch();
+    void stopWatch();
+    chrono::milliseconds getTime();
+};

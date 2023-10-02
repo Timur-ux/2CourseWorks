@@ -5,12 +5,13 @@
 
 using namespace std;
 
-class Logger {
+class MyLogger {
 private:
     string fileName;
     ofstream file;
 public:
-    Logger(string fileName, string header = "");
+    MyLogger(string fileName, string header = "");
+    
     void write(string line);
-    ~Logger()
-}
+    ~MyLogger();
+};

@@ -6,13 +6,20 @@
 
 using namespace std;
 
+typedef void* (*threadFunc)(void *);
+
 class Threader {
 private:
-    int threads_count;
+    int threadsCount;
     pthread_t * threads;
     pthread_mutex_t mutex;
+    int currentThreadId = 0;
+    int setNextThreadId();
 public:
-    Threader(int _threads_count = 0);
+    Threader(int _threadsCount = 0);
     ~Threader();
-    
-}
+    void enableMutex();
+    void disableMutex();
+    void add(void *(*start)(void *), void* arg);
+    int getThreadsCount();
+};

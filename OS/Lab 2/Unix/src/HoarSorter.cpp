@@ -1,33 +1,34 @@
 #include "HoarSorter.hpp"
 
-void HoarSorter::_sort(int l, int r)
+void HoarSorter::_sort(Range &range)
 {
-    if(r - l < 2) {
+    if(range.r - range.l < 2) {
         return;
     }
-    int midIndex = (l+r)/2;
-    int i = l, j = r-1;
+    int midIndex = (range.l + range.r)/2;
+    int i = range.l, j = range.r - 1;
     do {
         while(i < midIndex and vectorToSort[i] < vectorToSort[midIndex]) {
-        ++i;
+            ++i;
         }
         while(j > midIndex and vectorToSort[j] > vectorToSort[midIndex]) {
             --j;
         }
         if(i != j) {
             swap(vectorToSort[i], vectorToSort[j]);
-            ++i;
-            --j;
+            ++i, --j;
         }
     } while (i < j);
-    //threader.add(_sort(i, r))
-    //threader.add(_sort(l, j))
+    Range range2(i, range.r);
+    threader.add((threadFunc)&HoarSorter::_sort, &range);
+    range2.l = range.l;
+    range2.r = j;
+    threader.add((threadFunc)&HoarSorter::_sort, &range);
 }
 
-HoarSorter::HoarSorter(int threads_count = 1, string logFile)
-{
-    threader = Threader(threads_count);
-    logger = Logger(logFile, "Threads,Time");
+HoarSorter::HoarSorter(int threadsCount, string logFile) : 
+logger(logFile, string("Threads,Time(ms)")) {
+    threader = Threader(threadsCount);
     hronoMeter = HronoMeter();
 }
 
@@ -35,12 +36,13 @@ void HoarSorter::sort(vector<int> &v)
 {
     vectorToSort = v;
 
-    hronoMeter.start();
-    // threader.add(_sort(0, vectorToSort.size()));
-    hronoMeter.stop();
+    hronoMeter.startWatch();
+    Range range(0, vectorToSort.size());
+    threader.add((threadFunc)&HoarSorter::_sort, &range);
+    hronoMeter.stopWatch();
 
     auto time = hronoMeter.getTime();
-    logger.write(string(threads_count)
+    logger.write(to_string(threader.getThreadsCount())
                 +string(",")
-                +string(time));
+                +to_string(time.count()));
 }

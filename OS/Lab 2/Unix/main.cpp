@@ -1,15 +1,29 @@
 #include "HoarSorter.hpp"
+
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
+
 int main() {
-    vector<int> v{1, 2, 3, 4, 4, 3, 2, 1};
-    HoarSorter hsorter(2);
-    hsorter.sort(v);
-    for(int i : v) 
-        cout << i << ' ';
-    cout << endl;
+    const int n = 1000;
+    vector<int> v(n);
+    for(int &i : v) {
+        i = rand()%100;
+    }
+    HoarSorter hsorter(4);
+    hsorter.setVectorToSort(v);
+    hsorter.run();
+    vector<int> & result = hsorter.getVectorToSort();
+    bool assertResult = true;
+    for(int i = 1; i < result.size(); ++i) {
+        if(result[i] < result[i-1]){
+            assertResult = false;
+            break;
+        }
+    }
+    cout << boolalpha << assertResult << endl;
     return 0;
 }

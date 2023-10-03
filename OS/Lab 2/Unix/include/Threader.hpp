@@ -20,6 +20,6 @@ public:
     ~Threader();
     void enableMutex();
     void disableMutex();
-    void add(void *(*start)(void *), void* arg);
+    void add(void *(*func)(void *), void* workerData);
     int getThreadsCount();
 };

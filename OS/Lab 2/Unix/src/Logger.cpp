@@ -1,8 +1,8 @@
-#include "MyLogger.hpp"
+#include "Logger.hpp"
 
-MyLogger::MyLogger(string fileName, string header)
+Logger::Logger(string fileName, string header)
 {
-    if(header != "") { // If headers aren't gived we append data
+    if(header == " ") { // If headers aren't gived we append data
         file.open(fileName, ios::out | ios::app);
     }
     else { // else open clear file and write header
@@ -11,23 +11,11 @@ MyLogger::MyLogger(string fileName, string header)
     }
 }
 
-// MyLogger::MyLogger(MyLogger &&other)
-// {
-//     fileName = other.fileName;
-//     file = other.file;
-// }
-
-// void MyLogger::operator=(MyLogger &&other)
-// {
-//     fileName = other.fileName;
-//     file = other.file;
-// }
-
-MyLogger::~MyLogger() {
+Logger::~Logger() {
     file.close();
 }
 
-void MyLogger::write(string line)
+void Logger::write(string line)
 {
     file << line << endl;
 }

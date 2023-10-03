@@ -1,29 +1,32 @@
 #include "HoarSorter.hpp"
 
-void HoarSorter::_sort(Range &range)
+void HoarSorter::sort(Range &&range)
 {
     if(range.r - range.l < 2) {
         return;
     }
-    int midIndex = (range.l + range.r)/2;
-    int i = range.l, j = range.r - 1;
+    int mid = vectorToSort[(range.l + range.r)/2];
+    int i = range.l, j = range.r-1;
     do {
-        while(i < midIndex and vectorToSort[i] < vectorToSort[midIndex]) {
+        while(vectorToSort[i] < mid) {
             ++i;
         }
-        while(j > midIndex and vectorToSort[j] > vectorToSort[midIndex]) {
+        while(vectorToSort[j] > mid) {
             --j;
         }
-        if(i != j) {
+        if(i <= j) {
             swap(vectorToSort[i], vectorToSort[j]);
             ++i, --j;
         }
-    } while (i < j);
-    Range range2(i, range.r);
-    threader.add((threadFunc)&HoarSorter::_sort, &range);
-    range2.l = range.l;
-    range2.r = j;
-    threader.add((threadFunc)&HoarSorter::_sort, &range);
+    } while (i <= j);
+    threader.add((threadFunc)&parallelSort, getWorkerData(new Range(i, range.r)));
+    sort(Range(range.l, j));
+}
+
+void parallelSort(WorkerData *workerData)
+{
+    workerData->hoarSorter.sort(move(workerData->range));
+    return;
 }
 
 HoarSorter::HoarSorter(int threadsCount, string logFile) : 
@@ -32,17 +35,31 @@ logger(logFile, string("Threads,Time(ms)")) {
     hronoMeter = HronoMeter();
 }
 
-void HoarSorter::sort(vector<int> &v)
+void HoarSorter::run()
 {
-    vectorToSort = v;
-
     hronoMeter.startWatch();
-    Range range(0, vectorToSort.size());
-    threader.add((threadFunc)&HoarSorter::_sort, &range);
+    threader.add((threadFunc)parallelSort, getWorkerData(new Range(0, vectorToSort.size())));
     hronoMeter.stopWatch();
 
     auto time = hronoMeter.getTime();
+
     logger.write(to_string(threader.getThreadsCount())
                 +string(",")
                 +to_string(time.count()));
+}
+
+void HoarSorter::setVectorToSort(vector<int> &v)
+{
+    vectorToSort = v;
+}
+
+vector<int> &HoarSorter::getVectorToSort()
+{
+    return vectorToSort;
+}
+
+WorkerData* HoarSorter::getWorkerData(void* range)
+{
+    WorkerData *result = new WorkerData(*this, *static_cast<Range*>(range));
+    return result;
 }

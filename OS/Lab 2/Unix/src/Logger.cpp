@@ -1,11 +1,13 @@
 #include "Logger.hpp"
 
-Logger::Logger(string fileName, string header)
+
+
+Logger::Logger(string fileName,  OpenMode mode, string header)
 {
-    if(header == " ") { // If headers aren't gived we append data
+    if(mode == ADD) { 
         file.open(fileName, ios::out | ios::app);
     }
-    else { // else open clear file and write header
+    else if( mode == NEW) {
         file.open(fileName, ios::in);
         write(header);
     }

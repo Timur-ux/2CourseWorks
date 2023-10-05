@@ -5,12 +5,14 @@
 
 using namespace std;
 
+typedef enum {NEW, ADD} OpenMode;
+
 class Logger {
 private:
     string fileName;
     ofstream file;
 public:
-    Logger(string fileName, string header = " ");
+    Logger(string fileName, OpenMode mode = ADD, string header = " ");
     
     void write(string line);
     ~Logger();

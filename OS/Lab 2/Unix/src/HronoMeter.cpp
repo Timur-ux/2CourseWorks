@@ -1,9 +1,5 @@
 #include "HronoMeter.hpp"
 
-HronoMeter::HronoMeter()
-{
-}
-
 void HronoMeter::startWatch()
 {
     start = chrono::steady_clock::now();

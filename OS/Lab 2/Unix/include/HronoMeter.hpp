@@ -12,7 +12,6 @@ private:
     chrono::time_point<chrono::steady_clock> start;
     chrono::time_point<chrono::steady_clock> end;
 public:
-    HronoMeter();
     void startWatch();
     void stopWatch();
     chrono::milliseconds getTime();

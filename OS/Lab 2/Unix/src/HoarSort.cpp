@@ -1,9 +1,8 @@
 #include "HoarSort.hpp"
 
 void * parallelHoarSort(void * workerData) {
-
+    
     WorkerData thisData = *static_cast<WorkerData*>(workerData);
-    WorkerData *otherData;
 
     if(thisData.r - thisData.l < 2) {
         return NULL;
@@ -23,7 +22,8 @@ void * parallelHoarSort(void * workerData) {
         }
     } while (i <= j);
 
-    otherData = new WorkerData(i, thisData.r, thisData.v, thisData.threadPool);
+    WorkerData *otherData = new WorkerData(i, thisData.r, thisData.v, thisData.threadPool);
+    
     thisData.threadPool->addTask(Task((threadFunc)&parallelHoarSort, otherData));
     
     thisData.r = j + 1;

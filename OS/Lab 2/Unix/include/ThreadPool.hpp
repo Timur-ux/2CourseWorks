@@ -12,8 +12,6 @@ typedef void* (*threadFunc)(void *);
 
 class Task;
 
-static int counter = 0;
-
 class Worker;
 
 class ThreadPool {
@@ -25,15 +23,18 @@ private:
 
     pthread_cond_t cond;
     pthread_mutex_t queue_mutex;
-    
+
     queue<Task> tasks;
     Task getTask();
 public:
     ThreadPool(int workersCount);
     void addTask(Task && task);
-    void closeAll();
+    void waitAll();
     bool isTasksEmpty();
     ~ThreadPool();
+
+    pthread_cond_t waitCond;
+    pthread_mutex_t waitMutex;
 };
 
 void * workerRun(void * _pool);
@@ -45,5 +46,5 @@ private:
 public:
     Task(threadFunc _func, void * _workerData) :
         func(_func), workerData(_workerData) {};
-    void operator()();
+    void operator()(ThreadPool & pool);
 };

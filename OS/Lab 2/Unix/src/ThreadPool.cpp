@@ -4,6 +4,9 @@ ThreadPool::ThreadPool(int workersCount) : isStopped(false) {
     pthread_cond_init(&cond, NULL);
     pthread_mutex_init(&queue_mutex, NULL);
     
+    pthread_cond_init(&waitCond, NULL);
+    pthread_mutex_init(&waitMutex, NULL);
+
     for(int i = 0; i < workersCount; ++i) {
         workers.push_back(pthread_t());
         pthread_create(&workers[i], NULL, &workerRun, this);
@@ -29,7 +32,7 @@ Task ThreadPool::getTask()
 }
 
 ThreadPool::~ThreadPool() {
-    closeAll();
+    waitAll();
 
     isStopped = true;
 
@@ -41,17 +44,22 @@ ThreadPool::~ThreadPool() {
 
     pthread_cond_destroy(&cond);
     pthread_mutex_destroy(&queue_mutex);
+    
+    pthread_cond_destroy(&waitCond);
+    pthread_mutex_destroy(&waitMutex);
 }
 
-void ThreadPool::closeAll()
+void ThreadPool::waitAll()
 {
-    while(counter > 0 or not tasks.empty()) {
+    pthread_mutex_lock(&waitMutex);
+    while( not tasks.empty()) {
+        pthread_cond_wait(&waitCond, &waitMutex);
         pthread_cond_broadcast(&cond);
     }
+    pthread_mutex_unlock(&waitMutex);
 }
 bool ThreadPool::isTasksEmpty() {
     bool result = tasks.empty();
-    
     return result;
 }
 void *workerRun(void *_pool)
@@ -68,16 +76,15 @@ void *workerRun(void *_pool)
             pthread_mutex_unlock(&pool->queue_mutex);
             return NULL;
         }
-        ++counter;
         Task task = pool->getTask();
 
         pthread_mutex_unlock(&pool->queue_mutex);
-        task();
-        --counter;
+        task(*pool);
     }
     return NULL;
 }
 
-void Task::operator()() {
+void Task::operator()(ThreadPool & pool) {
     func(workerData);
+    pthread_cond_signal(&pool.waitCond);
 }

@@ -1,35 +1,19 @@
 #pragma once
 
 #include "Figure.hpp"
-#include "FigureBuilder.hpp"
+#include "Point.hpp"
 
-namespace Figure {
-    class Rectangle : public Figure {
-    private:
-        std::string figureType = "Rectangle";
-        int angles = 2;
-    public:
-        Rectangle() = default;
-        Rectangle(std::vector<Point> & _points);
-        
-        virtual void setPoints(std::vector<Point> & _points) override;
 
-        virtual Point getCenter() const override;
-        virtual operator double() const override;
+class Rectangle : public Figure {
+public:
+    Rectangle(std::vector<Point> & _points);
+    Rectangle(std::vector<Point> && _points);
 
-        virtual Figure & operator=(const Figure &rhs) override;
-        virtual Figure & operator=(Figure && rhs) override;
-    
-        virtual bool operator==(const Figure & rhs) const;
-    };
+    virtual Point getCenter() const override;
+    virtual operator double() const override;
 
-    class RectangleBuilder : public FigureBuilder {
-    private:
-        Figure* rectangle;
-    public:
-        RectangleBuilder() : rectangle(new Rectangle) {};
+    virtual Figure & operator=(const Figure &rhs) override;
+    virtual Figure & operator=(Figure && rhs) override;
 
-        virtual FigureBuilder * setPoints(std::vector<Point> & _points) override;
-        virtual Figure* getFigure() override;
-    };
-}
+    virtual bool operator==(const Figure & rhs) const;
+};

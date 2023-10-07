@@ -22,7 +22,7 @@ file(GLOB_RECURSE TEST_SOURCES LIST_DIRECTORIES FALSE ${TEST_DIR}/*.cpp)
 add_library(03_main_lib ${SOURCES})
 
 add_executable(03_main main.cpp)
-target_link_libraries(03_main Lab1main_lib)
+target_link_libraries(03_main 03_main_lib)
 
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})

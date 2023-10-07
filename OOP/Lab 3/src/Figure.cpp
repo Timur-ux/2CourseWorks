@@ -1,18 +1,14 @@
 #include "Figure.hpp"
 
 namespace Figure {
-    Figure::Figure(int n) {
-        points.assign(n, Point());
-    }
-    Point & Figure::operator[](int i)
-    {
-        return points.at(i);
+    std::vector<Point> Figure::getPoints() const {
+        return points;
     }
 
-    std::ostream & operator<<(std::ostream & os, Figure & figure) {
+    std::ostream & operator<<(std::ostream & os, const Figure & figure) {
         os << figure.figureType << ": [ ";
-        for(Point & point : figure.points){
-            os << point << ' ';
+        for(int i = 0; i < figure.points.size(); ++i) {
+            os << figure.points[i] << ' ';
         }
         os << ']';
         
@@ -26,5 +22,5 @@ namespace Figure {
 
         return is;
     }
-    
+
 };

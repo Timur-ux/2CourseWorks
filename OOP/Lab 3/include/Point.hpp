@@ -1,3 +1,7 @@
+#pragma once
+
+#include "Figure.hpp"
+
 #include <iostream>
 #include <cmath>
 
@@ -15,6 +19,7 @@ namespace Figure {
         Point(const decart cordinate);
         Point(const polar cordinate);
         Point(const Point & other);
+        Point(Point && other);
 
         ~Point() = default;
 
@@ -26,18 +31,25 @@ namespace Figure {
         Point operator+(const Point & rhs) const;
         Point operator-(const Point & rhs) const;
 
-        friend Point operator*(int k, Point & point);
-        friend Point operator*(Point & point, int k);
-        friend Point operator/(Point & point, int k);
+        Point & operator=(const Point & rhs);
+        Point & operator=(Point && rhs);
 
-        friend std::ostream& operator<<(std::ostream& os, Point& point);
+        bool operator==(const Point & rhs) const;
+
+        friend Point operator*(int k, const Point & point);
+        friend Point operator*(const Point & point, int k);
+        friend Point operator/(const Point & point, int k);
+        friend Point & abs(Point && point);
+
+        friend std::ostream& operator<<(std::ostream& os, const Point& point);
         friend std::istream& operator>>(std::istream& is, Point& point);
     };
     
-    Point operator*(int k, Point & point);
-    Point operator*(Point & point, int k);
-    Point operator/(Point & point, int k);
+    Point operator*(int k, const Point & point);
+    Point operator*(const Point & point, int k);
+    Point operator/(const Point & point, int k);
+    Point & abs(Point && point);
     
-    std::ostream& operator<<(std::ostream& os, Point& point);
+    std::ostream& operator<<(std::ostream& os, const Point& point);
     std::istream& operator>>(std::istream& is, Point& point);    
-}
+};

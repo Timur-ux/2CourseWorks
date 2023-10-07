@@ -1,5 +1,6 @@
 #pragma once
 
+#include "FigureBuilder.hpp"
 #include "Point.hpp"
 #include "Rectangle.hpp"
 #include "Trapezoid.hpp"
@@ -8,26 +9,33 @@
 #include <vector>
 #include <iostream>
 #include <cmath>
+#include <stdexcept>
 
 namespace Figure
 {
     class Figure {
-    private:
-        std::vector<Point> points;
     protected:
+        std::vector<Point> points;
         std::string figureType;
+        int angles;
     public:
-        Figure() = delete;
-        Figure(int n);
-        Figure(std::vector<Point> _points) : points(_points) {};
+        friend class FigureBuilder;
 
+        Figure() = default;
+
+        virtual void setPoints(std::vector<Point> & _points) = 0;
+
+        std::vector<Point> getPoints() const;
         virtual Point getCenter() const = 0;
         virtual operator double() const = 0;
-        
-        friend std::ostream& operator<<(std::ostream& os, Figure & figure);
-        friend std::istream& operator>>(std::istream& is, Figure& figure);
 
-        Point & operator[](int i);
+        virtual Figure & operator=(const Figure & rhs) = 0;
+        virtual Figure & operator=(Figure && rhs) = 0;
+
+        virtual bool operator==(const Figure & rhs) const = 0;
+
+        friend std::ostream& operator<<(std::ostream& os, const Figure & figure);
+        friend std::istream& operator>>(std::istream& is, Figure& figure);
     };
     
     std::ostream& operator<<(std::ostream& os, const Figure& figure);

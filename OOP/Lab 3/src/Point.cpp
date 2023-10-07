@@ -11,6 +11,14 @@ namespace Figure {
     Point::Point(const Point &other) : x(other.x),
                                         y(other.y) {}
 
+    Point::Point(Point &&other) {
+        x = other.x;
+        y = other.y;
+
+        other.x = 0;
+        other.y = 0;
+    }
+
     decart Point::getDecart() const {
         return decart(x, y);
     }
@@ -39,18 +47,51 @@ namespace Figure {
         return Point(decart(x1, y1));
     }
 
-    Point operator*(int k, Point &point) {
+    Point &Point::operator=(const Point &rhs) {
+        x = rhs.x;
+        y = rhs.y;
+
+        return *this;
+    }
+
+    Point &Point::operator=(Point &&rhs) {
+        x = rhs.x;
+        y = rhs.y;
+
+        rhs.x = 0;
+        rhs.y = 0;
+        
+        return *this;
+    }
+
+    bool Point::operator==(const Point &rhs) const
+    {
+        return (x == rhs.x and y == rhs.y);
+    }
+
+    Point operator*(int k, const Point &point) {
         return Point(decart(k*point.x, k*point.y));
     }
 
-    Point operator*(Point &point, int k) {
+    Point operator*(const Point &point, int k) {
         return k * point;
     }
 
-    Point operator/(Point &point, int k) {
+    Point operator/(const Point &point, int k) {
         return Point(decart(point.x / k, point.y / k));
     }
-    std::ostream &operator<<(std::ostream &os, Point &point) {
-        // TODO: вставьте здесь оператор return
+    Point &abs(Point &&point) {
+        point.x = (point.x < 0) ? (-1)*point.x : point.x;
+        point.y = (point.y < 0) ? (-1)*point.y : point.y;
+        
+        return point; 
     }
-}
+    std::ostream &operator<<(std::ostream &os, const Point &point)
+    {
+        os << "{" << point.x << ' ' << point.y << "}";
+        return os;
+    }
+    std::istream &operator>>(std::istream &is, Point &point) {
+        is >> point.x >> point.y;
+    }
+};

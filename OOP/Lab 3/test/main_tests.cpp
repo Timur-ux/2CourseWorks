@@ -45,6 +45,16 @@ TEST(point_test_set, get_decart_test) {
     ASSERT_TRUE(pos == gettedPos);
 }
 
+TEST(point_test_set, get_XY_test) {
+    decart pos(3, 4);
+    Point point(pos);
+
+    double gettedX = point.getX();
+    double gettedY = point.getY();
+
+    ASSERT_TRUE(pos.first == gettedX and pos.second == gettedY);
+}
+
 TEST(point_test_set, get_distanse_test) {
     decart pos1(3, 4);
     decart pos2(5, 10);
@@ -145,6 +155,106 @@ TEST(rectangle_test_set, constructor_viaVector_test) {
     EXPECT_THROW(Rectangle(std::vector<Point>{p1});, std::invalid_argument*);
     EXPECT_THROW(Rectangle(std::vector<Point>{p1, p2, p3}), std::invalid_argument*);
     EXPECT_NO_THROW(Rectangle(std::vector<Point>{p1, p2}));
+}
+
+TEST(rectangle_test_set, constructor_viaOtherRectangle_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 2));
+
+    Rectangle rect(std::vector<Point>{p1, p2});
+    Rectangle rect2(rect);
+    
+    ASSERT_TRUE(rect.getPoints() == rect2.getPoints());
+}
+
+TEST(rectangle_test_set, get_center_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 2));
+    Point expectedCenter(decart(3, 2.5));
+
+    Rectangle rect(std::vector<Point>{p1, p2});
+    
+    ASSERT_TRUE(rect.getCenter() == expectedCenter);
+}
+
+TEST(rectangle_test_set, get_square_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 2));
+    double expectedSquare(4);
+
+    Rectangle rect(std::vector<Point>{p1, p2});
+    
+    ASSERT_TRUE(double(rect) == expectedSquare);
+}
+
+TEST(rectangle_test_set, assign_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 2));
+    Rectangle rect = Rectangle(std::vector<Point>{p1, p2});
+    
+    Rectangle assignedRect = rect;
+
+    ASSERT_TRUE(assignedRect == rect);
+}
+
+TEST(trapezoid_test_set, constructor_viaVector_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 3));
+    Point p3(decart(1, 13));
+    Point p4(decart(5, 13));
+
+    
+    EXPECT_THROW(Trapezoid(std::vector<Point>{p1});, std::invalid_argument*);
+    EXPECT_NO_THROW(Trapezoid(std::vector<Point>{p1, p2, p3, p4}));
+}
+
+TEST(trapezoid_test_set, constructor_viaOtherTrapezoid_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 3));
+    Point p3(decart(1, 13));
+    Point p4(decart(5, 13));
+
+    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    Trapezoid trap2(trap);
+    
+    ASSERT_TRUE(trap.getPoints() == trap2.getPoints());
+}
+
+TEST(trapezoid_test_set, get_center_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(2, 3));
+    Point p3(decart(7, 13));
+    Point p4(decart(-1, 13));
+    std::vector<Point> points{p1, p2, p3, p4};
+    Point expectedCenter(decart(5.0/3, 37.0/9));
+
+    Trapezoid trap(points);
+    
+    ASSERT_TRUE(trap.getCenter() == expectedCenter);
+}
+
+TEST(trapezoid_test_set, get_square_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(2, 3));
+    Point p4(decart(7, 13));
+    Point p3(decart(-1, 13));
+    double expectedSquare(45);
+
+    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    
+    ASSERT_TRUE(double(trap) == expectedSquare);
+}
+
+TEST(trapezoid_test_set, assign_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(2, 3));
+    Point p3(decart(-1, 13));
+    Point p4(decart(7, 13));
+    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    
+    Trapezoid assignedTrap = trap;
+
+    ASSERT_TRUE(assignedTrap == trap);
 }
 
 int main(int argc, char * argw[]) {

@@ -3,8 +3,9 @@
 #include <iostream>
 #include <cmath>
 
-
 using decart = std::pair<double, double>;
+
+const double EPS = 0.0001;
 
 class Point {
 private:
@@ -14,13 +15,14 @@ public:
     Point() : x(0), y(0) {};
     Point(const decart cordinate);
     Point(const Point & other);
-    Point(Point && other);
+    Point(Point && other) noexcept;
 
     ~Point() = default;
 
     decart getDecart() const;
-    
-    double getDistance(Point & other) const;
+    double getX() const;
+    double getY() const;
+    double getDistance(const Point & other) const;
     
     Point operator+(const Point & rhs) const;
     Point operator-(const Point & rhs) const;

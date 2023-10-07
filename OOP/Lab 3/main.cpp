@@ -7,7 +7,9 @@ int main() {
     Point p2(decart(5, 2));
     Point p3(decart(1, 13));
 
-    Figure *rect = new Rectangle(vector<Point>{p1, p2});
-    cout << *rect << endl;
+    Rectangle rect(Rectangle(vector<Point>{p1, p2}));
+    Rectangle rect2(move(rect));
+
+    cout << rect << endl;
     return 0;
 }

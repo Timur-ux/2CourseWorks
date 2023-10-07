@@ -6,7 +6,7 @@ Point::Point(decart cord) : x(cord.first),
 Point::Point(const Point &other) : x(other.x),
                                     y(other.y) {}
 
-Point::Point(Point &&other) {
+Point::Point(Point &&other) noexcept {
     x = other.x;
     y = other.y;
 
@@ -18,7 +18,15 @@ decart Point::getDecart() const {
     return decart(x, y);
 }
 
-double Point::getDistance(Point &other) const {
+double Point::getX() const {
+    return x;
+}
+
+double Point::getY() const {
+    return y;
+}
+
+double Point::getDistance(const Point &other) const {
     double dx = x - other.x;
     double dy = y - other.y;
     return sqrt(dx*dx + dy*dy);
@@ -55,7 +63,7 @@ Point &Point::operator=(Point &&rhs) {
 
 bool Point::operator==(const Point &rhs) const
 {
-    return (x == rhs.x and y == rhs.y);
+    return (abs(x - rhs.x) < EPS and abs(y - rhs.y) < EPS);
 }
 
 Point operator*(int k, const Point &point) {

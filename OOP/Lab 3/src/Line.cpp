@@ -12,14 +12,33 @@ Line::Line(Point _p1, Point _p2) {
 
     Point dp = p2 - p1;
 
-    k = (dp.getX() == 0 ? INFINITY : dp.getY() / dp.getX());
-    b = (k == INFINITY ? INFINITY : p1.getY() - p1.getX() * k);
+    A = dp.getX();
+    B = (-1) * dp.getY();
+    C = p1.getX()*dp.getY() - p1.getY()*dp.getX();
+}
+
+double Line::getA() const {
+    return A;
+}
+
+double Line::getB() const {
+    return B;
+}
+
+double Line::getC() const {
+    return C;
 }
 
 bool Line::operator||(const Line &rhs) const {
-    return k == rhs.k;
+    double SCMult = std::abs(trunc(scalarMult(*this, rhs) * 1000)) / 1000;
+    double lengthMult = trunc(length()*rhs.length() * 1000) / 1000;
+    return std::abs(SCMult - lengthMult) < EPS;
 }
 
-double geometry::Line::length() {
+double geometry::Line::length() const {
     return p1.getDistance(p2);
+}
+
+double geometry::scalarMult(const Line &line1, const Line &line2) {
+    return line1.getA()*line2.getA() + line1.getB()*line2.getB();
 }

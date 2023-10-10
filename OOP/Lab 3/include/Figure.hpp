@@ -19,8 +19,8 @@ namespace geometry {
         Point geometryCenter;
         std::string figureType;
 
-        virtual void assertPoints(std::vector<Point> & _points) const = 0;
-        virtual std::vector<Point> unificatePoints(std::vector<Point> _points) = 0;
+        virtual void assertPoints(const std::vector<Point> & _points) const = 0;
+        virtual std::vector<Point> unificatePoints(std::vector<Point> _points);
         virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
         virtual double calcSquare(const std::vector<Point> & _points) const = 0;
     public:

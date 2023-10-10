@@ -167,6 +167,21 @@ TEST(line_tests_set, operator_parallel_test) {
     EXPECT_FALSE(line1 || line3);
 }
 
+TEST(line_tests_set, get_length_test) {
+    Line line(Point(0, 0), Point(1, 2));
+    double expectedLenth = sqrt(5);
+
+    EXPECT_TRUE(line.length() == expectedLenth);
+}
+
+TEST(line_tests_set, scalarMult_test) {
+    Line line1(Point(0, 0), Point(1, 0));
+    Line line2(Point(0, 0), Point(0, 1));
+    double expectedSCMult = 0;
+
+    EXPECT_TRUE(scalarMult(line1, line2) == expectedSCMult);
+}
+
 TEST(rectangle_tests_set, constructor_default_test) {
     Rectangle rect;
     Point expectedPoint;

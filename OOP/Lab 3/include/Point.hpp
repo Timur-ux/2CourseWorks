@@ -6,7 +6,7 @@
 namespace geometry {
 
     using decart = std::pair<double, double>;
-    const double EPS = 0.0001;
+    const double EPS = 0.001;
 
     class Point {
     private:

@@ -2,50 +2,32 @@
 
 using namespace geometry;
 
-void Rectangle::assertPoints(std::vector<Point> & _points) const {
+void Rectangle::assertPoints(const std::vector<Point> & _points) const {
     if(_points.size() != 4 and _points.size() != 2) {
         throw new std::invalid_argument("Rectangle must have only 2 or 4 base points");
+    }
+    if(_points.size() == 4) {
+        Line line1(_points[0], _points[1]);
+        Line line2(_points[1], _points[2]);
+        Line line3(_points[2], _points[3]);
+        Line line4(_points[3], _points[0]);
+        if(not((line1 || line3) and (line2 || line4))) {
+            throw new std::invalid_argument("Rectangle must have 2 pairs of parallels line, unparallel given");
+        }
+        if(scalarMult(line1, line2) > EPS or scalarMult(line2, line3) > EPS
+            or scalarMult(line3, line4) > EPS or scalarMult(line4, line1) > EPS) {
+                throw new std::invalid_argument("Rectangle must have ortogonal sides");
+            }
     }
 }
 
 std::vector<Point> geometry::Rectangle::unificatePoints(std::vector<Point> _points) {
-    if(_points.size() != 2 and _points.size() != 4) {
-        throw new std::invalid_argument("Rectangle must have only 2 or 4 base points");
-    }
-
     if(_points.size() == 2) {
         _points.emplace_back(_points[0].getX(), _points[1].getY());
         _points.emplace_back(_points[1].getX(), _points[0].getY());
-    } else {
-        Line line1(_points[0], _point[1]);
-        Line line2(_points[1], _point[2]);
-        Line line3(_points[2], _points[3]);
-        Line line4(_points[3], _points[0]);
     }
 
-    std::vector<Point> result;
-    std::vector<Point> temp;
-
-    std::sort(_points.begin(), _points.end(), cmpX);
-
-    Point centralPoint = (_points[0] + _points[1] + _points[2] + _points[3]) / 4;
-    for(auto it = _points.begin(); it != _points.end(); ++it) {
-        if(it->getY() <= centralPoint.getY()) {
-            result.push_back(*it);
-        } else {
-            temp.push_back(*it);
-        }
-    }
-    
-    std::stable_sort(temp.begin(), temp.end(), [](const Point & lhs, const Point & rhs) {
-        return not cmpX(lhs, rhs);
-    });
-    
-    for(auto it = temp.begin(); it != temp.end(); ++it) {
-        result.push_back(*it);
-    }
-
-    return result;
+    return Figure::unificatePoints(_points);
 }
 
 geometry::Rectangle::Rectangle() {
@@ -57,16 +39,12 @@ geometry::Rectangle::Rectangle() {
 
 Rectangle::Rectangle(std::vector<Point> &_points) : Rectangle() {
     points = unificatePoints(_points);
-    assertPoints(points);
-
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
 
 Rectangle::Rectangle(std::vector<Point> &&_points) : Rectangle() {
     points = unificatePoints(_points);
-    assertPoints(points);
-
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
@@ -87,17 +65,13 @@ Rectangle::Rectangle(Rectangle &&other) noexcept : Rectangle() {
 
 Figure &Rectangle::operator=(const Figure &rhs) {
     points = unificatePoints(rhs.getPoints());    
-    assertPoints(points);
-
     geometryCenter = rhs.getCenter();
     square = double(rhs);
 
     return *this;
 }
 Figure &Rectangle::operator=(Figure &&rhs) {
-    points = unificatePoints(rhs.getPoints());    
-    assertPoints(points);
-    
+    points = unificatePoints(rhs.getPoints());
     geometryCenter = rhs.getCenter();
     square = double(rhs);
     

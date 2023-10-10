@@ -2,7 +2,37 @@
 
 using namespace geometry;
 
-std::vector<Point> Figure::getPoints() const {
+Point sum(const std::vector<Point> & _points);
+
+std::vector<Point> geometry::Figure::unificatePoints(std::vector<Point> _points) {
+    // setting points in clock otherwise order
+    std::vector<Point> result;
+    std::vector<Point> temp;
+
+    std::sort(_points.begin(), _points.end(), cmpX);
+
+    Point centralPoint = sum(_points) / angles;
+    for(auto it = _points.begin(); it != _points.end(); ++it) {
+        if(it->getY() <= centralPoint.getY()) {
+            result.push_back(*it);
+        } else {
+            temp.push_back(*it);
+        }
+    }
+    
+    std::reverse(temp.begin(), temp.end());
+    
+    for(auto it = temp.begin(); it != temp.end(); ++it) {
+        result.push_back(*it);
+    }
+
+    assertPoints(result);
+
+    return result;
+}
+
+std::vector<Point> Figure::getPoints() const
+{
     return points;
 }
 
@@ -42,8 +72,6 @@ std::istream & geometry::operator>>(std::istream &is, Figure &figure) {
         is >> point;
     }
 
-    figure.assertPoints(_points);
-
     figure.points = figure.unificatePoints(_points);
     figure.square = figure.calcSquare(_points);
     figure.geometryCenter = figure.calcGeometryCenter(_points);
@@ -63,4 +91,14 @@ bool geometry::isParallel(const std::vector<Point> &points){
     double k2 = line2.getX() == 0 ? 0 : line2.getY() / line2.getX();
 
     return k1 == k2;
+}
+
+Point sum(const std::vector<Point> &_points) {
+    Point result;
+    
+    for(Point point : _points) {
+        result = result + point;
+    }
+
+    return result;
 }

@@ -4,13 +4,30 @@ using namespace geometry;
 
 bool isParallel(const std::vector<Point> & _points);
 
-void geometry::Romb::assertPoints(const std::vector<Point> &_points) const {
+void Romb::assertPoints(std::vector<Point> & _points) const {
     if(not isParallel(_points)) {
         throw new std::invalid_argument("Incrrect points for Romb");
     }
 }
 
-geometry::Romb::Romb() {
+std::vector<Point> geometry::Romb::unificatePoints(std::vector<Point> _points) {
+    if(_points.size() != angles) {
+        throw new std::invalid_argument("Incrrect points for Romb");
+    }
+    
+    std::sort(_points.begin(), _points.end());
+
+    if(_points[0].getY() > _points[1].getY()) {
+        std::swap(_points[0], _points[1]);
+    }
+    if(_points[2].getY() > _points[3].getY()) {
+        std::swap(_points[2], _points[3]);
+    }
+    
+    return _points;
+}
+
+Romb::Romb() {
     angles = 4;
     square = 0;
     geometryCenter = Point(0, 0);
@@ -18,15 +35,17 @@ geometry::Romb::Romb() {
 }
 
 Romb::Romb(std::vector<Point> & _points) : Romb() {
+    points = unificatePoints(_points);
     assertPoints(_points);
-    points = _points;
+    
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
 
 Romb::Romb(std::vector<Point> && _points) : Romb() {
-    assertPoints(_points);
-    points = _points;
+    points = unificatePoints(_points);
+    assertPoints(points);
+    
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
@@ -34,8 +53,6 @@ Romb::Romb(std::vector<Point> && _points) : Romb() {
 Romb::Romb(const Romb &other) {
     std::vector<Point> otherPoints =  other.getPoints();
     
-    assertPoints(otherPoints);
-    points = otherPoints;
     geometryCenter = calcGeometryCenter(otherPoints);
     square = calcSquare(otherPoints);
 }
@@ -43,7 +60,6 @@ Romb::Romb(const Romb &other) {
 Romb::Romb(Romb &&other) noexcept {
     std::vector<Point> otherPoints =  other.getPoints();
     
-    assertPoints(otherPoints);
     points = otherPoints;
     geometryCenter = calcGeometryCenter(otherPoints);
     square = calcSquare(otherPoints);
@@ -52,10 +68,9 @@ Romb::Romb(Romb &&other) noexcept {
 }
 
 Figure &Romb::operator=(const Figure &rhs) {
-    std::vector<Point> rhsPoints = rhs.getPoints();
-    assertPoints(rhsPoints);
-    
-    points = rhsPoints;
+    points = unificatePoints(rhs.getPoints());
+    assertPoints(points);
+
     geometryCenter = rhs.getCenter();
     square = double(rhs);
 
@@ -63,10 +78,9 @@ Figure &Romb::operator=(const Figure &rhs) {
 }
 
 Figure &Romb::operator=(Figure &&rhs) {
-    std::vector<Point> rhsPoints = rhs.getPoints();
-    assertPoints(rhsPoints);
+    points = unificatePoints(rhs.getPoints());
+    assertPoints(points);
     
-    points = rhsPoints;
     geometryCenter = rhs.getCenter();
     square = double(rhs);
 
@@ -74,8 +88,9 @@ Figure &Romb::operator=(Figure &&rhs) {
     return *this;
 }
 
-bool geometry::Romb::operator==(const Figure &rhs) const {
-    assertPoints(rhs.getPoints());
+bool Romb::operator==(const Figure &rhs) const {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    assertPoints(rhsPoints);
     return double(*this) == double(rhs);
 }
 
@@ -93,7 +108,7 @@ bool isParallel(const std::vector<Point>& points) {
     return abs(k1 - k2) < EPS;
 }
 
-Point Romb::calcGeometryCenter(const std::vector<Point> & _points) const {
+Point Romb::calcGeometryCenter(const std::vector<Point> &_points) const {
     return (_points[0] + _points[2]) / 2;
 }
 

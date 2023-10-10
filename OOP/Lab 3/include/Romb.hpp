@@ -6,7 +6,8 @@ namespace geometry {
 
     class Romb : public Figure {
     private:
-        virtual void assertPoints(const std::vector<Point> & _points) const override;
+        virtual void assertPoints(std::vector<Point> & _points) const override;
+        virtual std::vector<Point> unificatePoints(std::vector<Point> _points) override;
         virtual Point calcGeometryCenter(const std::vector<Point> & _points) const override;
         virtual double calcSquare(const std::vector<Point> & _points) const override;
     public:

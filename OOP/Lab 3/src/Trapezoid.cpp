@@ -4,10 +4,27 @@ using namespace geometry;
 
 bool isPointsValid(const std::vector<Point> & points);
 
-void geometry::Trapezoid::assertPoints(const std::vector<Point> &_points) const {
+void Trapezoid::assertPoints(std::vector<Point> & _points) const {
     if(not isPointsValid(_points)) {
-        throw new std::invalid_argument("Incorrect point for Trapezoid");
+        throw new std::invalid_argument("Incorrect points for Trapezoid");
     }
+}
+
+std::vector<Point> Trapezoid::unificatePoints(std::vector<Point> _points) {
+    if(_points.size() != angles) {
+        throw new std::invalid_argument("Incorrect points for Trapezoid");
+    }
+
+    std::sort(_points.begin(), _points.end());
+
+    if(_points[0].getY() > _points[1].getY()) {
+        std::swap(_points[0], _points[1]);
+    }
+    if(_points[2].getY() > _points[3].getY()) {
+        std::swap(_points[2], _points[3]);
+    }
+
+    return _points;
 }
 
 Trapezoid::Trapezoid() {
@@ -18,15 +35,17 @@ Trapezoid::Trapezoid() {
 }
 
 Trapezoid::Trapezoid(std::vector<Point> &_points) : Trapezoid() {
-    assertPoints(_points);
-    points = _points;
+    points = unificatePoints(_points);
+    assertPoints(points);
+
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
 
 Trapezoid::Trapezoid(std::vector<Point> &&_points) : Trapezoid() {
-    assertPoints(_points);
-    points = _points;
+    points = unificatePoints(_points);
+    assertPoints(points);
+
     geometryCenter = calcGeometryCenter(_points);
     square = calcSquare(_points);
 }
@@ -70,10 +89,9 @@ double Trapezoid::calcSquare(const std::vector<Point> & _points) const {
 }
 
 Figure &Trapezoid::operator=(const Figure &rhs) {
-    std::vector<Point> rhsPoints = rhs.getPoints();
-    assertPoints(rhsPoints);
+    points = unificatePoints(rhs.getPoints());
+    assertPoints(points);
     
-    points = rhsPoints;
     square = double(rhs);
     geometryCenter = rhs.getCenter();
 
@@ -81,10 +99,9 @@ Figure &Trapezoid::operator=(const Figure &rhs) {
 }
 
 Figure &Trapezoid::operator=(Figure &&rhs) {
-    std::vector<Point> rhsPoints = rhs.getPoints();
-    assertPoints(rhsPoints);
+    points = unificatePoints(rhs.getPoints());
+    assertPoints(points);
     
-    points = rhsPoints;
     square = double(rhs);
     geometryCenter = rhs.getCenter();
     
@@ -92,7 +109,7 @@ Figure &Trapezoid::operator=(Figure &&rhs) {
     return *this;
 }
 
-bool geometry::Trapezoid::operator==(const Figure &rhs) const {
+bool Trapezoid::operator==(const Figure &rhs) const {
     std::vector<Point> rhsPoints = rhs.getPoints();
     assertPoints(rhsPoints);
 

@@ -43,7 +43,8 @@ std::istream & geometry::operator>>(std::istream &is, Figure &figure) {
     }
 
     figure.assertPoints(_points);
-    figure.points = _points;
+
+    figure.points = figure.unificatePoints(_points);
     figure.square = figure.calcSquare(_points);
     figure.geometryCenter = figure.calcGeometryCenter(_points);
     

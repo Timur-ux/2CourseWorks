@@ -33,7 +33,9 @@ namespace geometry {
         Point & operator=(Point && rhs);
 
         bool operator==(const Point & rhs) const;
-
+        bool operator<(const Point & rhs) const {
+            return x < rhs.x;
+        }
         friend Point operator*(int k, const Point & point);
         friend Point operator*(const Point & point, int k);
         friend Point operator/(const Point & point, int k);

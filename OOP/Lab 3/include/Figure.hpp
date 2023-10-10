@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <stdexcept>
+#include <algorithm>
 
 #include "Point.hpp"
 
@@ -17,7 +18,8 @@ namespace geometry {
         Point geometryCenter;
         std::string figureType;
 
-        virtual void assertPoints(const std::vector<Point> & _points) const = 0;
+        virtual void assertPoints(std::vector<Point> & _points) const = 0;
+        virtual std::vector<Point> unificatePoints(std::vector<Point> _points) = 0;
         virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
         virtual double calcSquare(const std::vector<Point> & _points) const = 0;
     public:
@@ -37,7 +39,7 @@ namespace geometry {
     };
     std::ostream& operator<<(std::ostream& os, const Figure & figure);
     std::istream& operator>>(std::istream& is, Figure& figure);
-}
+};
 
 #include "Rectangle.hpp"
 #include "Trapezoid.hpp"

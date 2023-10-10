@@ -1,15 +1,24 @@
 #include "Figure.hpp"
 #include <iostream>
-using namespace std;
+
+using namespace geometry;
 
 int main() {
-    Point p1(decart(1, 3));
-    Point p2(decart(5, 2));
-    Point p3(decart(1, 13));
+    Figure *figures[3] = {
+        new Rectangle,
+        new Trapezoid,
+        new Romb
+    };
+    
+    for(Figure * figure : figures) {
+        std::cout << "Input " << figure->getFigureType() << 
+                            "(" << figure->getAngles() << " points): " << std::endl;
+        std::cin >> *figure;
+    }
 
-    Rectangle rect(Rectangle(vector<Point>{p1, p2}));
-    Rectangle rect2(move(rect));
-
-    cout << rect << endl;
+    for(Figure * figure : figures) {
+        std::cout << *figure << std::endl;
+        std::cout << "-----------" << std::endl;
+    }
     return 0;
 }

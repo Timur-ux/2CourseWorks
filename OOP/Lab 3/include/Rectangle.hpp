@@ -3,19 +3,24 @@
 #include "Figure.hpp"
 #include "Point.hpp"
 
+namespace geometry {
 
-class Rectangle : public Figure {
-private:
-    void setBaseParameters();
-public:
-    Rectangle(std::vector<Point> & _points);
-    Rectangle(std::vector<Point> && _points);
-    Rectangle(const Rectangle & other);
-    Rectangle(Rectangle && other) noexcept;
+    class Rectangle : public Figure {
+    private:
+        virtual void assertPoints(const std::vector<Point> & _points) const override;
+        virtual Point calcGeometryCenter(const std::vector<Point> & _points) const override;
+        virtual double calcSquare(const std::vector<Point> & _points) const override;
+    public:
+        Rectangle();
+        Rectangle(std::vector<Point> & _points);
+        Rectangle(std::vector<Point> && _points);
+        Rectangle(const Rectangle & other);
+        Rectangle(Rectangle && other) noexcept;
 
-    virtual Point getCenter() const override;
-    virtual operator double() const override;
+        virtual Figure & operator=(const Figure &rhs) override;
+        virtual Figure & operator=(Figure && rhs) override;
 
-    virtual Figure & operator=(const Figure &rhs) override;
-    virtual Figure & operator=(Figure && rhs) override;
+        virtual bool operator==(const Figure & rhs) const override;
+    };
+
 };

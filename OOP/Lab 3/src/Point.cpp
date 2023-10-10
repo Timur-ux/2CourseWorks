@@ -1,5 +1,7 @@
 #include "Point.hpp"
 
+using namespace geometry;
+
 Point::Point(decart cord) : x(cord.first),
                             y(cord.second) {}
 
@@ -61,36 +63,36 @@ Point &Point::operator=(Point &&rhs) {
     return *this;
 }
 
-bool Point::operator==(const Point &rhs) const
+bool geometry::Point::operator==(const Point &rhs) const
 {
-    return (abs(x - rhs.x) < EPS and abs(y - rhs.y) < EPS);
+    return (std::abs(x - rhs.x) < EPS and std::abs(y - rhs.y) < EPS);
 }
 
-Point operator*(int k, const Point &point) {
+Point geometry::operator*(int k, const Point &point) {
     return Point(decart(k*point.x, k*point.y));
 }
 
-Point operator*(const Point &point, int k) {
+Point geometry::operator*(const Point &point, int k) {
     return k * point;
 }
 
-Point operator/(const Point &point, int k) {
+Point geometry::operator/(const Point &point, int k) {
     return Point(decart(point.x / k, point.y / k));
 }
-Point abs(const Point &point) {
+Point geometry::abs(const Point &point) {
     Point result;
     result.x = (point.x < 0) ? (-1)*point.x : point.x;
     result.y = (point.y < 0) ? (-1)*point.y : point.y;
     
     return result; 
 }
-std::ostream &operator<<(std::ostream &os, const Point &point)
-{
-    os << "{" << point.x << ' ' << point.y << "}";
+std::ostream & geometry::operator<<(std::ostream &os, const geometry::Point &point) {
+    os << "{" << point.getX() << ' ' << point.getY() << "}";
     
     return os;
 }
-std::istream &operator>>(std::istream &is, Point &point) {
+
+std::istream &geometry::operator>>(std::istream &is, Point &point) {
     is >> point.x >> point.y;
     
     return is;

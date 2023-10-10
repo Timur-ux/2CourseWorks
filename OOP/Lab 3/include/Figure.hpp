@@ -8,33 +8,36 @@
 
 #include "Point.hpp"
 
-class Point;
-class Figure {
-protected:
-    std::vector<Point> points;
-    std::string figureType;
-    int angles;
-public:
-    virtual std::vector<Point> getPoints() const;
-    virtual std::string getFigureType() const;
-    virtual int getAngles() const;
-    
-    virtual Point getCenter() const = 0;
-    virtual operator double() const = 0;
+namespace geometry {
+    class Figure {
+    protected:
+        std::vector<Point> points;
+        int angles;
+        double square;
+        Point geometryCenter;
+        std::string figureType;
 
-    virtual Figure & operator=(const Figure & rhs) = 0;
-    virtual Figure & operator=(Figure && rhs) = 0;
+        virtual void assertPoints(const std::vector<Point> & _points) const = 0;
+        virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
+        virtual double calcSquare(const std::vector<Point> & _points) const = 0;
+    public:
 
-    virtual bool operator==(const Figure & rhs) const;
-    virtual bool operator<(const Figure & rhs) const;
-    virtual bool operator>(const Figure & rhs) const;
+        virtual std::vector<Point> getPoints() const;
+        virtual int getAngles() const;
+        virtual std::string getFigureType() const;
+        virtual Point getCenter() const;
+        virtual operator double() const;
 
-    friend std::ostream& operator<<(std::ostream& os, const Figure & figure);
-    friend std::istream& operator>>(std::istream& is, Figure& figure);
-};
+        virtual Figure & operator=(const Figure & rhs) = 0;
+        virtual Figure & operator=(Figure && rhs) = 0;
 
-std::ostream& operator<<(std::ostream& os, const Figure& figure);
-std::istream& operator>>(std::istream& is, Figure& figure);
+        virtual bool operator==(const Figure & rhs) const = 0;
+
+        friend std::istream& operator>>(std::istream& is, Figure& figure);
+    };
+    std::ostream& operator<<(std::ostream& os, const Figure & figure);
+    std::istream& operator>>(std::istream& is, Figure& figure);
+}
 
 #include "Rectangle.hpp"
 #include "Trapezoid.hpp"

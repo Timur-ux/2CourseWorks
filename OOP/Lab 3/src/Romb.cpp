@@ -1,56 +1,85 @@
 #include "Romb.hpp"
 
-bool isParallel(std::vector<Point> & _points);
+using namespace geometry;
 
-void Romb::setBaseParameters() {
-    Figure::figureType = "Romb";
-    Figure::angles = 4;
-}
+bool isParallel(const std::vector<Point> & _points);
 
-Romb::Romb(std::vector<Point> &_points) {
-    setBaseParameters();
-
-    if(_points.size() != 4 or not isParallel(_points)) {
+void geometry::Romb::assertPoints(const std::vector<Point> &_points) const {
+    if(not isParallel(_points)) {
         throw new std::invalid_argument("Incrrect points for Romb");
     }
-
-    points = _points;
 }
 
-Romb::Romb(std::vector<Point> &&_points) {
-    setBaseParameters();
+geometry::Romb::Romb() {
+    angles = 4;
+    square = 0;
+    geometryCenter = Point(0, 0);
+    figureType = "Romb";
+}
 
-    if(_points.size() != 4 or not isParallel(_points)) {
-        throw new std::invalid_argument("Incrrect points for Romb");
-    }
-
+Romb::Romb(std::vector<Point> & _points) : Romb() {
+    assertPoints(_points);
     points = _points;
+    geometryCenter = calcGeometryCenter(_points);
+    square = calcSquare(_points);
+}
+
+Romb::Romb(std::vector<Point> && _points) : Romb() {
+    assertPoints(_points);
+    points = _points;
+    geometryCenter = calcGeometryCenter(_points);
+    square = calcSquare(_points);
 }
 
 Romb::Romb(const Romb &other) {
-    setBaseParameters();
-
-    points = other.points;
+    std::vector<Point> otherPoints =  other.getPoints();
+    
+    assertPoints(otherPoints);
+    points = otherPoints;
+    geometryCenter = calcGeometryCenter(otherPoints);
+    square = calcSquare(otherPoints);
 }
 
 Romb::Romb(Romb &&other) noexcept {
-    setBaseParameters();
+    std::vector<Point> otherPoints =  other.getPoints();
+    
+    assertPoints(otherPoints);
+    points = otherPoints;
+    geometryCenter = calcGeometryCenter(otherPoints);
+    square = calcSquare(otherPoints);
 
-    points = other.points;
+    delete &other;
 }
 
-Point Romb::getCenter() const {
-    return (points[0] + points[2]) / 2;
+Figure &Romb::operator=(const Figure &rhs) {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    assertPoints(rhsPoints);
+    
+    points = rhsPoints;
+    geometryCenter = rhs.getCenter();
+    square = double(rhs);
+
+    return *this;
 }
 
-Romb::operator double() const {
-    double d1 = points[0].getDistance(points[2]);
-    double d2 = points[1].getDistance(points[3]);
+Figure &Romb::operator=(Figure &&rhs) {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    assertPoints(rhsPoints);
+    
+    points = rhsPoints;
+    geometryCenter = rhs.getCenter();
+    square = double(rhs);
 
-    return 0.5 * d1 * d2;
+    delete &rhs;
+    return *this;
 }
 
-bool isParallel(std::vector<Point>& points) {
+bool geometry::Romb::operator==(const Figure &rhs) const {
+    assertPoints(rhs.getPoints());
+    return double(*this) == double(rhs);
+}
+
+bool isParallel(const std::vector<Point>& points) {
     if(points.size() != 4) {
         throw new std::invalid_argument("isParallel need 4 points exactly");
     }
@@ -64,19 +93,13 @@ bool isParallel(std::vector<Point>& points) {
     return abs(k1 - k2) < EPS;
 }
 
-Figure &Romb::operator=(const Figure &rhs) {
-    setBaseParameters();
-
-    points = rhs.getPoints();
-
-    return *this;
+Point Romb::calcGeometryCenter(const std::vector<Point> & _points) const {
+    return (_points[0] + _points[2]) / 2;
 }
 
-Figure &Romb::operator=(Figure &&rhs) {
-    setBaseParameters();
-    
-    points = rhs.getPoints();
-    delete &rhs;
+double Romb::calcSquare(const std::vector<Point> & _points) const {
+    double d1 = _points[0].getDistance(_points[2]);
+    double d2 = _points[1].getDistance(_points[3]);
 
-    return *this;
+    return 0.5 * d1 * d2;
 }

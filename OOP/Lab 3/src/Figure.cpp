@@ -1,44 +1,51 @@
 #include "Figure.hpp"
 
+using namespace geometry;
+
 std::vector<Point> Figure::getPoints() const {
     return points;
-}
-
-std::string Figure::getFigureType() const {
-    return figureType;
 }
 
 int Figure::getAngles() const {
     return angles;
 }
 
-bool Figure::operator==(const Figure &rhs) const {
-    return double(*this) == double(rhs);
+std::string geometry::Figure::getFigureType() const {
+    return figureType;
 }
 
-bool Figure::operator<(const Figure &rhs) const {
-    return double(*this) < double(rhs);
+Point Figure::getCenter() const {
+    return geometryCenter;
 }
 
-bool Figure::operator>(const Figure &rhs) const {
-    return double(*this) > double(rhs);
+geometry::Figure::operator double() const {
+    return square;
 }
 
-std::ostream & operator<<(std::ostream & os, const Figure & figure) {
-    os << figure.figureType << ": [ ";
-    for(int i = 0; i < figure.points.size(); ++i) {
-        os << figure.points[i] << ' ';
-    }
-    os << ']';
+std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {
+    std::vector<Point> points = figure.getPoints();
     
+    os << figure.getFigureType() << ": [ ";
+    for(Point point : figure.getPoints()) {
+        os << point << ' ';
+    }
+    os << ']' << std::endl;
+    os << "Geometry center = " << figure.getCenter() << std::endl; 
+    os << "Square = " << double(figure) << std::endl;
+
     return os;
 }
 
-std::istream & operator>>(std::istream & is, Figure & figure) {
-    for(Point & point : figure.points) {
+std::istream & geometry::operator>>(std::istream &is, Figure &figure) {
+    std::vector<Point> _points(figure.getAngles());
+    for(Point & point : _points) {
         is >> point;
     }
 
+    figure.assertPoints(_points);
+    figure.points = _points;
+    figure.square = figure.calcSquare(_points);
+    figure.geometryCenter = figure.calcGeometryCenter(_points);
+    
     return is;
 }
-

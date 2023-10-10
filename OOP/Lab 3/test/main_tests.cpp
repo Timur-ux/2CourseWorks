@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
+#include <fstream>
 #include "Figure.hpp"
 
-TEST(point_test_set, constructor_default_test) {
+using namespace geometry;
+
+TEST(point_tests_set, constructor_default_test) {
     Point point;
     
     decart pointCord = point.getDecart();
@@ -10,7 +13,16 @@ TEST(point_test_set, constructor_default_test) {
     ASSERT_TRUE(pointCord == expectedCourd);
 }
 
-TEST(point_test_set, constructor_decart_test) {
+TEST(point_tests_set, constructor_XY_test) {
+    Point point(3, 4);
+    
+    decart pointCord = point.getDecart();
+    decart expectedCourd = decart(3, 4);
+
+    ASSERT_TRUE(pointCord == expectedCourd);
+}
+
+TEST(point_tests_set, constructor_decart_test) {
     Point point(decart(3, 4));
     
     decart pointCord = point.getDecart();
@@ -19,7 +31,7 @@ TEST(point_test_set, constructor_decart_test) {
     ASSERT_TRUE(pointCord == expectedCourd);
 }
 
-TEST(point_test_set, constructor_copy_test) {
+TEST(point_tests_set, constructor_copy_test) {
     Point point(decart(3, 4));
     
     Point copiedPoint(point);
@@ -27,7 +39,7 @@ TEST(point_test_set, constructor_copy_test) {
     ASSERT_TRUE(point.getDecart() == copiedPoint.getDecart());
 }
 
-TEST(point_test_set, constructor_move_test) {
+TEST(point_tests_set, constructor_move_test) {
     Point point(Point(decart(3, 4)));
     
     decart pos = point.getDecart();
@@ -36,7 +48,7 @@ TEST(point_test_set, constructor_move_test) {
     ASSERT_TRUE(pos == expectedPos);
 }
 
-TEST(point_test_set, get_decart_test) {
+TEST(point_tests_set, get_decart_test) {
     decart pos(3, 4);
     Point point(pos);
 
@@ -45,7 +57,7 @@ TEST(point_test_set, get_decart_test) {
     ASSERT_TRUE(pos == gettedPos);
 }
 
-TEST(point_test_set, get_XY_test) {
+TEST(point_tests_set, get_XY_test) {
     decart pos(3, 4);
     Point point(pos);
 
@@ -55,7 +67,7 @@ TEST(point_test_set, get_XY_test) {
     ASSERT_TRUE(pos.first == gettedX and pos.second == gettedY);
 }
 
-TEST(point_test_set, get_distanse_test) {
+TEST(point_tests_set, get_distanse_test) {
     decart pos1(3, 4);
     decart pos2(5, 10);
     Point point1(pos1);
@@ -70,7 +82,7 @@ TEST(point_test_set, get_distanse_test) {
     ASSERT_TRUE(gettedDistanse1to2 == expectedDistance);
 }
 
-TEST(point_test_set, operator_equal_test) {
+TEST(point_tests_set, operator_equal_test) {
     Point point(decart(3, 5));
     
     Point copiedPoint(point);
@@ -78,7 +90,7 @@ TEST(point_test_set, operator_equal_test) {
     ASSERT_TRUE(point == copiedPoint);
 }
 
-TEST(point_test_set, operator_plus_test) {
+TEST(point_tests_set, operator_plus_test) {
     Point point1(decart(3, 5));
     Point point2(decart(2, 1));
     Point expectedSumPoint(decart(5, 6));
@@ -88,7 +100,7 @@ TEST(point_test_set, operator_plus_test) {
     ASSERT_TRUE(sumPoint == expectedSumPoint);
 }
 
-TEST(point_test_set, operator_minus_test) {
+TEST(point_tests_set, operator_minus_test) {
     Point point1(decart(3, 5));
     Point point2(decart(2, 1));
     Point expectedMinusPoint(decart(1, 4));
@@ -98,7 +110,7 @@ TEST(point_test_set, operator_minus_test) {
     ASSERT_TRUE(minusPoint == expectedMinusPoint);
 }
 
-TEST(point_test_set, operator_assignCopy_test) {
+TEST(point_tests_set, operator_assignCopy_test) {
     Point point(decart(3, 5));
     Point expectedPoint(point);
 
@@ -107,7 +119,7 @@ TEST(point_test_set, operator_assignCopy_test) {
     ASSERT_TRUE(assignedPoint == expectedPoint);
 }
 
-TEST(point_test_set, operator_assignMove_test) {
+TEST(point_tests_set, operator_assignMove_test) {
     Point expectedPoint(Point(decart(3, 5)));
 
     Point assignedPoint = Point(decart(3, 5));
@@ -115,7 +127,7 @@ TEST(point_test_set, operator_assignMove_test) {
     ASSERT_TRUE(assignedPoint == expectedPoint);
 }
 
-TEST(point_test_set, operator_abs_test) {
+TEST(point_tests_set, operator_abs_test) {
     Point point(decart(-1, -4));
     Point expectedPoint(decart(1, 4));
 
@@ -124,7 +136,7 @@ TEST(point_test_set, operator_abs_test) {
     ASSERT_TRUE(absPoint == expectedPoint);
 }
 
-TEST(point_test_set, operator_mult_test) {
+TEST(point_tests_set, operator_mult_test) {
     Point point(decart(-1, -4));
     int k = 4;
     Point expectedPoint(decart(-4, -16));
@@ -136,7 +148,7 @@ TEST(point_test_set, operator_mult_test) {
     ASSERT_TRUE(multKOnPoint == expectedPoint);
 }
 
-TEST(point_test_set, operator_div_test) {
+TEST(point_tests_set, operator_div_test) {
     Point point(decart(-4, -16));
     int k = 4;
     Point expectedPoint(decart(-1, -4));
@@ -146,81 +158,115 @@ TEST(point_test_set, operator_div_test) {
     ASSERT_TRUE(divvedPoint == expectedPoint);
 }
 
-TEST(rectangle_test_set, constructor_viaVector_test) {
+TEST(rectangle_tests_set, constructor_default_test) {
+    Rectangle rect;
+    Point expectedPoint;
+    bool isValid = true;
+
+    for(Point point : rect.getPoints()) {
+        isValid = isValid and (point == expectedPoint);
+    }
+
+    EXPECT_TRUE(isValid);
+}
+
+TEST(rectangle_tests_set, constructor_viaVector_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 2));
     Point p3(decart(1, 13));
 
     
-    EXPECT_THROW(Rectangle(std::vector<Point>{p1});, std::invalid_argument*);
-    EXPECT_THROW(Rectangle(std::vector<Point>{p1, p2, p3}), std::invalid_argument*);
-    EXPECT_NO_THROW(Rectangle(std::vector<Point>{p1, p2}));
+    EXPECT_THROW(Rectangle({p1});, std::invalid_argument*);
+    EXPECT_THROW(Rectangle({p1, p2, p3}), std::invalid_argument*);
+    EXPECT_NO_THROW(Rectangle({p1, p2}));
 }
 
-TEST(rectangle_test_set, constructor_viaOtherRectangle_test) {
+TEST(rectangle_tests_set, constructor_viaOtherRectangle_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 2));
 
-    Rectangle rect(std::vector<Point>{p1, p2});
+    Rectangle rect({p1, p2});
     Rectangle rect2(rect);
     
     ASSERT_TRUE(rect.getPoints() == rect2.getPoints());
 }
 
-TEST(rectangle_test_set, get_center_test) {
+TEST(rectangle_tests_set, get_center_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 2));
     Point expectedCenter(decart(3, 2.5));
 
-    Rectangle rect(std::vector<Point>{p1, p2});
+    Rectangle rect({p1, p2});
     
     ASSERT_TRUE(rect.getCenter() == expectedCenter);
 }
 
-TEST(rectangle_test_set, get_square_test) {
+TEST(rectangle_tests_set, get_square_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 2));
     double expectedSquare(4);
 
-    Rectangle rect(std::vector<Point>{p1, p2});
+    Rectangle rect({p1, p2});
     
     ASSERT_TRUE(double(rect) == expectedSquare);
 }
 
-TEST(rectangle_test_set, assign_test) {
+TEST(rectangle_tests_set, get_figureType_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 2));
-    Rectangle rect = Rectangle(std::vector<Point>{p1, p2});
+    std::string expectedType = "Rectangle";
+
+    Rectangle rect({p1, p2});
+    
+    ASSERT_TRUE(rect.getFigureType() == expectedType);
+}
+
+TEST(rectangle_tests_set, assign_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(5, 2));
+    Rectangle rect = Rectangle({p1, p2});
     
     Rectangle assignedRect = rect;
 
     ASSERT_TRUE(assignedRect == rect);
 }
 
-TEST(trapezoid_test_set, constructor_viaVector_test) {
+TEST(trapezoid_tests_set, constructor_default_test) {
+    Trapezoid trap;
+    Point expectedPoint;
+    bool isValid = true;
+
+    for(Point point : trap.getPoints()) {
+        isValid = isValid and (point == expectedPoint);
+    }
+
+    EXPECT_TRUE(isValid);
+}
+
+TEST(trapezoid_tests_set, constructor_viaVector_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 3));
     Point p3(decart(1, 13));
     Point p4(decart(5, 13));
 
     
-    EXPECT_THROW(Trapezoid(std::vector<Point>{p1});, std::invalid_argument*);
-    EXPECT_NO_THROW(Trapezoid(std::vector<Point>{p1, p2, p3, p4}));
+    EXPECT_THROW(Trapezoid({p1});, std::invalid_argument*);
+    EXPECT_NO_THROW(Trapezoid({p1, p2, p3, p4}));
 }
 
-TEST(trapezoid_test_set, constructor_viaOtherTrapezoid_test) {
+TEST(trapezoid_tests_set, constructor_viaOtherTrapezoid_test) {
     Point p1(decart(1, 3));
     Point p2(decart(5, 3));
     Point p3(decart(1, 13));
     Point p4(decart(5, 13));
 
-    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    Trapezoid trap({p1, p2, p3, p4});
     Trapezoid trap2(trap);
     
     ASSERT_TRUE(trap.getPoints() == trap2.getPoints());
 }
 
-TEST(trapezoid_test_set, get_center_test) {
+TEST(trapezoid_tests_set, get_center_test) {
     Point p1(decart(1, 3));
     Point p2(decart(2, 3));
     Point p3(decart(7, 13));
@@ -233,28 +279,123 @@ TEST(trapezoid_test_set, get_center_test) {
     ASSERT_TRUE(trap.getCenter() == expectedCenter);
 }
 
-TEST(trapezoid_test_set, get_square_test) {
+TEST(trapezoid_tests_set, get_square_test) {
     Point p1(decart(1, 3));
     Point p2(decart(2, 3));
     Point p4(decart(7, 13));
     Point p3(decart(-1, 13));
     double expectedSquare(45);
 
-    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    Figure* trap = new Trapezoid({p1, p2, p3, p4});
     
-    ASSERT_TRUE(double(trap) == expectedSquare);
+    ASSERT_TRUE(double(*trap) == expectedSquare);
 }
 
-TEST(trapezoid_test_set, assign_test) {
+TEST(trapezoid_tests_set, get_figureType_test) {
+    Point p1(decart(1, 3));
+    Point p2(decart(2, 3));
+    Point p4(decart(7, 13));
+    Point p3(decart(-1, 13));
+    std::string expectedFigureType = "Trapezoid";
+
+    Trapezoid trap({p1, p2, p3, p4});
+    
+    ASSERT_TRUE(trap.getFigureType() == expectedFigureType);
+}
+
+TEST(trapezoid_tests_set, assign_test) {
     Point p1(decart(1, 3));
     Point p2(decart(2, 3));
     Point p3(decart(-1, 13));
     Point p4(decart(7, 13));
-    Trapezoid trap(std::vector<Point>{p1, p2, p3, p4});
+    Trapezoid trap({p1, p2, p3, p4});
     
     Trapezoid assignedTrap = trap;
 
     ASSERT_TRUE(assignedTrap == trap);
+}
+
+TEST(romb_tests_set, constructor_default_test) {
+    Romb romb;
+    Point expectedPoint;
+    bool isValid = true;
+
+    for(Point point : romb.getPoints()) {
+        isValid = isValid and (point == expectedPoint);
+    }
+
+    EXPECT_TRUE(isValid);
+}
+
+TEST(romb_tests_set, constructor_viaVector_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+
+    
+    EXPECT_THROW(Romb({p1});, std::invalid_argument*);
+    EXPECT_NO_THROW(Romb({p1, p2, p3, p4}));
+}
+
+TEST(romb_tests_set, constructor_viaOtherRomb_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+
+    Romb romb({p1, p2, p3, p4});
+    Romb romb2(romb);
+
+    ASSERT_TRUE(romb.getPoints() == romb2.getPoints());
+}
+
+TEST(romb_tests_set, get_center_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+    Point expectedCenter(decart(0, 4));
+
+    Romb romb({p1, p2, p3, p4});
+    
+    ASSERT_TRUE(romb.getCenter() == expectedCenter);
+}
+
+TEST(romb_tests_set, get_square_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+    double expectedSquare(24);
+
+    Romb romb({p1, p2, p3, p4});
+    
+    ASSERT_TRUE(double(romb) == expectedSquare);
+}
+
+TEST(romb_tests_set, get_figureType_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+    std::string expectedFigureType = "Romb";
+
+    Romb romb({p1, p2, p3, p4});
+    
+    ASSERT_TRUE(romb.getFigureType() == expectedFigureType);
+}
+
+TEST(romb_tests_set, assign_test) {
+    Point p1(decart(0, 0));
+    Point p2(decart(-3, 4));
+    Point p3(decart(0, 8));
+    Point p4(decart(3, 4));
+    Romb romb({p1, p2, p3, p4});
+    
+    Romb assignedTrap = romb;
+
+    ASSERT_TRUE(assignedTrap == romb);
 }
 
 int main(int argc, char * argw[]) {

@@ -158,6 +158,15 @@ TEST(point_tests_set, operator_div_test) {
     ASSERT_TRUE(divvedPoint == expectedPoint);
 }
 
+TEST(line_tests_set, operator_parallel_test) {
+    Line line1(Point(0, 0), Point(1, 2));
+    Line line2(Point(0, 1), Point(1, 3));
+    Line line3(Point(0, 0), Point(3, 2));
+
+    EXPECT_TRUE(line1 || line2);
+    EXPECT_FALSE(line1 || line3);
+}
+
 TEST(rectangle_tests_set, constructor_default_test) {
     Rectangle rect;
     Point expectedPoint;
@@ -346,7 +355,7 @@ TEST(romb_tests_set, constructor_viaOtherRomb_test) {
 
     Romb romb({p1, p2, p3, p4});
     Romb romb2(romb);
-
+    
     ASSERT_TRUE(romb.getPoints() == romb2.getPoints());
 }
 
@@ -392,10 +401,11 @@ TEST(romb_tests_set, assign_test) {
     Point p3(decart(0, 8));
     Point p4(decart(3, 4));
     Romb romb({p1, p2, p3, p4});
-    
-    Romb assignedTrap = romb;
+    Trapezoid trap({p1, p2, p3, p4});
 
-    ASSERT_TRUE(assignedTrap == romb);
+    Romb assignedRomb = romb;
+
+    ASSERT_TRUE(assignedRomb == romb);
 }
 
 int main(int argc, char * argw[]) {

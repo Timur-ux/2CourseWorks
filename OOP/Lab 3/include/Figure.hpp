@@ -8,6 +8,7 @@
 #include <algorithm>
 
 #include "Point.hpp"
+#include "Line.hpp"
 
 namespace geometry {
     class Figure {
@@ -39,6 +40,7 @@ namespace geometry {
     };
     std::ostream& operator<<(std::ostream& os, const Figure & figure);
     std::istream& operator>>(std::istream& is, Figure& figure);
+    bool isParallel(const std::vector<Point>& points);
 };
 
 #include "Rectangle.hpp"

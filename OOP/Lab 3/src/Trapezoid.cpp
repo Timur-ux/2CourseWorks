@@ -2,10 +2,14 @@
 
 using namespace geometry;
 
-bool isPointsValid(const std::vector<Point> & points);
-
 void Trapezoid::assertPoints(std::vector<Point> & _points) const {
-    if(not isPointsValid(_points)) {
+    if(_points.size() != angles) {
+        throw new std::invalid_argument("Incorrect points for Trapezoid");
+    }
+
+    Line line1(_points[0], _points[1]);
+    Line line2(_points[2], _points[3]);
+    if(not (line1 || line2)) {
         throw new std::invalid_argument("Incorrect points for Trapezoid");
     }
 }
@@ -15,16 +19,29 @@ std::vector<Point> Trapezoid::unificatePoints(std::vector<Point> _points) {
         throw new std::invalid_argument("Incorrect points for Trapezoid");
     }
 
-    std::sort(_points.begin(), _points.end());
+    std::vector<Point> result;
+    std::vector<Point> temp;
 
-    if(_points[0].getY() > _points[1].getY()) {
-        std::swap(_points[0], _points[1]);
+    std::sort(_points.begin(), _points.end(), cmpX);
+
+    Point centralPoint = (_points[0] + _points[1] + _points[2] + _points[3]) / 4;
+    for(auto it = _points.begin(); it != _points.end(); ++it) {
+        if(it->getY() <= centralPoint.getY()) {
+            result.push_back(*it);
+        } else {
+            temp.push_back(*it);
+        }
     }
-    if(_points[2].getY() > _points[3].getY()) {
-        std::swap(_points[2], _points[3]);
+    
+    std::stable_sort(temp.begin(), temp.end(), [](const Point & lhs, const Point & rhs) {
+        return not cmpX(lhs, rhs);
+    });
+    
+    for(auto it = temp.begin(); it != temp.end(); ++it) {
+        result.push_back(*it);
     }
 
-    return _points;
+    return result;
 }
 
 Trapezoid::Trapezoid() {
@@ -114,20 +131,4 @@ bool Trapezoid::operator==(const Figure &rhs) const {
     assertPoints(rhsPoints);
 
     return double(*this) == double(rhs);
-}
-
-bool isPointsValid(const std::vector<Point> & points) {
-    if(points.size() != 4) {
-        return false;
-    }
-
-    if((points[0] - points[1]).getY() != 0) {
-        return false;
-    }
-
-    if((points[2] - points[3]).getY() != 0) {
-        return false;
-    }
-    
-    return true;
 }

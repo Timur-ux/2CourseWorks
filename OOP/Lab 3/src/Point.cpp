@@ -39,8 +39,7 @@ Point Point::operator+(const Point &rhs) const {
     double y1 = y + rhs.y;
     return Point(decart(x1, y1));
 }
-Point Point::operator-(const Point &rhs) const
-{
+Point Point::operator-(const Point &rhs) const {
     double x1 = x - rhs.x;
     double y1 = y - rhs.y;
     return Point(decart(x1, y1));
@@ -63,12 +62,21 @@ Point &Point::operator=(Point &&rhs) {
     return *this;
 }
 
-bool geometry::Point::operator==(const Point &rhs) const
+bool Point::operator==(const Point &rhs) const
 {
     return (std::abs(x - rhs.x) < EPS and std::abs(y - rhs.y) < EPS);
 }
 
-Point geometry::operator*(int k, const Point &point) {
+bool geometry::cmpX(const Point & lhs, const Point & rhs) {
+    return lhs.getX() < rhs.getX();
+}
+
+bool geometry::cmpY(const Point &lhs, const Point &rhs)  {
+    return lhs.getY() < rhs.getY();
+}
+
+Point geometry::operator*(int k, const Point &point)
+{
     return Point(decart(k*point.x, k*point.y));
 }
 

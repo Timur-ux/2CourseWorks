@@ -16,18 +16,36 @@ std::vector<Point> geometry::Rectangle::unificatePoints(std::vector<Point> _poin
     if(_points.size() == 2) {
         _points.emplace_back(_points[0].getX(), _points[1].getY());
         _points.emplace_back(_points[1].getX(), _points[0].getY());
+    } else {
+        Line line1(_points[0], _point[1]);
+        Line line2(_points[1], _point[2]);
+        Line line3(_points[2], _points[3]);
+        Line line4(_points[3], _points[0]);
     }
 
-    std::sort(_points.begin(), _points.end());
+    std::vector<Point> result;
+    std::vector<Point> temp;
 
-    if(_points[0].getY() > _points[1].getY()) {
-        std::swap(_points[0], _points[1]);
+    std::sort(_points.begin(), _points.end(), cmpX);
+
+    Point centralPoint = (_points[0] + _points[1] + _points[2] + _points[3]) / 4;
+    for(auto it = _points.begin(); it != _points.end(); ++it) {
+        if(it->getY() <= centralPoint.getY()) {
+            result.push_back(*it);
+        } else {
+            temp.push_back(*it);
+        }
     }
-    if(_points[2].getY() > _points[3].getY()) {
-        std::swap(_points[2], _points[3]);
+    
+    std::stable_sort(temp.begin(), temp.end(), [](const Point & lhs, const Point & rhs) {
+        return not cmpX(lhs, rhs);
+    });
+    
+    for(auto it = temp.begin(); it != temp.end(); ++it) {
+        result.push_back(*it);
     }
 
-    return _points;
+    return result;
 }
 
 geometry::Rectangle::Rectangle() {
@@ -59,7 +77,7 @@ Rectangle::Rectangle(const Rectangle &other) : Rectangle() {
     square = double(other);
 }
 
-Rectangle::Rectangle(Rectangle &&other) noexcept {
+Rectangle::Rectangle(Rectangle &&other) noexcept : Rectangle() {
     points = other.getPoints();
     geometryCenter = other.getCenter();
     square = double(other);

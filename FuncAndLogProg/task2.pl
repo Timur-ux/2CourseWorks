@@ -10,12 +10,17 @@
 % Variant 1
 
 % 1.1
-% Получаем таблицн групп и ищем средний балл для каждой группы
-% ?- getGroupsList(GroupsList).
+% Получаем таблицы групп и ищем средний балл для каждой группы
+% ?- getGroupsTable(Group, N, Names).
 % ?- getMeanForEachGroup(Group, GroupMean).
 
 getGroup(Group) :- student(Group, _, _).
 getGroupsList(GroupList) :- setof(Group, getGroup(Group), GroupList).
+
+getGroupsTable(Group, N, Names) :- getGroupsList(GroupList),
+                                member(Group, GroupList),
+                                findall(Name, student(Group, Name, _), Names),
+                                len(Names, N).
 
 getGroupMarksLists(Group, MarkLists) :- findall(MarkList, student(Group, _, MarkList), MarkLists).
 

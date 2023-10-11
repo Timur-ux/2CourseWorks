@@ -79,7 +79,10 @@ myMean(List, Result) :- mySum(List, S), myLen(List, N), Result is S / N.
 ### Задание 1.1
 
 ```prolog
-getGroupsList(GroupList) :- setof(Group, getGroup(Group), GroupList).
+getGroupsTable(Group, N, Names) :- getGroupsList(GroupList),
+                                member(Group, GroupList),
+                                findall(Name, student(Group, Name, _), Names),
+                                len(Names, N).
 
 getMeanForEachGroup(Group, GroupMean) :- getGroupsList(GList),
                                     member(Group, GList),

@@ -18,11 +18,9 @@ std::vector<Point> Trapezoid::unificatePoints(std::vector<Point> _points) {
     return Figure::unificatePoints(_points);
 }
 
-Trapezoid::Trapezoid() {
-    angles = 4;
+Trapezoid::Trapezoid() : Figure(4, "Trapezoid") {
     square = 0;
     geometryCenter = Point(0, 0);
-    figureType = "Trapezoid";
 }
 
 Trapezoid::Trapezoid(std::vector<Point> &_points) : Trapezoid() {

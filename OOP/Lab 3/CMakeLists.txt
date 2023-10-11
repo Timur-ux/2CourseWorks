@@ -8,7 +8,7 @@ project(
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_options(-g)
+add_compile_options(-g -municode)
 
 set(INCLUDE_DIR ./include)
 include_directories(${INCLUDE_DIR})

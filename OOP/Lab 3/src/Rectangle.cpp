@@ -3,21 +3,26 @@
 using namespace geometry;
 
 void Rectangle::assertPoints(const std::vector<Point> & _points) const {
-    if(_points.size() != 4 and _points.size() != 2) {
-        throw new std::invalid_argument("Rectangle must have only 2 or 4 base points");
+    if(_points.size() != 4) {
+        throw new std::invalid_argument("Rectangle must have only 4 points");
     }
-    if(_points.size() == 4) {
-        Line line1(_points[0], _points[1]);
-        Line line2(_points[1], _points[2]);
-        Line line3(_points[2], _points[3]);
-        Line line4(_points[3], _points[0]);
-        if(not((line1 || line3) and (line2 || line4))) {
-            throw new std::invalid_argument("Rectangle must have 2 pairs of parallels line, unparallel given");
-        }
-        if(scalarMult(line1, line2) > EPS or scalarMult(line2, line3) > EPS
-            or scalarMult(line3, line4) > EPS or scalarMult(line4, line1) > EPS) {
-                throw new std::invalid_argument("Rectangle must have ortogonal sides");
-            }
+     
+    Line line1(_points[0], _points[1]);
+    Line line2(_points[1], _points[2]);
+    Line line3(_points[2], _points[3]);
+    Line line4(_points[3], _points[0]);
+
+    if(not((line1 || line3) and (line2 || line4))) {
+        throw new std::invalid_argument("Rectangle must have 2 pairs of parallels line, unparallel given");
+    }
+
+    if( 
+        scalarMult(line1, line2) > EPS or 
+        scalarMult(line2, line3) > EPS or
+        scalarMult(line3, line4) > EPS or
+        scalarMult(line4, line1) > EPS
+      ) {
+        throw new std::invalid_argument("Rectangle must have ortogonal sides");
     }
 }
 
@@ -30,11 +35,9 @@ std::vector<Point> geometry::Rectangle::unificatePoints(std::vector<Point> _poin
     return Figure::unificatePoints(_points);
 }
 
-geometry::Rectangle::Rectangle() {
-    angles = 4;
+geometry::Rectangle::Rectangle() : Figure(4, "Rectangle") {
     square = 0;
     geometryCenter = Point(0, 0);
-    figureType = "Rectangle";
 }
 
 Rectangle::Rectangle(std::vector<Point> &_points) : Rectangle() {

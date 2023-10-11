@@ -13,14 +13,16 @@
 namespace geometry {
     class Figure {
     protected:
+        const std::string figureType;
+        const int angles;
         std::vector<Point> points;
-        int angles;
         double square;
         Point geometryCenter;
-        std::string figureType;
 
+        Figure(int _angles, std::string _figureType);
         virtual void assertPoints(const std::vector<Point> & _points) const = 0;
         virtual std::vector<Point> unificatePoints(std::vector<Point> _points);
+
         virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
         virtual double calcSquare(const std::vector<Point> & _points) const = 0;
     public:

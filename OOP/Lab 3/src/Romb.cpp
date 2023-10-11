@@ -12,7 +12,7 @@ void Romb::assertPoints(const std::vector<Point> & _points) const {
     Line line3(_points[2], _points[3]);
     Line line4(_points[3], _points[0]);
 
-    if(not((line1 || line3) and (line2 || line4))) {
+    if(not(line1 || line3) or not(line2 || line4)) {
         throw new std::invalid_argument("Romb must have 2 pairs of parallel sides, unparallel given");
     }
 }
@@ -21,11 +21,9 @@ std::vector<Point> geometry::Romb::unificatePoints(std::vector<Point> _points) {
     return Figure::unificatePoints(_points);
 }
 
-Romb::Romb() {
-    angles = 4;
+Romb::Romb() : Figure(4, "Romb") {
     square = 0;
     geometryCenter = Point(0, 0);
-    figureType = "Romb";
 }
 
 Romb::Romb(std::vector<Point> & _points) : Romb() {

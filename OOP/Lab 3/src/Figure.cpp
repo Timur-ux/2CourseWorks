@@ -4,25 +4,29 @@ using namespace geometry;
 
 Point sum(const std::vector<Point> & _points);
 
-std::vector<Point> geometry::Figure::unificatePoints(std::vector<Point> _points) {
+geometry::Figure::Figure(int _angles, std::string _figureType) : angles(_angles), figureType(_figureType) {}
+
+std::vector<Point> geometry::Figure::unificatePoints(std::vector<Point> _points)
+{
     // setting points in clock otherwise order
     std::vector<Point> result;
-    std::vector<Point> temp;
+    
+    Point centralPoint = sum(_points) / angles;
+    std::vector<Point> aboveCentralPoints;
 
     std::sort(_points.begin(), _points.end(), cmpX);
 
-    Point centralPoint = sum(_points) / angles;
     for(auto it = _points.begin(); it != _points.end(); ++it) {
-        if(it->getY() <= centralPoint.getY()) {
+        if((*it).getY() <= centralPoint.getY()) {
             result.push_back(*it);
         } else {
-            temp.push_back(*it);
+            aboveCentralPoints.push_back(*it);
         }
     }
     
-    std::reverse(temp.begin(), temp.end());
+    std::reverse(aboveCentralPoints.begin(), aboveCentralPoints.end());
     
-    for(auto it = temp.begin(); it != temp.end(); ++it) {
+    for(auto it = aboveCentralPoints.begin(); it != aboveCentralPoints.end(); ++it) {
         result.push_back(*it);
     }
 

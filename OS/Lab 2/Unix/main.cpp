@@ -11,7 +11,7 @@ using namespace std;
 
 
 int main() {
-    const int n = 10000000;
+    const int n = 1000000;
     vector<int> v(n);
     for(int &i : v) {
         i = rand()%100;

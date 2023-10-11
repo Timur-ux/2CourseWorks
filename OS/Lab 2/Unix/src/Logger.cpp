@@ -8,7 +8,7 @@ Logger::Logger(string fileName,  OpenMode mode, string header)
         file.open(fileName, ios::out | ios::app);
     }
     else if( mode == NEW) {
-        file.open(fileName, ios::in);
+        file.open(fileName, ios::out);
         write(header);
     }
 }

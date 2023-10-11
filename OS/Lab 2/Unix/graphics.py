@@ -1,6 +1,6 @@
 import seaborn as sns
 import pandas as pd
 
-data = sns.load_dataset("../../build/Lab 2/Unix/Log.csv")
+data = pd.read_csv("./Log.csv")
 
-data.head()
+data.to_excel("Log.xlsx", sheet_name="List1")

@@ -9,34 +9,35 @@
 
 #include "Point.hpp"
 #include "Line.hpp"
+#include "Validators.hpp"
 
 namespace geometry {
     class Figure {
     protected:
         const std::string figureType;
         const int angles;
+
+        Validator & validator;
+
         std::vector<Point> points;
         double square;
         Point geometryCenter;
 
-        Figure(int _angles, std::string _figureType);
-        virtual void assertPoints(const std::vector<Point> & _points) const = 0;
-        virtual std::vector<Point> unificatePoints(std::vector<Point> _points);
+        Figure(int _angles, std::string _figureType, Validator & _validator);
 
         virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
         virtual double calcSquare(const std::vector<Point> & _points) const = 0;
     public:
-
         virtual std::vector<Point> getPoints() const;
         virtual int getAngles() const;
         virtual std::string getFigureType() const;
         virtual Point getCenter() const;
         virtual operator double() const;
 
-        virtual Figure & operator=(const Figure & rhs) = 0;
-        virtual Figure & operator=(Figure && rhs) = 0;
+        virtual Figure & operator=(const Figure & rhs);
+        virtual Figure & operator=(Figure && rhs);
 
-        virtual bool operator==(const Figure & rhs) const = 0;
+        virtual bool operator==(const Figure & rhs) const;
 
         friend std::istream& operator>>(std::istream& is, Figure& figure);
     };

@@ -22,7 +22,7 @@ TEST(romb_tests_set, constructor_viaVector_test) {
     Point p4(decart(3, 4));
 
     
-    EXPECT_THROW(Romb({p1});, std::invalid_argument*);
+    EXPECT_THROW(Romb({p1});, RombValidatorException);
     EXPECT_NO_THROW(Romb({p1, p2, p3, p4}));
 }
 

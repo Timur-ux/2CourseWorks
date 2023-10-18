@@ -6,7 +6,7 @@
 % My representation is (2 mod 4) + 1 = 3 (three)
 :- ['three.pl'].
 :- ['task1.pl'].
-:- ['BasePredicats.pl'].
+:- ['../BasePredicats.pl'].
 % Variant 1
 
 % 1.1

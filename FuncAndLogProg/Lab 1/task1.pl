@@ -1,4 +1,4 @@
-:- ['BasePredicats.pl'].
+:- ['../BasePredicats.pl'].
 
 % 1 task = (2 mod 19) + 1 = 3 variant;
 % 2 task = (2 + 5) mod 20 + 1 = 8 variant

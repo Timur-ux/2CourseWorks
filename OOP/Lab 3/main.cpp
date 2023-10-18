@@ -11,24 +11,26 @@ int main() {
         new Trapezoid,
         new Romb
     };
-    
+    std::cout << "Inputs figures..." << std::endl;
     for(Figure * figure : figures) {
         std::cout << "Input " << figure->getFigureType() << 
                             "(" << figure->getAngles() << " points): " << std::endl;
         std::cin >> *figure;
     }
 
+    std::cout << std::endl << "Printing figures..." << std::endl;
+
     for(Figure * figure : figures) {
         std::cout << *figure << std::endl;
         std::cout << "-----------" << std::endl;
     }
 
-    std::cout << "Union square = " << calcUnionSquare(figures) << std::endl;
+    std::cout << std::endl << "Union square = " << calcUnionSquare(figures) << std::endl;
     std::cout << "Deleting figure with index equals 1..." << std::endl;
     
     figures.erase(figures.begin() + 1);
     
-    std::cout << "Updated figures here" << std::endl;
+    std::cout << std::endl << "Updated figures here" << std::endl;
     
     for(Figure * figure : figures) {
         std::cout << *figure << std::endl;

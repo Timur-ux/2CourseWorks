@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 namespace geometry {
 
@@ -51,6 +53,8 @@ namespace geometry {
     Point abs(const Point & point);
 
     std::ostream& operator<<(std::ostream& os, const Point& point);
-    std::istream& operator>>(std::istream& is, Point& point);    
+    std::istream& operator>>(std::istream& is, Point& point);
+
+    std::vector<Point> unificatePoints(std::vector<Point> points);
 }
 

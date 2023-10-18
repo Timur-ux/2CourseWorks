@@ -22,7 +22,7 @@ TEST(trapezoid_tests_set, constructor_viaVector_test) {
     Point p4(decart(5, 13));
 
     
-    EXPECT_THROW(Trapezoid({p1});, std::invalid_argument*);
+    EXPECT_THROW(Trapezoid({p1});, TrapezoidValidatorException);
     EXPECT_NO_THROW(Trapezoid({p1, p2, p3, p4}));
 }
 

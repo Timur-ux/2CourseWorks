@@ -26,3 +26,11 @@ TEST(line_tests_set, scalarMult_test) {
 
     EXPECT_TRUE(scalarMult(line1, line2) == expectedSCMult);
 }
+
+TEST(line_tests_set, calcCross_test) {
+    Line line1(Point(0, 0), Point(1, 1));
+    Line line2(Point(0, 2), Point(2, 0));
+    Point expectedCrossPoint(1, 1);
+
+    EXPECT_TRUE(calcCross(line1, line2) == expectedCrossPoint);
+}

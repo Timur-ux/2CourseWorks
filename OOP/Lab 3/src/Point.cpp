@@ -105,3 +105,41 @@ std::istream &geometry::operator>>(std::istream &is, Point &point) {
     
     return is;
 }
+
+Point sum(const std::vector<Point> & _points);
+
+std::vector<Point> geometry::unificatePoints(std::vector<Point> _points) {
+    // setting points in clock otherwise order
+    std::vector<Point> result;
+    
+    Point centralPoint = sum(_points) / _points.size();
+    std::vector<Point> aboveCentralPoints;
+
+    std::sort(_points.begin(), _points.end(), cmpX);
+
+    for(auto it = _points.begin(); it != _points.end(); ++it) {
+        if((*it).getY() <= centralPoint.getY()) {
+            result.push_back(*it);
+        } else {
+            aboveCentralPoints.push_back(*it);
+        }
+    }
+    
+    std::reverse(aboveCentralPoints.begin(), aboveCentralPoints.end());
+    
+    for(auto it = aboveCentralPoints.begin(); it != aboveCentralPoints.end(); ++it) {
+        result.push_back(*it);
+    }
+
+    return result;
+}
+
+Point sum(const std::vector<Point> &_points) {
+    Point result;
+    
+    for(Point point : _points) {
+        result = result + point;
+    }
+
+    return result;
+}

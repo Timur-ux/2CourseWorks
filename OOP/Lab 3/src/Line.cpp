@@ -4,7 +4,7 @@ using namespace geometry;
 
 Line::Line(Point _p1, Point _p2) {
     if(_p1 == _p2) {
-        throw new std::invalid_argument("Line need 2 not equal point, equals given");
+        throw std::invalid_argument("Line need 2 not equal point, equals given");
     }
 
     p1 = _p1;
@@ -12,17 +12,17 @@ Line::Line(Point _p1, Point _p2) {
 
     Point dp = p2 - p1;
 
-    A = dp.getX();
-    B = (-1) * dp.getY();
+    yKoef = dp.getX();
+    xKoef = (-1) * dp.getY();
     C = p1.getX()*dp.getY() - p1.getY()*dp.getX();
 }
 
-double Line::getA() const {
-    return A;
+double Line::getYKoef() const {
+    return yKoef;
 }
 
-double Line::getB() const {
-    return B;
+double Line::getXKoef() const {
+    return xKoef;
 }
 
 double Line::getC() const {
@@ -40,5 +40,17 @@ double geometry::Line::length() const {
 }
 
 double geometry::scalarMult(const Line &line1, const Line &line2) {
-    return line1.getA()*line2.getA() + line1.getB()*line2.getB();
+    return line1.getYKoef()*line2.getYKoef() + line1.getXKoef()*line2.getXKoef();
+}
+
+Point geometry::calcCross(const Line &line1, const Line &line2) {
+    if(line1 || line2) {
+        throw std::logic_error("Parallel lines are uncrossable");
+    }
+
+    double crossX = (line2.getYKoef()*line1.getC() - line1.getYKoef()*line2.getC())
+                / (line2.getXKoef()*line1.getYKoef() - line1.getXKoef()*line2.getYKoef());
+    double crossY = -(line1.getC() + line1.getXKoef()*crossX) / line1.getYKoef();
+
+    return Point(crossX, crossY);
 }

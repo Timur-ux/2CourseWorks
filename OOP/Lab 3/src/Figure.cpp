@@ -2,38 +2,14 @@
 
 using namespace geometry;
 
-Point sum(const std::vector<Point> & _points);
 
-geometry::Figure::Figure(int _angles, std::string _figureType) : angles(_angles), figureType(_figureType) {}
 
-std::vector<Point> geometry::Figure::unificatePoints(std::vector<Point> _points)
-{
-    // setting points in clock otherwise order
-    std::vector<Point> result;
-    
-    Point centralPoint = sum(_points) / angles;
-    std::vector<Point> aboveCentralPoints;
-
-    std::sort(_points.begin(), _points.end(), cmpX);
-
-    for(auto it = _points.begin(); it != _points.end(); ++it) {
-        if((*it).getY() <= centralPoint.getY()) {
-            result.push_back(*it);
-        } else {
-            aboveCentralPoints.push_back(*it);
-        }
-    }
-    
-    std::reverse(aboveCentralPoints.begin(), aboveCentralPoints.end());
-    
-    for(auto it = aboveCentralPoints.begin(); it != aboveCentralPoints.end(); ++it) {
-        result.push_back(*it);
-    }
-
-    assertPoints(result);
-
-    return result;
-}
+Figure::Figure(int _angles, std::string _figureType, Validator & _validator)
+ : angles(_angles)
+, figureType(_figureType)
+, validator(_validator)
+, square(0)
+, geometryCenter(0, 0) {}
 
 std::vector<Point> Figure::getPoints() const
 {
@@ -56,6 +32,37 @@ geometry::Figure::operator double() const {
     return square;
 }
 
+Figure &geometry::Figure::operator=(const Figure &rhs) {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    points = unificatePoints(rhsPoints);
+
+    validator.validate(points);
+    
+    geometryCenter = rhs.getCenter();
+    square = double(rhs);
+    
+    delete &rhs;
+    return *this;
+}
+
+Figure &geometry::Figure::operator=(Figure &&rhs) {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    points = unificatePoints(rhsPoints);
+    
+    validator.validate(points);
+
+    geometryCenter = rhs.getCenter();
+    square = double(rhs);
+
+    return *this;
+}
+
+bool geometry::Figure::operator==(const Figure &rhs) const {
+    std::vector<Point> rhsPoints = rhs.getPoints();
+    validator.validate(rhsPoints);
+    return double(*this) == double(rhs);
+}
+
 std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {
     std::vector<Point> points = figure.getPoints();
     
@@ -76,16 +83,16 @@ std::istream & geometry::operator>>(std::istream &is, Figure &figure) {
         is >> point;
     }
 
-    figure.points = figure.unificatePoints(_points);
-    figure.square = figure.calcSquare(_points);
-    figure.geometryCenter = figure.calcGeometryCenter(_points);
+    figure.points = unificatePoints(_points);
+    figure.square = figure.calcSquare(figure.points);
+    figure.geometryCenter = figure.calcGeometryCenter(figure.points);
     
     return is;
 }
 
 bool geometry::isParallel(const std::vector<Point> &points){
     if(points.size() != 4) {
-        throw new std::invalid_argument("isParallel need 4 points exactly");
+        throw std::invalid_argument("isParallel need 4 points exactly");
     }
 
     Point line1 = (points[1] - points[0]);
@@ -95,14 +102,4 @@ bool geometry::isParallel(const std::vector<Point> &points){
     double k2 = line2.getX() == 0 ? 0 : line2.getY() / line2.getX();
 
     return k1 == k2;
-}
-
-Point sum(const std::vector<Point> &_points) {
-    Point result;
-    
-    for(Point point : _points) {
-        result = result + point;
-    }
-
-    return result;
 }

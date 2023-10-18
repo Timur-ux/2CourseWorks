@@ -8,20 +8,20 @@ namespace geometry {
     private:
         Point p1;
         Point p2;
-        double A;
-        double B;
+        double yKoef;
+        double xKoef;
         double C;
     public:
         Line(Point p1, Point p2);
         
-        double getA() const;
-        double getB() const;
+        double getYKoef() const;
+        double getXKoef() const;
         double getC() const;
 
         bool operator||(const Line & rhs) const;
         double length() const;
-
     };
 
     double scalarMult(const Line & line1, const Line & line2);
+    Point calcCross(const Line & line1, const Line &line2);
 };

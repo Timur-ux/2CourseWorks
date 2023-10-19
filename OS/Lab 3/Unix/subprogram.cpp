@@ -58,10 +58,10 @@ int main(int argc, char * argv[]) {
 }
 
 void * openMMap(int __fd, unsigned long int size) {
-	void * result;
-	if ((result = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, __fd, 0)) == MAP_FAILED) {
+	void * result = mmap(NULL, size, PROT_READ, MAP_SHARED, __fd, 0);
+	if (result == MAP_FAILED) {
 		stringstream errorstream;
-		errorstream << "Can't create mmap to deskriptor " << __fd << " with size " << size;
+		errorstream << "Can't create mmap to deskriptor " << __fd << " with size " << size << ", errno = " << errno;
 		throw runtime_error(errorstream.str());
 	}
 

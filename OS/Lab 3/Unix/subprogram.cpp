@@ -2,74 +2,68 @@
 #include <unistd.h>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 #include <pthread.h>
 #include <sys/mman.h>
 
+#define MAX_LEN 100
+
 using namespace std;
 
-int calc(const string & s) {
-	int result = 0, temp = 0;
-	for (char c : s)
-	{
-		if (c == ' ') {
-			result += temp;
-			temp = 0;
-			continue;
-		}
-		temp = temp * 10 + (c - '0');
-	}
-	result += temp;
-	return result;
-}
+void * openMMap(int __fd, unsigned long int size);
 
 int main(int argc, char * argv[]) {
 
 	if (argc < 4) {
 		stringstream errorstream;
-		errorstream << "Usage: " << argv[0] << " <outputFileName> <fileCondName> <fileDataName>";
+		errorstream << "Usage: " << argv[0] << " <outputFileName> <fileConddeskriptor> <fileDataDeskriptor>";
 		throw invalid_argument(errorstream.str());
 	}
 
-	int writeFD;
-	if (read(fileno(stdin), &writeFD, sizeof(int)) != sizeof(int)) { // read pipe's write-end
-		cerr << "Error SP: read input FD failed" << endl;
-	}
+	ofstream outputStream(argv[1]);
 
-	FILE * outFile = fopen(argv[1], "w");
 
-	if (dup2(fileno(outFile), fileno(stdout)) == -1) {
-		cerr << "Error SP: dup2 failed" << endl;
-	}
+	int mutexPos = sizeof(pthread_cond_t);
+	int statePos = mutexPos + sizeof(pthread_mutex_t);
+
+	int fileCondFd = atoi(argv[2]);
+	int fileDataFd = atoi(argv[3]);
+	void * mmapCond = openMMap(fileCondFd, sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool));
+	void * mmapData = openMMap(fileDataFd, (MAX_LEN + 1) * sizeof(int));
+
+	int * data = static_cast<int *>(mmapData);
 
 	while (true) {
-		string report;
-		int nCount, result = 0;
-		if (read(fileno(stdin), &nCount, sizeof(int)) != sizeof(int)) {
-			cerr << "Error: read failed" << endl;
-		}
-		if (nCount == 0) {
-			report = "Out: clear string, nothing to calc";
-			writeToParent(writeFD, report);
-			continue;
-		}
-		if (nCount == -1) { // Parent gone
+		pthread_cond_wait(
+			static_cast<pthread_cond_t *>(mmapCond),
+			static_cast<pthread_mutex_t *>(mmapCond + mutexPos)
+		);
+
+		if (*static_cast<bool *>(mmapCond + statePos) == false) {
 			break;
 		}
-		for (int i = 0; i < nCount; ++i) {
-			int temp;
-			if (read(fileno(stdin), &temp, sizeof(int)) != sizeof(int)) {
-				cerr << "Error: read failed" << endl;
-			}
-			result += temp;
+
+		if (data[0] == '\0') {
+			continue;
+		}
+		int result = 0;
+		for (int i = 0; i < MAX_LEN; ++i) {
+			result += data[i];
 		}
 
-		cout << result << endl;
+		outputStream << result << endl;
+	}
+	outputStream.close();
+}
 
-		report = "Out: done";
-		writeToParent(writeFD, report);
+void * openMMap(int __fd, unsigned long int size) {
+	void * result;
+	if ((result = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, __fd, 0)) == MAP_FAILED) {
+		stringstream errorstream;
+		errorstream << "Can't create mmap to deskriptor " << __fd << " with size " << size;
+		throw runtime_error(errorstream.str());
 	}
 
-	fclose(outFile);
-	close(writeFD);
+	return result;
 }

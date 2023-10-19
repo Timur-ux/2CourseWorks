@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(
-    Lab2
+    Lab_3
     LANGUAGES CXX
 )
 

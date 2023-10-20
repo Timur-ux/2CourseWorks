@@ -6,6 +6,7 @@
 
 #include <pthread.h>
 #include <sys/mman.h>
+#include <fcntl.h>
 
 #define MAX_LEN 100
 
@@ -14,8 +15,7 @@ using namespace std;
 void * openMMap(int __fd, unsigned long int size);
 
 int main(int argc, char * argv[]) {
-
-	if (argc < 4) {
+	if (argc != 4) {
 		stringstream errorstream;
 		errorstream << "Usage: " << argv[0] << " <outputFileName> <fileConddeskriptor> <fileDataDeskriptor>";
 		throw invalid_argument(errorstream.str());
@@ -23,12 +23,12 @@ int main(int argc, char * argv[]) {
 
 	ofstream outputStream(argv[1]);
 
-
 	int mutexPos = sizeof(pthread_cond_t);
 	int statePos = mutexPos + sizeof(pthread_mutex_t);
 
 	int fileCondFd = atoi(argv[2]);
 	int fileDataFd = atoi(argv[3]);
+
 	void * mmapCond = openMMap(fileCondFd, sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool));
 	void * mmapData = openMMap(fileDataFd, (MAX_LEN + 1) * sizeof(int));
 
@@ -58,7 +58,7 @@ int main(int argc, char * argv[]) {
 }
 
 void * openMMap(int __fd, unsigned long int size) {
-	void * result = mmap(NULL, size, PROT_READ, MAP_SHARED, __fd, 0);
+	void * result = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED, __fd, 0);
 	if (result == MAP_FAILED) {
 		stringstream errorstream;
 		errorstream << "Can't create mmap to deskriptor " << __fd << " with size " << size << ", errno = " << errno;

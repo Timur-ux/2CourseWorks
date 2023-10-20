@@ -37,7 +37,7 @@ int main() {
 	cout << "Input \"num1 num2 ...<endline>\" as command" << endl;
 	cout << "Input \"Exit\" for exit" << endl;
 
-	int fdCond = shm_open(fileCondName.c_str(), O_CREAT | O_RDWR, 0666);
+	int fdCond = shm_open(fileCondName.c_str(), O_CREAT | O_RDWR, 0777);
 	setFileSize(fdCond, sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool) + 1);
 	void * mmapCond = openMMap(fdCond
 							 , sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool)
@@ -46,13 +46,20 @@ int main() {
 	memcpy(mmapCond + mutexPos, new pthread_mutex_t, sizeof(pthread_mutex_t));
 	memcpy(mmapCond + statePos, new bool(true), sizeof(bool));
 
-	pthread_cond_init(static_cast<pthread_cond_t *>(mmapCond), NULL);
-	pthread_mutex_init(static_cast<pthread_mutex_t *>(mmapCond + mutexPos), NULL);
+	if (pthread_cond_init(static_cast<pthread_cond_t *>(mmapCond), NULL)) {
+		stringstream errorstream;
+		errorstream << "Pthread cond init failed, errno = " << errno;
+		throw runtime_error(errorstream.str());
+	}
+	if (pthread_mutex_init(static_cast<pthread_mutex_t *>(mmapCond + mutexPos), NULL)) {
+		stringstream errorstream;
+		errorstream << "Pthread mutex init failed, errno = " << errno;
+		throw runtime_error(errorstream.str());
+	}
 
-	int fdData = shm_open(fileDataName.c_str(), O_CREAT | O_RDWR, 0666);
+	int fdData = shm_open(fileDataName.c_str(), O_CREAT | O_RDWR, 0777);
 	setFileSize(fdData, (MAX_LEN + 1) * sizeof(int));
 	void * mmapData = openMMap(fdData, (MAX_LEN + 1) * sizeof(int));
-
 	int pid = fork();
 
 	if (pid < 0) {
@@ -94,6 +101,8 @@ int main() {
 		}
 		close(fdCond);
 		close(fdData);
+		pthread_cond_destroy(static_cast<pthread_cond_t *>(mmapCond));
+		pthread_mutex_destroy(static_cast<pthread_mutex_t *>(mmapCond + mutexPos));
 	}
 	return 0;
 }
@@ -118,7 +127,7 @@ void setFileSize(int __fd, unsigned long int size) {
 }
 
 void * openMMap(int __fd, unsigned long int size) {
-	void * result = mmap(0, size, PROT_WRITE, MAP_SHARED, __fd, 0);
+	void * result = mmap(0, size, PROT_WRITE | PROT_READ | PROT_EXEC, MAP_SHARED, __fd, 0);
 	if (result == MAP_FAILED) {
 		stringstream errorstream;
 		errorstream << "Can't create mmap to deskriptor " << __fd << " with size " << size << ", errno = " << errno;

@@ -17,7 +17,7 @@ void * openMMap(int __fd, unsigned long int size);
 int main(int argc, char * argv[]) {
 	if (argc != 4) {
 		stringstream errorstream;
-		errorstream << "Usage: " << argv[0] << " <outputFileName> <fileConddeskriptor> <fileDataDeskriptor>";
+		errorstream << "Usage: " << argv[0] << " <outputFileName> <fileCondDeskriptor> <fileDataDeskriptor>";
 		throw invalid_argument(errorstream.str());
 	}
 
@@ -26,33 +26,44 @@ int main(int argc, char * argv[]) {
 	int mutexPos = sizeof(pthread_cond_t);
 	int statePos = mutexPos + sizeof(pthread_mutex_t);
 
-	int fileCondFd = atoi(argv[2]);
-	int fileDataFd = atoi(argv[3]);
+	int fdCond = shm_open(argv[2], O_CREAT | O_RDWR, 0777);
+	int fdData = shm_open(argv[3], O_CREAT | O_RDWR, 0777);
 
-	void * mmapCond = openMMap(fileCondFd, sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool));
-	void * mmapData = openMMap(fileDataFd, (MAX_LEN + 1) * sizeof(int));
+	void * mmapCond = openMMap(fdCond
+							 , sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool)
+	);
 
-	int * data = static_cast<int *>(mmapData);
+	pthread_cond_t * cond = (pthread_cond_t *)mmapCond;
+	pthread_mutex_t * mutex = (pthread_mutex_t *)(mmapCond + mutexPos);
+	bool * state = (bool *)(mmapCond + statePos);
 
+	void * mmapData = openMMap(fdData, (MAX_LEN + 1) * sizeof(int));
+
+	int * data = (int *)(mmapData);
 	while (true) {
-		pthread_cond_wait(
-			static_cast<pthread_cond_t *>(mmapCond),
-			static_cast<pthread_mutex_t *>(mmapCond + mutexPos)
-		);
+		cout << "CHild 0" << endl;
+		pthread_mutex_lock(mutex);
+		cout << "CHILD" << endl;
+		pthread_cond_wait(cond, mutex);
 
-		if (*static_cast<bool *>(mmapCond + statePos) == false) {
+		if (*state == false) {
+			pthread_mutex_unlock(mutex);
 			break;
 		}
 
-		if (data[0] == '\0') {
-			continue;
+		for (int i = 0; i < MAX_LEN; ++i) {
+			cout << data[i] << endl;
 		}
+		cout << endl;
+
 		int result = 0;
 		for (int i = 0; i < MAX_LEN; ++i) {
 			result += data[i];
 		}
 
+		cout << result << endl;
 		outputStream << result << endl;
+		pthread_mutex_unlock(mutex);
 	}
 	outputStream.close();
 }

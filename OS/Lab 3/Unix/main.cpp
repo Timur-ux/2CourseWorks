@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <limits.h>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 #define MAX_LEN 100
 
@@ -42,16 +43,23 @@ int main() {
 	void * mmapCond = openMMap(fdCond
 							 , sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool)
 	);
-	memcpy(mmapCond, new pthread_cond_t, sizeof(pthread_cond_t));
-	memcpy(mmapCond + mutexPos, new pthread_mutex_t, sizeof(pthread_mutex_t));
-	memcpy(mmapCond + statePos, new bool(true), sizeof(bool));
 
-	if (pthread_cond_init(static_cast<pthread_cond_t *>(mmapCond), NULL)) {
+	pthread_cond_t * cond = (pthread_cond_t *)(mmapCond);
+	pthread_mutex_t * mutex = (pthread_mutex_t *)(mmapCond + mutexPos);
+	bool * state = (bool *)(mmapCond + statePos);
+
+	memcpy(cond, new pthread_cond_t, sizeof(pthread_cond_t));
+	memcpy(mutex, new pthread_mutex_t, sizeof(pthread_mutex_t));
+	memcpy(state, new bool(true), sizeof(bool));
+
+
+
+	if (pthread_cond_init(cond, NULL)) {
 		stringstream errorstream;
 		errorstream << "Pthread cond init failed, errno = " << errno;
 		throw runtime_error(errorstream.str());
 	}
-	if (pthread_mutex_init(static_cast<pthread_mutex_t *>(mmapCond + mutexPos), NULL)) {
+	if (pthread_mutex_init(mutex, NULL)) {
 		stringstream errorstream;
 		errorstream << "Pthread mutex init failed, errno = " << errno;
 		throw runtime_error(errorstream.str());
@@ -68,8 +76,8 @@ int main() {
 	else if (pid == 0) { // Child process
 		char * argv[] = { (char *)fileName.c_str()
 						, (char *)outputName.c_str()
-						, (char *)to_string(fdCond).c_str()
-						, (char *)to_string(fdData).c_str()
+						, (char *)fileCondName.c_str()
+						, (char *)fileDataName.c_str()
 						,  NULL };
 
 		if (execv(argv[0], argv) == -1) {
@@ -77,32 +85,46 @@ int main() {
 		}
 	}
 	else { // Parent process
-		int ints[MAX_LEN]{ 0 };
-		while (true) {
-			string command;
+		for (int j = 0; j < 2; j++) {
+			cout << "MAIN" << endl;
+
+			pthread_mutex_lock(mutex);
+
+			int ints[MAX_LEN]{ 0 };
+			string command = (j == 0 ? "132 4 65 79" : "Exit");
 			int i = 0, num;
-			getline(cin, command);
+
+			// getline(cin, command)
 			stringstream ss(command, ios_base::in);
 			while (command != "Exit" and (ss >> num)) {
 				if (i >= MAX_LEN) {
 					cerr << "Error: string must have " << MAX_LEN << " numbers max" << endl;
 				}
-				ints[i] = num;
+				ints[i++] = num;
 			}
-
 			if (command == "Exit") {
-				*static_cast<bool *>(mmapCond + statePos) = false;
-				pthread_cond_signal(static_cast<pthread_cond_t *>(mmapCond));
+				*state = false;
+				pthread_cond_signal(cond);
+				pthread_mutex_unlock(mutex);
 				break;
 			}
 
+			cout << "MAIN2" << endl;
+
 			memcpy(mmapData, ints, MAX_LEN * sizeof(int));
-			pthread_cond_signal(static_cast<pthread_cond_t *>(mmapCond));
+
+			pthread_cond_signal(cond);
+			pthread_mutex_unlock(mutex);
 		}
+
+		pthread_cond_signal(cond);
+		pthread_mutex_unlock(mutex);
+		wait(NULL);
+
+		pthread_cond_destroy(cond);
+		pthread_mutex_destroy(mutex);
 		close(fdCond);
 		close(fdData);
-		pthread_cond_destroy(static_cast<pthread_cond_t *>(mmapCond));
-		pthread_mutex_destroy(static_cast<pthread_mutex_t *>(mmapCond + mutexPos));
 	}
 	return 0;
 }

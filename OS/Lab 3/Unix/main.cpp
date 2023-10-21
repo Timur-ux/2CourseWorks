@@ -91,10 +91,10 @@ int main() {
 			pthread_mutex_lock(mutex);
 
 			int ints[MAX_LEN]{ 0 };
-			string command = (j == 0 ? "132 4 65 79" : "Exit");
+			string command;
 			int i = 0, num;
 
-			// getline(cin, command)
+			getline(cin, command);
 			stringstream ss(command, ios_base::in);
 			while (command != "Exit" and (ss >> num)) {
 				if (i >= MAX_LEN) {
@@ -117,8 +117,6 @@ int main() {
 			pthread_mutex_unlock(mutex);
 		}
 
-		pthread_cond_signal(cond);
-		pthread_mutex_unlock(mutex);
 		wait(NULL);
 
 		pthread_cond_destroy(cond);

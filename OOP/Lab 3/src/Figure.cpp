@@ -4,10 +4,9 @@ using namespace geometry;
 
 
 
-Figure::Figure(int _angles, std::string _figureType, Validator & _validator)
+Figure::Figure(int _angles, std::string _figureType)
 	: angles(_angles)
 	, figureType(_figureType)
-	, validator(_validator)
 	, square(0)
 	, geometryCenter(0, 0) {
 }
@@ -40,8 +39,8 @@ geometry::Figure::operator double() const {
 
 bool geometry::Figure::operator==(const Figure & rhs) const {
 	std::vector<Point> rhsPoints = rhs.getPoints();
-	validator.validate(rhsPoints);
-	return double(*this) == double(rhs);
+
+	return typeid(*this) == typeid(rhs) && double(*this) == double(rhs);
 }
 
 std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {

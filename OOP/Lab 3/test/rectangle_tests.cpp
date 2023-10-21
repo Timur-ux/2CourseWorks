@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "Figure.hpp"
+#include "FigureFabric.hpp"
 
 using namespace geometry;
 
@@ -22,9 +22,9 @@ TEST(rectangle_tests_set, constructor_viaVector_test) {
 	Point p4(decart(5, 13));
 
 
-	EXPECT_THROW(Rectangle::createInstance({ p1 });, RectangleValidatorException);
-	EXPECT_THROW(Rectangle::createInstance({ p1, p2, p3 }), RectangleValidatorException);
-	EXPECT_NO_THROW(Rectangle::createInstance({ p1, p2, p3, p4 }));
+	EXPECT_THROW(FigureFabric::createInstance<Rectangle>({ p1 });, RectangleValidatorException);
+	EXPECT_THROW(FigureFabric::createInstance<Rectangle>({ p1, p2, p3 }), RectangleValidatorException);
+	EXPECT_NO_THROW(FigureFabric::createInstance<Rectangle>({ p1, p2, p3, p4 }));
 }
 
 TEST(rectangle_tests_set, constructor_viaOtherRectangle_test) {

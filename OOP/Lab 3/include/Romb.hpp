@@ -19,11 +19,6 @@ namespace geometry {
 		virtual Figure & operator=(const Figure & rhs);
 		virtual Figure & operator=(Figure && rhs) noexcept;
 
-		static Romb createInstance(std::vector<Point> _points) {
-			_points = unificatePoints(_points);
-
-			return Romb(_points);
-		}
 	};
 
 };

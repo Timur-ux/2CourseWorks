@@ -2,19 +2,15 @@
 
 using namespace geometry;
 
-geometry::Rectangle::Rectangle() : Figure(4, "Rectangle", *(new RectangleValidator)) {}
+geometry::Rectangle::Rectangle() : Figure(4, "Rectangle") {}
 
 Rectangle::Rectangle(std::vector<Point> & _points) : Rectangle() {
-	validator.validate(_points);
-
 	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
 
 Rectangle::Rectangle(std::vector<Point> && _points) : Rectangle() {
-	validator.validate(_points);
-
 	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
@@ -35,14 +31,14 @@ Rectangle::Rectangle(Rectangle && other) noexcept : Rectangle() {
 }
 
 Figure & geometry::Rectangle::operator=(const Figure & rhs) {
-	Rectangle tmp = Rectangle::createInstance(rhs.getPoints());
+	Rectangle tmp(rhs.getPoints());
 	Swap(tmp);
 
 	return *this;
 }
 
 Figure & geometry::Rectangle::operator=(Figure && rhs) noexcept {
-	Rectangle tmp(Rectangle::createInstance(rhs.getPoints()));
+	Rectangle tmp(rhs.getPoints());
 	Swap(tmp);
 
 	delete & rhs;

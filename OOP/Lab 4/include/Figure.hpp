@@ -11,42 +11,38 @@
 #include "Line.hpp"
 #include "Validators.hpp"
 
-namespace geometry {
+class Figure {
+protected:
+	const std::string figureType;
+	const int angles;
 
+	Validator & validator;
 
-	class Figure {
-	protected:
-		const std::string figureType;
-		const int angles;
+	std::vector<Point> points;
+	double square;
+	Point geometryCenter;
 
-		Validator & validator;
+	Figure(int _angles, std::string _figureType, Validator & _validator);
 
-		std::vector<Point> points;
-		double square;
-		Point geometryCenter;
+	virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
+	virtual double calcSquare(const std::vector<Point> & _points) const = 0;
+public:
+	virtual std::vector<Point> getPoints() const;
+	virtual int getAngles() const;
+	virtual std::string getFigureType() const;
+	virtual Point getCenter() const;
+	virtual operator double() const;
 
-		Figure(int _angles, std::string _figureType, Validator & _validator);
+	virtual Figure & operator=(const Figure & rhs);
+	virtual Figure & operator=(Figure && rhs);
 
-		virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;
-		virtual double calcSquare(const std::vector<Point> & _points) const = 0;
-	public:
-		virtual std::vector<Point> getPoints() const;
-		virtual int getAngles() const;
-		virtual std::string getFigureType() const;
-		virtual Point getCenter() const;
-		virtual operator double() const;
+	virtual bool operator==(const Figure & rhs) const;
 
-		virtual Figure & operator=(const Figure & rhs);
-		virtual Figure & operator=(Figure && rhs);
-
-		virtual bool operator==(const Figure & rhs) const;
-
-		friend std::istream & operator>>(std::istream & is, Figure & figure);
-	};
-	std::ostream & operator<<(std::ostream & os, const Figure & figure);
-	std::istream & operator>>(std::istream & is, Figure & figure);
-	bool isParallel(const std::vector<Point> & points);
+	friend std::istream & operator>>(std::istream & is, Figure & figure);
 };
+std::ostream & operator<<(std::ostream & os, const Figure & figure);
+std::istream & operator>>(std::istream & is, Figure & figure);
+bool isParallel(const std::vector<Point> & points);
 
 #include "Rectangle.hpp"
 #include "Trapezoid.hpp"

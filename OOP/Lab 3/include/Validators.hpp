@@ -1,27 +1,33 @@
 #pragma once
 
+#include <typeinfo>
+#include "Figure.hpp"
 #include "Point.hpp"
 #include "Line.hpp"
 
 namespace geometry {
 	class Validator {
 	public:
-		virtual void validate(std::vector<Point> & _points) const = 0;
+		virtual void validate(const std::vector<Point> & _points) const = 0;
+		virtual bool isAllowedFor(const std::type_info & type) const = 0;
 	};
 
 	class TrapezoidValidator : public Validator {
 	public:
-		virtual void validate(std::vector<Point> & _points) const override;
+		virtual void validate(const std::vector<Point> & _points) const override;
+		virtual bool isAllowedFor(const std::type_info & type) const  override;
 	};
 
 	class RectangleValidator : public Validator {
 	public:
-		virtual void validate(std::vector<Point> & _points) const override;
+		virtual void validate(const std::vector<Point> & _points) const override;
+		virtual bool isAllowedFor(const std::type_info & type) const  override;
 	};
 
 	class RombValidator : public Validator {
 	public:
-		virtual void validate(std::vector<Point> & _points) const override;
+		virtual void validate(const std::vector<Point> & _points) const override;
+		virtual bool isAllowedFor(const std::type_info & type) const  override;
 	};
 
 	class RectangleValidatorException : public std::exception {

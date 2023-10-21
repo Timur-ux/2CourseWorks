@@ -6,10 +6,10 @@
 #include <cmath>
 #include <stdexcept>
 #include <algorithm>
+#include <typeinfo>
 
 #include "Point.hpp"
 #include "Line.hpp"
-#include "Validators.hpp"
 
 namespace geometry {
 	class Figure {
@@ -17,13 +17,11 @@ namespace geometry {
 		const std::string figureType;
 		const int angles;
 
-		Validator & validator;
-
 		std::vector<Point> points;
 		double square;
 		Point geometryCenter;
 
-		Figure(int _angles, std::string _figureType, Validator & _validator);
+		Figure(int _angles, std::string _figureType);
 
 		virtual void Swap(const Figure & other);
 		virtual Point calcGeometryCenter(const std::vector<Point> & _points) const = 0;

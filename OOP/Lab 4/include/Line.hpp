@@ -3,25 +3,23 @@
 #include "Point.hpp"
 #include <stdexcept>
 
-namespace geometry {
-    class Line {
-    private:
-        Point p1;
-        Point p2;
-        double yKoef;
-        double xKoef;
-        double C;
-    public:
-        Line(Point p1, Point p2);
-        
-        double getYKoef() const;
-        double getXKoef() const;
-        double getC() const;
+class Line {
+private:
+	Point p1;
+	Point p2;
+	double yKoef;
+	double xKoef;
+	double C;
+public:
+	Line(Point p1, Point p2);
 
-        bool operator||(const Line & rhs) const;
-        double length() const;
-    };
+	double getYKoef() const;
+	double getXKoef() const;
+	double getC() const;
 
-    double scalarMult(const Line & line1, const Line & line2);
-    Point calcCross(const Line & line1, const Line &line2);
+	bool operator||(const Line & rhs) const;
+	double length() const;
 };
+
+double scalarMult(const Line & line1, const Line & line2);
+Point calcCross(const Line & line1, const Line & line2);

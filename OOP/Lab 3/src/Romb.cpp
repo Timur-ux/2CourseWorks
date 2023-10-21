@@ -2,19 +2,15 @@
 
 using namespace geometry;
 
-Romb::Romb() : Figure(4, "Romb", *(new RombValidator)) {}
+Romb::Romb() : Figure(4, "Romb") {}
 
 Romb::Romb(std::vector<Point> & _points) : Romb() {
-	validator.validate(_points);
-
 	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
 
 Romb::Romb(std::vector<Point> && _points) : Romb() {
-	validator.validate(_points);
-
 	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
@@ -35,14 +31,14 @@ Romb::Romb(Romb && other) noexcept : Romb() {
 }
 
 Figure & geometry::Romb::operator=(const Figure & rhs) {
-	Romb tmp(Romb::createInstance(rhs.getPoints()));
+	Romb tmp(rhs.getPoints());
 	Swap(tmp);
 
 	return *this;
 }
 
 Figure & geometry::Romb::operator=(Figure && rhs) noexcept {
-	Romb tmp(Romb::createInstance(rhs.getPoints()));
+	Romb tmp(rhs.getPoints());
 	Swap(tmp);
 
 	delete & rhs;

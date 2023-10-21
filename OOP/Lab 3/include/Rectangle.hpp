@@ -10,10 +10,10 @@ namespace geometry {
 		virtual Point calcGeometryCenter(const std::vector<Point> & _points) const override;
 		virtual double calcSquare(const std::vector<Point> & _points) const override;
 
-		Rectangle(std::vector<Point> & _points);
-		Rectangle(std::vector<Point> && _points);
 	public:
 		Rectangle();
+		Rectangle(std::vector<Point> & _points);
+		Rectangle(std::vector<Point> && _points);
 		Rectangle(const Rectangle & other);
 		Rectangle(Rectangle && other) noexcept;
 

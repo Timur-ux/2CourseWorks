@@ -22,9 +22,9 @@ TEST(rectangle_tests_set, constructor_viaVector_test) {
 	Point p4(decart(5, 13));
 
 
-	EXPECT_THROW(FigureFabric::createInstance<Rectangle>({ p1 });, RectangleValidatorException);
-	EXPECT_THROW(FigureFabric::createInstance<Rectangle>({ p1, p2, p3 }), RectangleValidatorException);
-	EXPECT_NO_THROW(FigureFabric::createInstance<Rectangle>({ p1, p2, p3, p4 }));
+	EXPECT_THROW(*FigureFabric<Rectangle>::createInstance({ p1 });, RectangleValidatorException);
+	EXPECT_THROW(*FigureFabric<Rectangle>::createInstance({ p1, p2, p3 }), RectangleValidatorException);
+	EXPECT_NO_THROW(*FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 }));
 }
 
 TEST(rectangle_tests_set, constructor_viaOtherRectangle_test) {
@@ -33,7 +33,7 @@ TEST(rectangle_tests_set, constructor_viaOtherRectangle_test) {
 	Point p3(decart(5, 3));
 	Point p4(decart(1, 2));
 
-	Rectangle rect = Rectangle::createInstance({ p1, p2, p3, p4 });
+	Rectangle rect = *FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 });
 	Rectangle rect2(rect);
 
 	ASSERT_EQ(rect.getPoints(), rect2.getPoints());
@@ -46,7 +46,7 @@ TEST(rectangle_tests_set, get_center_test) {
 	Point p4(decart(1, 2));
 	Point expectedCenter(decart(3, 2.5));
 
-	Rectangle rect = Rectangle::createInstance({ p1, p2, p3, p4 });
+	Rectangle rect = *FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 });
 
 	ASSERT_EQ(rect.getCenter(), expectedCenter);
 }
@@ -58,7 +58,7 @@ TEST(rectangle_tests_set, get_square_test) {
 	Point p4(decart(1, 2));
 	double expectedSquare(4);
 
-	Rectangle rect = Rectangle::createInstance({ p1, p2, p3, p4 });
+	Rectangle rect = *FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 });
 
 	ASSERT_EQ(double(rect), expectedSquare);
 }
@@ -70,7 +70,7 @@ TEST(rectangle_tests_set, get_figureType_test) {
 	Point p4(decart(1, 2));
 	std::string expectedType = "Rectangle";
 
-	Rectangle rect = Rectangle::createInstance({ p1, p2, p3, p4 });
+	Rectangle rect = *FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 });
 
 	ASSERT_EQ(rect.getFigureType(), expectedType);
 }
@@ -80,7 +80,7 @@ TEST(rectangle_tests_set, assign_test) {
 	Point p2(decart(5, 2));
 	Point p3(decart(5, 3));
 	Point p4(decart(1, 2));
-	Rectangle rect = Rectangle::createInstance({ p1, p2, p3, p4 });
+	Rectangle rect = *FigureFabric<Rectangle>::createInstance({ p1, p2, p3, p4 });
 
 	Rectangle assignedRect = rect;
 

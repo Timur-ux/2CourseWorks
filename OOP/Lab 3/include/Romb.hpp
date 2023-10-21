@@ -9,10 +9,10 @@ namespace geometry {
 		virtual Point calcGeometryCenter(const std::vector<Point> & _points) const override;
 		virtual double calcSquare(const std::vector<Point> & _points) const override;
 
-		Romb(std::vector<Point> & _points);
-		Romb(std::vector<Point> && _points);
 	public:
 		Romb();
+		Romb(std::vector<Point> & _points);
+		Romb(std::vector<Point> && _points);
 		Romb(const Romb & other);
 		Romb(Romb && other) noexcept;
 

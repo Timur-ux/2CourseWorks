@@ -9,10 +9,10 @@ namespace geometry {
 		virtual Point calcGeometryCenter(const std::vector<Point> & _points) const override;
 		virtual double calcSquare(const std::vector<Point> & _points) const override;
 
-		Trapezoid(std::vector<Point> & _points);
-		Trapezoid(std::vector<Point> && _points);
 	public:
 		Trapezoid();
+		Trapezoid(std::vector<Point> & _points);
+		Trapezoid(std::vector<Point> && _points);
 		Trapezoid(const Trapezoid & other);
 		Trapezoid(Trapezoid && other) noexcept;
 

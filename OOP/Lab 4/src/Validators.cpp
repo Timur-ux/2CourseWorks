@@ -1,8 +1,6 @@
 #include "Validators.hpp"
 
-using namespace geometry;
-
-void TrapezoidValidator::validate(const std::vector<Point> & _points) const {
+void TrapezoidValidator::validate(std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
 		throw TrapezoidValidatorException("Trapezoid must have 4 points");
 	}
@@ -17,11 +15,7 @@ void TrapezoidValidator::validate(const std::vector<Point> & _points) const {
 	}
 }
 
-bool geometry::TrapezoidValidator::isAllowedFor(const std::type_info & type) const {
-	return typeid(Trapezoid) == type;
-}
-
-void geometry::RectangleValidator::validate(const std::vector<Point> & _points) const {
+void RectangleValidator::validate(std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
 		throw RectangleValidatorException("Rectangle must have only 4 points");
 	}
@@ -45,11 +39,7 @@ void geometry::RectangleValidator::validate(const std::vector<Point> & _points) 
 	}
 }
 
-bool geometry::RectangleValidator::isAllowedFor(const std::type_info & type) const {
-	return typeid(Rectangle) == type;
-}
-
-void geometry::RombValidator::validate(const std::vector<Point> & _points) const {
+void RombValidator::validate(std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
 		throw RombValidatorException("Romb must have 4 points");
 	}
@@ -62,8 +52,4 @@ void geometry::RombValidator::validate(const std::vector<Point> & _points) const
 	if (not(line1 || line3) or not(line2 || line4)) {
 		throw RombValidatorException("Romb must have 2 pairs of parallel sides, unparallel given");
 	}
-}
-
-bool geometry::RombValidator::isAllowedFor(const std::type_info & type) const {
-	return typeid(Romb) == type;
 }

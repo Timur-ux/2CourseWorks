@@ -1,20 +1,11 @@
 #include "Figure.hpp"
 
-using namespace geometry;
-
-
-
-Figure::Figure(int _angles, std::string _figureType)
+Figure::Figure(int _angles, std::string _figureType, Validator & _validator)
 	: angles(_angles)
 	, figureType(_figureType)
+	, validator(_validator)
 	, square(0)
 	, geometryCenter(0, 0) {
-}
-
-void geometry::Figure::Swap(const Figure & other) {
-	points = other.points;
-	square = other.square;
-	geometryCenter = other.geometryCenter;
 }
 
 std::vector<Point> Figure::getPoints() const {
@@ -25,7 +16,7 @@ int Figure::getAngles() const {
 	return angles;
 }
 
-std::string geometry::Figure::getFigureType() const {
+std::string Figure::getFigureType() const {
 	return figureType;
 }
 
@@ -33,17 +24,42 @@ Point Figure::getCenter() const {
 	return geometryCenter;
 }
 
-geometry::Figure::operator double() const {
+Figure::operator double() const {
 	return square;
 }
 
-bool geometry::Figure::operator==(const Figure & rhs) const {
+Figure & Figure::operator=(const Figure & rhs) {
 	std::vector<Point> rhsPoints = rhs.getPoints();
+	points = unificatePoints(rhsPoints);
 
-	return typeid(*this) == typeid(rhs) && double(*this) == double(rhs);
+	validator.validate(points);
+
+	geometryCenter = rhs.getCenter();
+	square = double(rhs);
+
+	delete & rhs;
+	return *this;
 }
 
-std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {
+Figure & Figure::operator=(Figure && rhs) {
+	std::vector<Point> rhsPoints = rhs.getPoints();
+	points = unificatePoints(rhsPoints);
+
+	validator.validate(points);
+
+	geometryCenter = rhs.getCenter();
+	square = double(rhs);
+
+	return *this;
+}
+
+bool Figure::operator==(const Figure & rhs) const {
+	std::vector<Point> rhsPoints = rhs.getPoints();
+	validator.validate(rhsPoints);
+	return double(*this) == double(rhs);
+}
+
+std::ostream & operator<<(std::ostream & os, const Figure & figure) {
 	std::vector<Point> points = figure.getPoints();
 
 	os << figure.getFigureType() << ": [ ";
@@ -57,7 +73,7 @@ std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {
 	return os;
 }
 
-std::istream & geometry::operator>>(std::istream & is, Figure & figure) {
+std::istream & operator>>(std::istream & is, Figure & figure) {
 	std::vector<Point> _points(figure.getAngles());
 	for (Point & point : _points) {
 		is >> point;
@@ -70,7 +86,7 @@ std::istream & geometry::operator>>(std::istream & is, Figure & figure) {
 	return is;
 }
 
-bool geometry::isParallel(const std::vector<Point> & points) {
+bool isParallel(const std::vector<Point> & points) {
 	if (points.size() != 4) {
 		throw std::invalid_argument("isParallel need 4 points exactly");
 	}

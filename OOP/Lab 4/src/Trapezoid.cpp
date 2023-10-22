@@ -1,17 +1,19 @@
 #include "Trapezoid.hpp"
 
-using namespace geometry;
-
-Trapezoid::Trapezoid() : Figure(4, "Trapezoid") {}
+Trapezoid::Trapezoid() : Figure(4, "Trapezoid", *(new TrapezoidValidator)) {}
 
 Trapezoid::Trapezoid(std::vector<Point> & _points) : Trapezoid() {
-	points = _points;
+	points = unificatePoints(_points);
+	validator.validate(points);
+
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
 
 Trapezoid::Trapezoid(std::vector<Point> && _points) : Trapezoid() {
-	points = _points;
+	points = unificatePoints(_points);
+	validator.validate(points);
+
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
@@ -26,21 +28,6 @@ Trapezoid::Trapezoid(Trapezoid && other) noexcept : Trapezoid() {
 	points = other.getPoints();
 	geometryCenter = other.getCenter();
 	square = double(other);
-}
-
-Figure & geometry::Trapezoid::operator=(const Figure & rhs) {
-	Trapezoid tmp(rhs.getPoints());
-	Swap(tmp);
-
-	return *this;
-}
-
-Figure & geometry::Trapezoid::operator=(Figure && rhs) noexcept {
-	Trapezoid tmp(rhs.getPoints());
-	Swap(tmp);
-
-	delete & rhs;
-	return *this;
 }
 
 Point Trapezoid::calcGeometryCenter(const std::vector<Point> & _points) const {

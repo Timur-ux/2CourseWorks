@@ -1,8 +1,8 @@
 #include "Validators.hpp"
 
-void TrapezoidValidator::validate(std::vector<Point> & _points) const {
+void TrapezoidValidator::validate(const std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
-		throw TrapezoidValidatorException("Trapezoid must have 4 points");
+		throw FigureValidatorException<Trapezoid>("Trapezoid must have 4 points");
 	}
 
 	Line line1(_points[0], _points[1]);
@@ -11,13 +11,17 @@ void TrapezoidValidator::validate(std::vector<Point> & _points) const {
 	Line line4(_points[3], _points[0]);
 
 	if (not(line1 || line3) and not(line2 || line4)) {
-		throw TrapezoidValidatorException("Trapezoid must have 1 pair of parallel sides minimum");
+		throw FigureValidatorException<Trapezoid>("Trapezoid must have 1 pair of parallel sides minimum");
 	}
 }
 
-void RectangleValidator::validate(std::vector<Point> & _points) const {
+bool TrapezoidValidator::isAllowedFor(const std::type_info & type) const {
+	return typeid(Trapezoid) == type;
+}
+
+void RectangleValidator::validate(const std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
-		throw RectangleValidatorException("Rectangle must have only 4 points");
+		throw FigureValidatorException<Rectangle>("Rectangle must have only 4 points");
 	}
 
 	Line line1(_points[0], _points[1]);
@@ -26,7 +30,7 @@ void RectangleValidator::validate(std::vector<Point> & _points) const {
 	Line line4(_points[3], _points[0]);
 
 	if (not((line1 || line3) and (line2 || line4))) {
-		throw RectangleValidatorException("Rectangle must have 2 pairs of parallels line, unparallel given");
+		throw FigureValidatorException<Rectangle>("Rectangle must have 2 pairs of parallels line, unparallel given");
 	}
 
 	if (
@@ -35,13 +39,17 @@ void RectangleValidator::validate(std::vector<Point> & _points) const {
 		scalarMult(line3, line4) > EPS or
 		scalarMult(line4, line1) > EPS
 	  ) {
-		throw RectangleValidatorException("Rectangle must have ortogonal sides");
+		throw FigureValidatorException<Rectangle>("Rectangle must have ortogonal sides");
 	}
 }
 
-void RombValidator::validate(std::vector<Point> & _points) const {
+bool RectangleValidator::isAllowedFor(const std::type_info & type) const {
+	return typeid(Rectangle) == type;
+}
+
+void RombValidator::validate(const std::vector<Point> & _points) const {
 	if (_points.size() != 4) {
-		throw RombValidatorException("Romb must have 4 points");
+		throw FigureValidatorException<Romb>("Romb must have 4 points");
 	}
 
 	Line line1(_points[0], _points[1]);
@@ -50,6 +58,10 @@ void RombValidator::validate(std::vector<Point> & _points) const {
 	Line line4(_points[3], _points[0]);
 
 	if (not(line1 || line3) or not(line2 || line4)) {
-		throw RombValidatorException("Romb must have 2 pairs of parallel sides, unparallel given");
+		throw FigureValidatorException<Romb>("Romb must have 2 pairs of parallel sides, unparallel given");
 	}
+}
+
+bool RombValidator::isAllowedFor(const std::type_info & type) const {
+	return typeid(Romb) == type;
 }

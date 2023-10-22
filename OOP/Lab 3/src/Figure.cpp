@@ -56,30 +56,3 @@ std::ostream & geometry::operator<<(std::ostream & os, const Figure & figure) {
 
 	return os;
 }
-
-std::istream & geometry::operator>>(std::istream & is, Figure & figure) {
-	std::vector<Point> _points(figure.getAngles());
-	for (Point & point : _points) {
-		is >> point;
-	}
-
-	figure.points = unificatePoints(_points);
-	figure.square = figure.calcSquare(figure.points);
-	figure.geometryCenter = figure.calcGeometryCenter(figure.points);
-
-	return is;
-}
-
-bool geometry::isParallel(const std::vector<Point> & points) {
-	if (points.size() != 4) {
-		throw std::invalid_argument("isParallel need 4 points exactly");
-	}
-
-	Point line1 = (points[1] - points[0]);
-	double k1 = line1.getX() == 0 ? 0 : line1.getY() / line1.getX();
-
-	Point line2 = (points[3] - points[2]);
-	double k2 = line2.getX() == 0 ? 0 : line2.getY() / line2.getX();
-
-	return k1 == k2;
-}

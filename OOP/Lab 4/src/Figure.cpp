@@ -1,11 +1,16 @@
 #include "Figure.hpp"
 
-Figure::Figure(int _angles, std::string _figureType, Validator & _validator)
+Figure::Figure(int _angles, std::string _figureType)
 	: angles(_angles)
 	, figureType(_figureType)
-	, validator(_validator)
 	, square(0)
 	, geometryCenter(0, 0) {
+}
+
+void Figure::Swap(const Figure & other) {
+	points = other.points;
+	square = other.square;
+	geometryCenter = other.geometryCenter;
 }
 
 std::vector<Point> Figure::getPoints() const {
@@ -28,35 +33,10 @@ Figure::operator double() const {
 	return square;
 }
 
-Figure & Figure::operator=(const Figure & rhs) {
-	std::vector<Point> rhsPoints = rhs.getPoints();
-	points = unificatePoints(rhsPoints);
-
-	validator.validate(points);
-
-	geometryCenter = rhs.getCenter();
-	square = double(rhs);
-
-	delete & rhs;
-	return *this;
-}
-
-Figure & Figure::operator=(Figure && rhs) {
-	std::vector<Point> rhsPoints = rhs.getPoints();
-	points = unificatePoints(rhsPoints);
-
-	validator.validate(points);
-
-	geometryCenter = rhs.getCenter();
-	square = double(rhs);
-
-	return *this;
-}
-
 bool Figure::operator==(const Figure & rhs) const {
 	std::vector<Point> rhsPoints = rhs.getPoints();
-	validator.validate(rhsPoints);
-	return double(*this) == double(rhs);
+
+	return typeid(*this) == typeid(rhs) && double(*this) == double(rhs);
 }
 
 std::ostream & operator<<(std::ostream & os, const Figure & figure) {
@@ -71,31 +51,4 @@ std::ostream & operator<<(std::ostream & os, const Figure & figure) {
 	os << "Square = " << double(figure) << std::endl;
 
 	return os;
-}
-
-std::istream & operator>>(std::istream & is, Figure & figure) {
-	std::vector<Point> _points(figure.getAngles());
-	for (Point & point : _points) {
-		is >> point;
-	}
-
-	figure.points = unificatePoints(_points);
-	figure.square = figure.calcSquare(figure.points);
-	figure.geometryCenter = figure.calcGeometryCenter(figure.points);
-
-	return is;
-}
-
-bool isParallel(const std::vector<Point> & points) {
-	if (points.size() != 4) {
-		throw std::invalid_argument("isParallel need 4 points exactly");
-	}
-
-	Point line1 = (points[1] - points[0]);
-	double k1 = line1.getX() == 0 ? 0 : line1.getY() / line1.getX();
-
-	Point line2 = (points[3] - points[2]);
-	double k2 = line2.getX() == 0 ? 0 : line2.getY() / line2.getX();
-
-	return k1 == k2;
 }

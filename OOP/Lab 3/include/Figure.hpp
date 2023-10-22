@@ -41,10 +41,4 @@ namespace geometry {
 		friend std::istream & operator>>(std::istream & is, Figure & figure);
 	};
 	std::ostream & operator<<(std::ostream & os, const Figure & figure);
-	std::istream & operator>>(std::istream & is, Figure & figure);
-	bool isParallel(const std::vector<Point> & points);
 };
-
-#include "Rectangle.hpp"
-#include "Trapezoid.hpp"
-#include "Romb.hpp"

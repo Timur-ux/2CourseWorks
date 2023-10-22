@@ -1,19 +1,15 @@
 #include "Rectangle.hpp"
 
-Rectangle::Rectangle() : Figure(4, "Rectangle", *(new RectangleValidator)) {}
+Rectangle::Rectangle() : Figure(4, "Rectangle") {}
 
 Rectangle::Rectangle(std::vector<Point> & _points) : Rectangle() {
-	points = unificatePoints(_points);
-	validator.validate(points);
-
+	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
 
 Rectangle::Rectangle(std::vector<Point> && _points) : Rectangle() {
-	points = unificatePoints(_points);
-	validator.validate(points);
-
+	points = _points;
 	geometryCenter = calcGeometryCenter(points);
 	square = calcSquare(points);
 }
@@ -30,6 +26,21 @@ Rectangle::Rectangle(Rectangle && other) noexcept : Rectangle() {
 	square = double(other);
 
 	delete & other;
+}
+
+Figure & Rectangle::operator=(const Figure & rhs) {
+	Rectangle tmp(rhs.getPoints());
+	Swap(tmp);
+
+	return *this;
+}
+
+Figure & Rectangle::operator=(Figure && rhs) noexcept {
+	Rectangle tmp(rhs.getPoints());
+	Swap(tmp);
+
+	delete & rhs;
+	return *this;
 }
 
 Point Rectangle::calcGeometryCenter(const std::vector<Point> & _points) const {

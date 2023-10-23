@@ -37,19 +37,33 @@ int main() {
 	cout << "Input \"Exit\" for exit" << endl;
 
 	int fdMutex = openShmFile(fileMutexName.c_str());
-	setFileSize(fdMutex, sizeof(pthread_mutex_t));
-	pthread_mutex_t * mutex = (pthread_mutex_t *)openMMap(fdMutex, sizeof(pthread_mutex_t));
-	pthread_mutexattr_t * mutexattr = (pthread_mutexattr_t *)malloc(sizeof(pthread_mutexattr_t));
-	if (pthread_mutexattr_setpshared(mutexattr, PTHREAD_PROCESS_SHARED)) {
+	setFileSize(fdMutex, sizeof(pthread_mutex_t) + sizeof(pthread_cond_t));
+
+	pthread_mutex_t * mutex = (pthread_mutex_t *)openMMap(fdMutex, sizeof(pthread_mutex_t) + sizeof(pthread_cond_t));
+	pthread_cond_t * cond = (pthread_cond_t *)(mutex + sizeof(pthread_mutex_t));
+
+	pthread_mutexattr_t mutexattr;
+	pthread_condattr_t condattr;
+
+	if (pthread_mutexattr_setpshared(&mutexattr, PTHREAD_PROCESS_SHARED)) {
 		throw invalid_argument("Mutexattr set failed");
 	}
-	if (pthread_mutex_init(mutex, mutexattr)) {
+	if (pthread_mutex_init(mutex, &mutexattr)) {
 		throw invalid_argument("Mutex init failed");
 	}
 
+	if (pthread_condattr_setpshared(&condattr, PTHREAD_PROCESS_SHARED)) {
+		throw invalid_argument("Condattr set failed");
+	}
+	if (pthread_cond_init(cond, &condattr)) {
+		throw invalid_argument("Cond init failed");
+	}
+
 	int fdData = openShmFile(fileDataName.c_str());
-	setFileSize(fdData, (MAX_LEN + 1) * sizeof(int));
+	setFileSize(fdData, (MAX_LEN + 1) * sizeof(int)); // 1 addition place for nums count
 	int * data = (int *)openMMap(fdData, (MAX_LEN + 1) * sizeof(int));
+
+	data[0] = 0; // for a while there 0 items
 
 	int pid = fork();
 
@@ -59,6 +73,7 @@ int main() {
 	else if (pid == 0) { // Child process
 		char * argv[] = { (char *)fileName.c_str()
 						, (char *)outputName.c_str()
+						, (char *)fileMutexName.c_str()
 						, (char *)fileDataName.c_str()
 						,  NULL };
 
@@ -70,12 +85,19 @@ int main() {
 		string command;
 		while (true) {
 			pthread_mutex_lock(mutex);
+
+			if (not getline(cin, command)) {
+				data[0] = EOF;
+				pthread_cond_signal(cond);
+				pthread_mutex_unlock(mutex);
+				break;
+			}
+
 			int ints[MAX_LEN]{ 0 };
 			int i = 0, num;
 
-			getline(cin, command);
 			stringstream ss(command, ios_base::in);
-			while (command != "Exit" and (ss >> num)) {
+			while (ss >> num) {
 				if (i >= MAX_LEN) {
 					stringstream errorstream;
 					errorstream << "Error: string must have " << MAX_LEN << " numbers max" << endl;
@@ -84,16 +106,19 @@ int main() {
 				ints[i++] = num;
 			}
 
-			if (command == "Exit") {
-				ints[0] = -111333666;
-				memcpy(data, ints, MAX_LEN * sizeof(int));
-				break;
-			}
+			data[0] = i;// set nums count
+			memcpy(&data[1], ints, MAX_LEN);
 
-			memcpy(data, ints, MAX_LEN * sizeof(int));
+			pthread_cond_signal(cond);
 			pthread_mutex_unlock(mutex);
 		}
+
 		wait(NULL);
+
+		pthread_mutex_destroy(mutex);
+		pthread_cond_destroy(cond);
+		pthread_mutexattr_destroy(&mutexattr);
+		pthread_condattr_destroy(&condattr);
 		if (shm_unlink(fileDataName.c_str()) == -1) {
 			throw runtime_error("shm_unlink error on file data");
 		}

@@ -2,6 +2,7 @@
 #include <sstream>
 #include <string>
 #include <cstring>
+#include <vector>
 
 #include <sys/mman.h>
 #include <sys/shm.h>
@@ -15,18 +16,15 @@
 
 using namespace std;
 
-FILE * openFile(const char * fileName, const char * mode);
+int openShmFile(const char * fileName);
 void setFileSize(int __fd, unsigned long int size);
 void * openMMap(int __fd, unsigned long int size);
 
 int main() {
 
 	string fileName, outputName;
-	string fileCondName = "fileCond";
 	string fileDataName = "fileData";
-
-	int mutexPos = sizeof(pthread_cond_t);
-	int statePos = mutexPos + sizeof(pthread_mutex_t);
+	string fileMutexName = "fileMutex";
 
 	cout << "Input subprogram name(\"subprogram\" by default): ";
 	getline(cin, fileName);
@@ -38,36 +36,21 @@ int main() {
 	cout << "Input \"num1 num2 ...<endline>\" as command" << endl;
 	cout << "Input \"Exit\" for exit" << endl;
 
-	int fdCond = shm_open(fileCondName.c_str(), O_CREAT | O_RDWR, 0777);
-	setFileSize(fdCond, sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool) + 1);
-	void * mmapCond = openMMap(fdCond
-							 , sizeof(pthread_cond_t) + sizeof(pthread_mutex_t) + sizeof(bool)
-	);
-
-	pthread_cond_t * cond = (pthread_cond_t *)(mmapCond);
-	pthread_mutex_t * mutex = (pthread_mutex_t *)(mmapCond + mutexPos);
-	bool * state = (bool *)(mmapCond + statePos);
-
-	memcpy(cond, new pthread_cond_t, sizeof(pthread_cond_t));
-	memcpy(mutex, new pthread_mutex_t, sizeof(pthread_mutex_t));
-	memcpy(state, new bool(true), sizeof(bool));
-
-
-
-	if (pthread_cond_init(cond, NULL)) {
-		stringstream errorstream;
-		errorstream << "Pthread cond init failed, errno = " << errno;
-		throw runtime_error(errorstream.str());
+	int fdMutex = openShmFile(fileMutexName.c_str());
+	setFileSize(fdMutex, sizeof(pthread_mutex_t));
+	pthread_mutex_t * mutex = (pthread_mutex_t *)openMMap(fdMutex, sizeof(pthread_mutex_t));
+	pthread_mutexattr_t * mutexattr = (pthread_mutexattr_t *)malloc(sizeof(pthread_mutexattr_t));
+	if (pthread_mutexattr_setpshared(mutexattr, PTHREAD_PROCESS_SHARED)) {
+		throw invalid_argument("Mutexattr set failed");
 	}
-	if (pthread_mutex_init(mutex, NULL)) {
-		stringstream errorstream;
-		errorstream << "Pthread mutex init failed, errno = " << errno;
-		throw runtime_error(errorstream.str());
+	if (pthread_mutex_init(mutex, mutexattr)) {
+		throw invalid_argument("Mutex init failed");
 	}
 
-	int fdData = shm_open(fileDataName.c_str(), O_CREAT | O_RDWR, 0777);
+	int fdData = openShmFile(fileDataName.c_str());
 	setFileSize(fdData, (MAX_LEN + 1) * sizeof(int));
-	void * mmapData = openMMap(fdData, (MAX_LEN + 1) * sizeof(int));
+	int * data = (int *)openMMap(fdData, (MAX_LEN + 1) * sizeof(int));
+
 	int pid = fork();
 
 	if (pid < 0) {
@@ -76,7 +59,6 @@ int main() {
 	else if (pid == 0) { // Child process
 		char * argv[] = { (char *)fileName.c_str()
 						, (char *)outputName.c_str()
-						, (char *)fileCondName.c_str()
 						, (char *)fileDataName.c_str()
 						,  NULL };
 
@@ -85,53 +67,45 @@ int main() {
 		}
 	}
 	else { // Parent process
-		for (int j = 0; j < 2; j++) {
-			cout << "MAIN" << endl;
-
+		string command;
+		while (true) {
 			pthread_mutex_lock(mutex);
-
 			int ints[MAX_LEN]{ 0 };
-			string command;
 			int i = 0, num;
 
 			getline(cin, command);
 			stringstream ss(command, ios_base::in);
 			while (command != "Exit" and (ss >> num)) {
 				if (i >= MAX_LEN) {
-					cerr << "Error: string must have " << MAX_LEN << " numbers max" << endl;
+					stringstream errorstream;
+					errorstream << "Error: string must have " << MAX_LEN << " numbers max" << endl;
+					throw runtime_error(errorstream.str());
 				}
 				ints[i++] = num;
 			}
+
 			if (command == "Exit") {
-				*state = false;
-				pthread_cond_signal(cond);
-				pthread_mutex_unlock(mutex);
+				ints[0] = -111333666;
+				memcpy(data, ints, MAX_LEN * sizeof(int));
 				break;
 			}
 
-			cout << "MAIN2" << endl;
-
-			memcpy(mmapData, ints, MAX_LEN * sizeof(int));
-
-			pthread_cond_signal(cond);
+			memcpy(data, ints, MAX_LEN * sizeof(int));
 			pthread_mutex_unlock(mutex);
 		}
-
 		wait(NULL);
-
-		pthread_cond_destroy(cond);
-		pthread_mutex_destroy(mutex);
-		close(fdCond);
-		close(fdData);
+		if (shm_unlink(fileDataName.c_str()) == -1) {
+			throw runtime_error("shm_unlink error on file data");
+		}
 	}
 	return 0;
 }
 
-FILE * openFile(const char * fileName, const char * mode) {
-	FILE * file = fopen(fileName, mode);
-	if (file == NULL) {
+int openShmFile(const char * fileName) {
+	int file = shm_open(fileName, O_CREAT | O_RDWR, 0777);
+	if (file == -1) {
 		stringstream errorstream;
-		errorstream << "Can't open " << fileName << " with " << mode << " mode, errno = " << errno;
+		errorstream << "Can't open " << fileName << " with " << 0777 << " mode, errno = " << errno;
 		throw runtime_error(errorstream.str());
 	}
 

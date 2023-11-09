@@ -2,15 +2,16 @@
 #define MY_ALLOCATOR_H_
 
 #include <vector>
-#include <malloc.h>
+#include <cstdlib>
+#include <stdexcept>
 
-namespace myAlloc {
+namespace labWork {
 	template <typename T, int BLOCKS_COUNT = 100>
 	class Allocator {
 	private:
-		void * usedBlocks;
-		vector <void *> freeBlocks;
-		size_type freeCount;
+		void * allocatorMemory;
+		std::vector <T *> freeBlocks;
+		std::size_t freeCount;
 	public:
 		using pointer = T *;
 		using const_pointer = const T *;
@@ -30,10 +31,10 @@ namespace myAlloc {
 		};
 
 		Allocator() {
-			usedBlocks = malloc(sizeof(T) * BLOCKS_COUNT);
+			allocatorMemory = malloc(sizeof(T) * BLOCKS_COUNT);
 
 			for (int i = 0; i < BLOCKS_COUNT; ++i) {
-				freeBlocks[i] = usedBlocks + i * sizeof(T);
+				freeBlocks[i] = static_cast<T *>(allocatorMemory + i * sizeof(T));
 			}
 
 			freeCount = BLOCKS_COUNT;
@@ -44,17 +45,60 @@ namespace myAlloc {
 				std::cerr << "WARNING: not all objects was deallocated when allocator's dectructor was called" << std::endl;
 			}
 
-			delete usedBlocks;
+			free(allocatorMemory);
 		}
 
-		pointer allocate(size_type n) {
+		pointer allocate(size_type) {
+			pointer result = nullptr;
+			if (freeCount > 0) {
+				auto lastFree = --std::end(freeBlocks);
 
+				result = *lastFree;
+
+				freeBlocks.erase(lastFree);
+				--freeCount;
+			}
+			else {
+				throw std::bad_alloc();
+			}
+
+			return result;
 		}
 
-		void deallocate(pointer p, size_type n) {
+		void deallocate(pointer p, size_type) noexcept {
+			void * castedP = static_cast<void *>(p);
 
+			freeBlocks.push_back(castedP);
+			++freeCount;
+		}
+
+		template<typename U, typename... Args>
+		void construct(U * p, Args && ...args) {
+			if (not(p >= allocatorMemory and p < allocatorMemory + BLOCKS_COUNT * sizeof(T))) {
+				throw std::invalid_argument("Allocator construct error: given pointer must point on allocator memory");
+			}
+			if ((p - allocatorMemory) % sizeof(T) != 0) {
+				throw std::invalid_argument("Allocator construct error: pointer must point on start of allocated object's memory");
+			}
+			new (p) T(std::forward(args)...);
+		}
+
+		void destroy(pointer p) {
+			p->~T();
 		}
 	};
+
+	template <typename T, typename U>
+	constexpr bool operator==(Allocator<T> & lhs, Allocator<U> & rhs) {
+		return &lhs == &rhs;
+	}
+
+	template <typename T, typename U>
+	constexpr bool operator!=(Allocator<T> & lhs, Allocator<U> & rhs) {
+		return not(lhs == rhs);
+	}
+
+
 } // namespace myAlloc
 
 

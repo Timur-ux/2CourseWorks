@@ -24,6 +24,8 @@ TEST(AllocatorTestSet, allocateTest) {
 
 	int * pint = allocator.allocate(1);
 
-	EXPECT_EQ(*pint, 0);
+	EXPECT_NE(pint, nullptr);
 	EXPECT_THROW(allocator.allocate(1000), std::bad_alloc);
+
+	allocator.deallocate(pint);
 }

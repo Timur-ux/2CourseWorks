@@ -34,7 +34,7 @@ namespace labWork {
 			allocatorMemory = malloc(sizeof(T) * BLOCKS_COUNT);
 
 			for (int i = 0; i < BLOCKS_COUNT; ++i) {
-				freeBlocks[i] = static_cast<T *>(allocatorMemory + i * sizeof(T));
+				freeBlocks.push_back(static_cast<T *>(allocatorMemory + i * sizeof(T)));
 			}
 
 			freeCount = BLOCKS_COUNT;
@@ -48,9 +48,9 @@ namespace labWork {
 			free(allocatorMemory);
 		}
 
-		pointer allocate(size_type) {
+		pointer allocate(size_type n = 1) {
 			pointer result = nullptr;
-			if (freeCount > 0) {
+			if (freeCount >= n) {
 				auto lastFree = --std::end(freeBlocks);
 
 				result = *lastFree;
@@ -65,8 +65,8 @@ namespace labWork {
 			return result;
 		}
 
-		void deallocate(pointer p, size_type) noexcept {
-			void * castedP = static_cast<void *>(p);
+		void deallocate(pointer p, size_type n = 1) noexcept {
+			T * castedP = static_cast<T *>(p);
 
 			freeBlocks.push_back(castedP);
 			++freeCount;
@@ -75,12 +75,10 @@ namespace labWork {
 		template<typename U, typename... Args>
 		void construct(U * p, Args && ...args) {
 			if (not(p >= allocatorMemory and p < allocatorMemory + BLOCKS_COUNT * sizeof(T))) {
-				throw std::invalid_argument("Allocator construct error: given pointer must point on allocator memory");
+				throw std::invalid_argument("Allocator::construct error: given pointer must point on allocator memory");
 			}
-			if ((p - allocatorMemory) % sizeof(T) != 0) {
-				throw std::invalid_argument("Allocator construct error: pointer must point on start of allocated object's memory");
-			}
-			new (p) T(std::forward(args)...);
+
+			new (p) T(args...);
 		}
 
 		void destroy(pointer p) {

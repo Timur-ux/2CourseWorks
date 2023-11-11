@@ -1,8 +1,8 @@
 #ifndef STACK_H_
 #define STACK_H_
 
-#include <vector>
 #include <stdexcept>
+#include <cstdlib>
 
 namespace labWork {
 
@@ -10,9 +10,11 @@ namespace labWork {
 	class stack {
 	private:
 		Allocator allocator;
-		std::vector<T *> data;
+		T * data;
+		size_t capacity = 20;
+		size_t size = 0;
 	public:
-		stack() = default;
+		stack();
 		~stack();
 
 		template <typename... Args>
@@ -49,13 +51,24 @@ namespace labWork {
 			}
 
 			iterator & operator++() {
-				++ptr;
+				if (ptr == data[0]) {
+					ptr = nullptr;
+				}
+				else {
+					++ptr;
+				}
+
 				return *this;
 			}
 
 			iterator operator++(int) {
 				iterator temp(*this);
-				++ptr;
+				if (ptr == data[0]) {
+					ptr = nullptr;
+				}
+				else {
+					++ptr;
+				}
 				return temp;
 			}
 
@@ -67,9 +80,23 @@ namespace labWork {
 				return not(lhs == rhs);
 			}
 
+
+		}
+
+		iterator begin() {
+			return iterator(data[data.size() - 1]);
+		}
+
+		iterator end() {
+			return iterator(nullptr);
 		}
 	};
 
+
+	template<typename T, class Allocator>
+	inline stack<T, Allocator>::stack() {
+		data = (T *)malloc(sizeof(T) * capacity);
+	}
 
 	template<typename T, class Allocator>
 	inline stack<T, Allocator>::~stack() {

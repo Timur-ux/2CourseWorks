@@ -2,45 +2,67 @@
 #define STACK_H_
 
 #include <stdexcept>
-#include <cstdlib>
+#include <vector>
+#include <type_traits>
 
 namespace labWork {
 
-	template <typename T, class Allocator = std::allocator<T>>
+	template <typename T, class Allocator = std::allocator<T>, int BLOCK_COUNT = 100>
 	class stack {
 	private:
 		Allocator allocator;
-		T * data;
-		size_t capacity = 20;
-		size_t size = 0;
+		T * data[BLOCK_COUNT];
+		int size = 0;
 	public:
-		stack();
+		using value_type = T;
+		using reference = T &;
+		using pointer = T *;
+
+		stack() = default;
 		~stack();
 
 		template <typename... Args>
-		T & push(Args && ...args);
-		T & front();
+		reference push(Args && ...args);
+		reference front();
 		void pop();
 
 		bool empty();
 
-		class iterator {
+		template <typename U>
+		class StackIterator;
+
+		using iterator = StackIterator<T>;
+		using const_iterator = StackIterator<const T>;
+
+		template <typename U>
+		class StackIterator {
 		public:
 			using difference_type = std::ptrdiff_t;
-			using value_type = T;
-			using pointer = T *;
-			using reference = T &;
+			using value_type = U;
+			using pointer = U *;
+			using reference = U &;
 			using iterator_categoty = std::forward_iterator_tag;
-		private:
+		protected:
 			pointer ptr;
 		public:
-			iterator() = default;
-			iterator(pointer _ptr) : ptr(_ptr) {}
-			iterator(iterator & other) : ptr(other.ptr) {}
-			iterator(iterator && other) : ptr(other.ptr) {}
+			StackIterator() = default;
+			StackIterator(pointer _ptr) : ptr(_ptr) {}
+			StackIterator(StackIterator & other) : ptr(other.ptr) {}
+			StackIterator(StackIterator && other) noexcept : ptr(other.ptr) {
+				other.ptr = nullptr;
+			}
 
-			iterator & operator=(iterator & other) : ptr(other.ptr) {}
-			iterator & operator==(iterator && other) : ptr(other.ptr) {}
+			StackIterator & operator=(StackIterator & other) {
+				ptr = other.ptr;
+
+				return *this;
+			}
+			StackIterator & operator=(StackIterator && other) noexcept {
+				ptr = other.ptr;
+				other.ptr = nullptr;
+
+				return *this;
+			}
 
 			reference operator*() {
 				return *ptr;
@@ -50,97 +72,131 @@ namespace labWork {
 				return ptr;
 			}
 
-			iterator & operator++() {
-				if (ptr == data[0]) {
-					ptr = nullptr;
-				}
-				else {
-					++ptr;
-				}
-
+			StackIterator & operator++() {
+				++ptr;
 				return *this;
 			}
 
-			iterator operator++(int) {
-				iterator temp(*this);
-				if (ptr == data[0]) {
-					ptr = nullptr;
-				}
-				else {
-					++ptr;
-				}
+			StackIterator operator++(int) {
+				StackIterator temp(*this);
+				++ptr;
+
 				return temp;
 			}
 
-			friend bool operator==(iterator & lhs, iterator & rhs) {
+			StackIterator & operator+=(const difference_type offset) {
+				ptr += offset;
+				return *this;
+			}
+
+			StackIterator operator+(const difference_type offset) {
+				StackIterator tmp(*this);
+				return tmp += offset;
+			}
+
+			friend bool operator>(StackIterator<U> & lhs, StackIterator<U> & rhs) {
+				return lhs.ptr > rhs.ptr;
+			}
+
+			friend bool operator>=(StackIterator<U> & lhs, StackIterator<U> & rhs) {
+				return lhs.ptr >= rhs.ptr;
+			}
+
+			friend bool operator<(StackIterator<U> & lhs, StackIterator<U> & rhs) {
+				return lhs.ptr < rhs.ptr;
+			}
+
+			friend bool operator<=(StackIterator<U> & lhs, StackIterator<U> & rhs) {
+				return lhs.ptr <= rhs.ptr;
+			}
+
+			friend bool operator==(StackIterator<U> & lhs, StackIterator<U> & rhs) {
 				return lhs.ptr == rhs.ptr;
 			}
 
-			friend bool operator!=(iterator & lhs, iterator & rhs) {
+			friend bool operator!=(StackIterator<U> & lhs, StackIterator<U> & rhs) {
 				return not(lhs == rhs);
 			}
 
-
-		}
+		}; // class StackIterator
 
 		iterator begin() {
-			return iterator(data[data.size() - 1]);
+			return iterator(&front());
 		}
 
 		iterator end() {
-			return iterator(nullptr);
+			T * ptr = data[0];
+			return ++iterator(ptr);
 		}
-	};
 
+		const_iterator begin() const {
+			return const_iterator(&front());
+		}
 
-	template<typename T, class Allocator>
-	inline stack<T, Allocator>::stack() {
-		data = (T *)malloc(sizeof(T) * capacity);
-	}
+		const_iterator end() const {
+			const T * ptr = data[0];
+			return ++const_iterator(ptr);
+		}
 
-	template<typename T, class Allocator>
-	inline stack<T, Allocator>::~stack() {
+		const_iterator cbegin() {
+			return const_iterator(&front());
+		}
+
+		const_iterator cend() {
+			const T * ptr = data[0];
+			return ++const_iterator(ptr);
+		}
+
+	}; // class stack
+
+	template<typename T, class Allocator, int BLOCK_COUNT>
+	inline stack<T, Allocator, BLOCK_COUNT>::~stack() {
 		while (not(empty())) {
 			pop();
 		}
 	}
 
-	template<typename T, class Allocator>
+	template<typename T, class Allocator, int BLOCK_COUNT>
 	template<typename ...Args>
-	inline T & stack<T, Allocator>::push(Args && ...args) {
-		T * ptr = allocator.allocate(1);
+	inline T & stack<T, Allocator, BLOCK_COUNT>::push(Args && ...args) {
+		if (size >= BLOCK_COUNT) {
+			throw std::runtime_error("Error: Stack overflow");
+		}
+
+		T * ptr = allocator.allocate();
 		allocator.construct(ptr, args...);
 
-		data.push_back(ptr);
+
+		data[size++] = ptr;
 		return *ptr;
 	}
 
-	template<typename T, class Allocator>
-	inline T & stack<T, Allocator>::front() {
+	template<typename T, class Allocator, int BLOCK_COUNT>
+	inline T & stack<T, Allocator, BLOCK_COUNT>::front() {
 		if (empty()) {
 			throw std::logic_error("Stack::front error: stack is empty, nothing to pop");
 		}
 
-		return *data[data.size() - 1];
+		return *data[size - 1];
 	}
 
-	template<typename T, class Allocator>
-	inline void stack<T, Allocator>::pop() {
+	template<typename T, class Allocator, int BLOCK_COUNT>
+	inline void stack<T, Allocator, BLOCK_COUNT>::pop() {
 		if (empty()) {
 			throw std::logic_error("Stack::pop error: stack is empty, nothing to pop");
 		}
 
-		T * frontElement = &front();
+		T & frontElement = front();
 
-		allocator.destroy(frontElement);
-		allocator.deallocate(frontElement);
+		allocator.destroy(&frontElement);
+		allocator.deallocate(&frontElement);
 
-		data.pop_back();
+		--size;
 	}
 
-	template<typename T, class Allocator>
-	inline bool stack<T, Allocator>::empty() {
-		return data.size() == 0;
+	template<typename T, class Allocator, int BLOCK_COUNT>
+	inline bool stack<T, Allocator, BLOCK_COUNT>::empty() {
+		return size == 0;
 	}
 
 } // namespace labWork

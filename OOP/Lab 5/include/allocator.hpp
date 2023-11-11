@@ -4,6 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <stdexcept>
+#include <type_traits>
 
 namespace labWork {
 	template <typename T, int BLOCKS_COUNT = 100>
@@ -66,9 +67,7 @@ namespace labWork {
 		}
 
 		void deallocate(pointer p, size_type n = 1) noexcept {
-			T * castedP = static_cast<T *>(p);
-
-			freeBlocks.push_back(castedP);
+			freeBlocks.push_back(p);
 			++freeCount;
 		}
 
@@ -78,7 +77,7 @@ namespace labWork {
 				throw std::invalid_argument("Allocator::construct error: given pointer must point on allocator memory");
 			}
 
-			new (p) T(args...);
+			new ((void *)p) T(std::forward<Args>(args)...);
 		}
 
 		void destroy(pointer p) {

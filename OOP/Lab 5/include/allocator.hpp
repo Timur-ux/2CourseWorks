@@ -77,7 +77,7 @@ namespace labWork {
 				throw std::invalid_argument("Allocator::construct error: given pointer must point on allocator memory");
 			}
 
-			new ((void *)p) T(std::forward<Args>(args)...);
+			new (p) U(std::forward<Args>(args)...);
 		}
 
 		void destroy(pointer p) {

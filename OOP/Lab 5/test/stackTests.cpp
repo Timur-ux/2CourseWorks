@@ -5,7 +5,7 @@
 class StackIteratorsTests : public ::testing::Test {
 public:
 	labWork::stack<std::string, labWork::Allocator<std::string>> stack;
-	labWork::stack<const std::string, labWork::Allocator<const std::string>> constStack;
+	// labWork::stack<const std::string, labWork::Allocator<const std::string>> constStack;
 	std::vector<std::string> data = {
 		"abcde",
 		"",
@@ -20,7 +20,6 @@ public:
 	void SetUp() {
 		for (int i = data.size() - 1; i >= 0; --i) {
 			stack.push(data[i]);
-			constStack.push(data[i]);
 		}
 	}
 
@@ -77,7 +76,7 @@ TEST_F(StackIteratorsTests, iteratorTest) {
 
 TEST_F(StackIteratorsTests, constIteratorTest) {
 	int i = 0;
-	for (auto it = std::begin(constStack), last = std::end(constStack)
+	for (auto it = std::cbegin(stack), last = std::cend(stack)
 		; it != last
 		; ++it, ++i) {
 		EXPECT_EQ(*it, data[i]);

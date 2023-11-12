@@ -57,6 +57,7 @@ namespace labWork {
 
 				return *this;
 			}
+
 			StackIterator & operator=(StackIterator && other) noexcept {
 				ptr = other.ptr;
 				other.ptr = nullptr;
@@ -130,19 +131,11 @@ namespace labWork {
 		}
 
 		const_iterator begin() const {
-			return const_iterator(&front());
+			T * ptr = data[size - 1];
+			return const_iterator(ptr);
 		}
 
 		const_iterator end() const {
-			const T * ptr = data[0];
-			return ++const_iterator(ptr);
-		}
-
-		const_iterator cbegin() {
-			return const_iterator(&front());
-		}
-
-		const_iterator cend() {
 			const T * ptr = data[0];
 			return ++const_iterator(ptr);
 		}

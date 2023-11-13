@@ -19,7 +19,7 @@ int main() {
 
 	HronoMeter hronoMeter;
 	Logger logger("Log.csv", NEW, "Threads,Time(ms),Elements");
-	for (int threadsCount = 3; threadsCount <= 8; threadsCount++)
+	for (int threadsCount = 1; threadsCount <= 8; threadsCount++)
 	{
 		vector<int> copyV = v;
 

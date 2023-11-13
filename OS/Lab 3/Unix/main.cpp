@@ -26,15 +26,14 @@ int main() {
 	string fileDataName = "fileData";
 	string fileMutexName = "fileMutex";
 
-	cout << "Input subprogram name(\"subprogram\" by default): ";
+	cout << "Input subprogram name(\"03_OSLabs_subprogram\" by default): ";
 	getline(cin, fileName);
 	cout << "Input output file's name(\"Output.txt\" by default): ";
 	getline(cin, outputName);
-	fileName = (fileName == "" || fileName.size() > PATH_MAX ? "subprogram" : fileName);
+	fileName = (fileName == "" || fileName.size() > PATH_MAX ? "03_OSLabs_subprogram" : fileName);
 	outputName = (outputName == "" || outputName.size() > PATH_MAX ? "Output.txt" : outputName);
 
 	cout << "Input \"num1 num2 ...<endline>\" as command" << endl;
-	cout << "Input \"Exit\" for exit" << endl;
 
 	int fdMutex = openShmFile(fileMutexName.c_str());
 	setFileSize(fdMutex, sizeof(pthread_mutex_t) + sizeof(pthread_cond_t));

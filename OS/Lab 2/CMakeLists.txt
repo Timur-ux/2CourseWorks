@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
 if(UNIX)
-	add_subdirectory(Unix)
+	if(EXISTS "Unix")
+		add_subdirectory(Unix)
+	endif()
 elseif(WIN32)
-	add_subdirectory(Windows)
+	if(EXISTS "Windows")
+		add_subdirectory(Windows)
+	endif()
 endif()

@@ -7,10 +7,10 @@ set(SOURCE_DIR ./src)
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 
-add_library(02_${PROJECT_NAME}_lib ${SOURCES})
+add_library(${PROJECT_NAME}_lib ${SOURCES})
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-add_executable(02_${PROJECT_NAME}_main main.cpp)
-target_link_libraries(02_${PROJECT_NAME}_main 02_${PROJECT_NAME}_lib Threads::Threads)
+add_executable(${PROJECT_NAME}_main main.cpp)
+target_link_libraries(${PROJECT_NAME}_main ${PROJECT_NAME}_lib Threads::Threads)

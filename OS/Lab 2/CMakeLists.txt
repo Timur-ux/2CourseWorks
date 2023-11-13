@@ -1,11 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 
+project(
+	02_OSLabs
+	LANGUAGES CXX C
+)
+
 if(UNIX)
-	if(EXISTS "Unix")
-		add_subdirectory(Unix)
-	endif()
+	add_subdirectory(Unix)
 elseif(WIN32)
-	if(EXISTS "Windows")
-		add_subdirectory(Windows)
-	endif()
+	add_subdirectory(Windows)
 endif()

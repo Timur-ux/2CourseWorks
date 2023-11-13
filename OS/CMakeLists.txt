@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(
-	OSLabs,
-	LANGUAGES CXX, C
+	OSLabs
+	LANGUAGES CXX C
 )
 
 add_subdirectory("Lab 1")

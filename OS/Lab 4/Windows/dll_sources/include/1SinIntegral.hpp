@@ -1,13 +1,16 @@
 #ifndef SIN_INTEGRAL_H_
 #define SIN_INTEGRAL_H_
-#include "realizationType.hpp"
 #include <cmath>
 #include <stdexcept>
 
-__declspec(dllexport) float __cdecl SinIntegral(float A, float B, float e);
+static int realizationType = 0;
 
-__declspec(dllexport) float __cdecl __SinIntegralOne(float A, float B, float e);
+extern "C" __declspec(dllexport) int __cdecl SinRealizationChange();
 
-__declspec(dllexport) float __cdecl __SinIntegralTwo(float A, float B, float e);
+extern "C" __declspec(dllexport) float __cdecl SinIntegral(float A, float B, float e);
+
+float __cdecl __SinIntegralOne(float A, float B, float e);
+
+float __cdecl __SinIntegralTwo(float A, float B, float e);
 
 #endif

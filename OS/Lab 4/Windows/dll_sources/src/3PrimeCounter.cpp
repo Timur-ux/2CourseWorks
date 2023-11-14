@@ -1,6 +1,7 @@
 #include "3PrimeCounter.hpp"
+#include <iostream>
 
-int PrimeCount(int A, int B) {
+extern "C" int PrimeCount(int A, int B) {
 	if (realizationType == 0) {
 		return __PrimeCountOne(A, B);
 	}
@@ -43,6 +44,11 @@ int __PrimeCountTwo(int A, int B) {
 	}
 
 	return result;
+}
+
+extern "C" int PrimesRealizationChange() {
+	realizationType = (realizationType + 1) % 2;
+	return realizationType;
 }
 
 // class EratosthenesSieve

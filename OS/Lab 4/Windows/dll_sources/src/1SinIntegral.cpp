@@ -1,7 +1,7 @@
 #include "1SinIntegral.hpp"
+#include <iostream>
 
-
-float SinIntegral(float A, float B, float e) {
+extern "C" float SinIntegral(float A, float B, float e) {
 	if (realizationType == 0) {
 		return __SinIntegralOne(A, B, e);
 	}
@@ -32,3 +32,8 @@ float __SinIntegralTwo(float A, float B, float e) {
 
 	return result;
 }
+
+extern "C" int SinRealizationChange() {
+	realizationType = (realizationType + 1) % 2;
+	return realizationType;
+};

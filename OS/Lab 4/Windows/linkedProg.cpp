@@ -1,16 +1,19 @@
 #include <iostream>
 #include <sstream>
 
-__declspec(dllimport) int realizationChange();
-__declspec(dllimport) float __cdecl SinIntegral(float A, float B, float e);
-__declspec(dllimport) int PrimeCount(int A, int B);
+extern "C" __declspec(dllimport) int __cdecl SinRealizationChange();
+extern "C" __declspec(dllimport) int __cdecl PrimesRealizationChange();
+extern "C" __declspec(dllimport) int __cdecl PrimeCount(int a, int B);
+extern "C" __declspec(dllimport) float __cdecl SinIntegral(float a, float b, float e);
+
+int realizationChange();
 
 int main() {
 	std::string command;
 	while (std::getline(std::cin, command)) {
-		if (command.size() == 1 and command[0] == '0') {
+		if (command.size() == 1 && command[0] == '0') {
 			int curRealization = realizationChange();
-			std::cout << "Current realization is " << curRealization << std::endl;
+			std::cout << "Current realization is " << curRealization + 1 << std::endl;
 			continue;
 		}
 		std::stringstream stream(command);
@@ -28,4 +31,13 @@ int main() {
 		}
 	}
 	return 0;
+}
+
+int realizationChange() {
+	int res1 = SinRealizationChange();
+	int res2 = PrimesRealizationChange();
+	if(res1 != res2) {
+		std::cerr << "Strange realization change result" << std::endl;
+	}
+	return res1;
 }

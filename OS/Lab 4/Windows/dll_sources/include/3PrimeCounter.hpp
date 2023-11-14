@@ -1,17 +1,19 @@
 #ifndef PRIME_COUNTER_H_
 #define PRIME_COUNTER_H_
-
-#include "realizationType.hpp"
 #include <vector>
 #include <stdexcept>
 
-__declspec(dllexport) int PrimeCount(int A, int B);
+static int realizationType = 0;
 
-__declspec(dllexport) int __PrimeCountOne(int A, int B);
+extern "C" __declspec(dllexport) int __cdecl PrimesRealizationChange();
 
-__declspec(dllexport) int __PrimeCountTwo(int A, int B);
+extern "C" __declspec(dllexport) int __cdecl PrimeCount(int A, int B);
 
-class __declspec(dllexport) EratosthenesSieve {
+int __PrimeCountOne(int A, int B);
+
+int __PrimeCountTwo(int A, int B);
+
+class EratosthenesSieve {
 private:
 	static std::vector<bool> nums;
 	static int last;

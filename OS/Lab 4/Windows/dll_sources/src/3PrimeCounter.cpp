@@ -1,24 +1,24 @@
 #include "3PrimeCounter.hpp"
 
 int PrimeCount(int A, int B) {
-	if (realizationType == ONE) {
+	if (realizationType == 0) {
 		return __PrimeCountOne(A, B);
 	}
-	else if (realizationType == TWO) {
+	else if (realizationType == 1) {
 		return __PrimeCountTwo(A, B);
 	}
 
-	throw std::logic_error("Bad realization type");
+	throw std::logic_error("Invalid realization type");
 	return 0;
 }
 
 int __PrimeCountOne(int A, int B) {
 	int result = 0;
 
-	for (int i = A; i <= B; ++i) {
+	for (int i = std::max(A, 2); i <= B; ++i) {
 		bool isPrime = true;
 
-		for (int k = 2; k * k < i; ++k) {
+		for (int k = 2; k < i; ++k) {
 			if (i % k == 0) {
 				isPrime = false;
 				break;
@@ -48,7 +48,7 @@ int __PrimeCountTwo(int A, int B) {
 // class EratosthenesSieve
 
 int EratosthenesSieve::last = 2;
-std::vector<bool> EratosthenesSieve::nums{ true, true };
+std::vector<bool> EratosthenesSieve::nums{ false, true };
 
 void EratosthenesSieve::calcTo(int n) {
 	if (n <= last) {
@@ -64,7 +64,7 @@ void EratosthenesSieve::calcTo(int n) {
 	for (int i = 1; i * i < last; ++i) {
 		int curDeliter = i + 1;
 
-		for (int j = prev; j < last; ++j) {
+		for (int j = curDeliter; j < last; ++j) {
 			int curNum = j + 1;
 
 			if (curNum % curDeliter == 0) {
@@ -78,5 +78,8 @@ void EratosthenesSieve::calcTo(int n) {
 }
 
 bool EratosthenesSieve::isPrime(int n) {
+	if (n < 1) {
+		return false;
+	}
 	return nums[n - 1];
 }

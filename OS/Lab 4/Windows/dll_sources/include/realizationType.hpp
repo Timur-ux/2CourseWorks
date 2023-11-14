@@ -1,8 +1,11 @@
 #ifndef REALIZATION_TYPE
 #define REALIZATION_TYPE
 
-using Realization = enum { ONE = 0, TWO = 1 };
+inline int realizationType = 0;
 
-inline Realization realizationType = ONE;
+__declspec(dllexport) int realizationChange() {
+	realizationType = (int)not(realizationType);
+	return realizationType;
+}
 
 #endif

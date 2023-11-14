@@ -5,13 +5,13 @@
 #include <vector>
 #include <stdexcept>
 
-int PrimeCount(int A, int B);
+__declspec(dllexport) int PrimeCount(int A, int B);
 
-int __PrimeCountOne(int A, int B);
+__declspec(dllexport) int __PrimeCountOne(int A, int B);
 
-int __PrimeCountTwo(int A, int B);
+__declspec(dllexport) int __PrimeCountTwo(int A, int B);
 
-class EratosthenesSieve {
+class __declspec(dllexport) EratosthenesSieve {
 private:
 	static std::vector<bool> nums;
 	static int last;

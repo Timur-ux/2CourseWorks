@@ -2,18 +2,21 @@
 
 
 float SinIntegral(float A, float B, float e) {
-	if (realizationType == ONE) {
+	if (realizationType == 0) {
 		return __SinIntegralOne(A, B, e);
 	}
-	else if (realizationType == TWO) {
+	else if (realizationType == 1) {
 		return __SinIntegralTwo(A, B, e);
 	}
+
+	throw std::logic_error("Invalid realization type");
+	return 0;
 }
 
 float __SinIntegralOne(float A, float B, float e) {
 	float result = 0;
 
-	for (int i = A; i <= B; i += e) {
+	for (float i = A; i <= B; i += e) {
 		result += sin(i) * e;
 	}
 
@@ -23,7 +26,7 @@ float __SinIntegralOne(float A, float B, float e) {
 float __SinIntegralTwo(float A, float B, float e) {
 	float result = 0;
 
-	for (int i = A; i <= B; i += e) {
+	for (float i = A; i <= B; i += e) {
 		result += (sin(i) + sin(i + e)) / 2 * e;
 	}
 

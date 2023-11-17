@@ -1,21 +1,10 @@
 #include <iostream>
 #include <sstream>
-
-extern "C" __declspec(dllimport) int __cdecl SinRealizationChange();
-extern "C" __declspec(dllimport) int __cdecl PrimesRealizationChange();
-extern "C" __declspec(dllimport) int __cdecl PrimeCount(int a, int B);
-extern "C" __declspec(dllimport) float __cdecl SinIntegral(float a, float b, float e);
-
-int realizationChange();
+#include "./dll_sources/include/lib2.hpp"
 
 int main() {
 	std::string command;
 	while (std::getline(std::cin, command)) {
-		if (command.size() == 1 && command[0] == '0') {
-			int curRealization = realizationChange();
-			std::cout << "Current realization is " << curRealization + 1 << std::endl;
-			continue;
-		}
 		std::stringstream stream(command);
 		int funcNumber;
 		stream >> funcNumber;
@@ -31,13 +20,4 @@ int main() {
 		}
 	}
 	return 0;
-}
-
-int realizationChange() {
-	int res1 = SinRealizationChange();
-	int res2 = PrimesRealizationChange();
-	if(res1 != res2) {
-		std::cerr << "Strange realization change result" << std::endl;
-	}
-	return res1;
 }

@@ -1,39 +1,16 @@
-#include "3PrimeCounter.hpp"
-#include <iostream>
+#include "lib2.hpp"
 
-extern "C" int PrimeCount(int A, int B) {
-	if (realizationType == 0) {
-		return __PrimeCountOne(A, B);
-	}
-	else if (realizationType == 1) {
-		return __PrimeCountTwo(A, B);
+extern "C" float SinIntegral(float A, float B, float e) {
+	float result = 0;
+
+	for (float i = A; i <= B; i += e) {
+		result += (sin(i) + sin(i + e)) / 2 * e;
 	}
 
-	throw std::logic_error("Invalid realization type");
-	return 0;
-}
-
-int __PrimeCountOne(int A, int B) {
-	int result = 0;
-
-	for (int i = std::max(A, 2); i <= B; ++i) {
-		bool isPrime = true;
-
-		for (int k = 2; k < i; ++k) {
-			if (i % k == 0) {
-				isPrime = false;
-				break;
-			}
-		}
-
-		if (isPrime) {
-			++result;
-		}
-	}
 	return result;
 }
 
-int __PrimeCountTwo(int A, int B) {
+extern "C" int PrimeCount(int A, int B) {
 	EratosthenesSieve::calcTo(B);
 
 	int result = 0;
@@ -44,11 +21,6 @@ int __PrimeCountTwo(int A, int B) {
 	}
 
 	return result;
-}
-
-extern "C" int PrimesRealizationChange() {
-	realizationType = (realizationType + 1) % 2;
-	return realizationType;
 }
 
 // class EratosthenesSieve

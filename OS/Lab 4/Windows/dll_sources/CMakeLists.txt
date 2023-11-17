@@ -2,17 +2,20 @@ cmake_minimum_required(VERSION 3.10)
 
 set(INCLUDE_DIR include)
 
-set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+# LIB_1_DLL
 
-add_compile_options(-Wl,-export-all-symbols -Wl,-subsystem,windows)
+add_library(lib_one SHARED "src/lib1.cpp")
+target_include_directories(lib_one PUBLIC ${INCLUDE_DIR})
 
-add_library(${PROJECT_NAME}_dll_one SHARED src/1SinIntegral.cpp)
-add_library(${PROJECT_NAME}_dll_two SHARED src/3PrimeCounter.cpp)
+target_compile_definitions(lib_one 
+	PUBLIC LIB1_EXPORTS
+)
 
-target_include_directories(${PROJECT_NAME}_dll_one PUBLIC ${INCLUDE_DIR})
-target_include_directories(${PROJECT_NAME}_dll_two PUBLIC ${INCLUDE_DIR})
+# LIB_2_DLL
 
-set_target_properties(${PROJECT_NAME}_dll_one PROPERTIES ARCHIEVE_OUTPUT_NAME ${PROJECT_NAME}_dll_one)
-set_target_properties(${PROJECT_NAME}_dll_one PROPERTIES IMPORT_SUFFIX ".lib")
-set_target_properties(${PROJECT_NAME}_dll_two PROPERTIES ARCHIEVE_OUTPUT_NAME ${PROJECT_NAME}_dll_two)
-set_target_properties(${PROJECT_NAME}_dll_two PROPERTIES IMPORT_SUFFIX ".lib")
+add_library(lib_two SHARED "src/lib2.cpp")
+target_include_directories(lib_two PUBLIC ${INCLUDE_DIR})
+
+target_compile_definitions(lib_two 
+	PUBLIC LIB2_EXPORTS
+)

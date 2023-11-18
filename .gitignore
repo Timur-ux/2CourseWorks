@@ -33,6 +33,8 @@
 *.bin
 
 # Directotyes
+out/
+.vs/
 build/
 .vscode/
 CMakeFiles/

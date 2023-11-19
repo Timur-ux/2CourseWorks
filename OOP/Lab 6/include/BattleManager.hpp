@@ -3,14 +3,12 @@
 #include <memory>
 #include "Location.hpp"
 
-class IBattleManager {
+class BattleManager {
 protected:
 	std::shared_ptr<ILocation> battleLocation;
 public:
-	virtual void provideBattleRound() = 0;
-	virtual void setBattleLocation(std::shared_ptr<ILocation> location) {
-		battleLocation = location;
-	}
+	virtual void provideBattleRound();
+	virtual void setBattleLocation(std::shared_ptr<ILocation> location);
 };
 
-#endif
+#endif // BATTLE_MANAGER_H_

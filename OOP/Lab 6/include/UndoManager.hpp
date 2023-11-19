@@ -5,7 +5,7 @@
 #include <stack>
 #include <memory>
 
-#include "Location.hpp"
+#include "Observer.hpp"
 
 enum class StateType;
 
@@ -17,15 +17,15 @@ class BaseState;
 class IUndoManager {
 public:
 	virtual IUndoManager & addState(State state) = 0;
-	virtual IUndoManager & undo() = 0;
+	virtual State & undo() = 0;
 };
 
 class DangeonUndoManager : public IUndoManager {
 private:
 	std::stack<State> states;
-	std::shared_ptr<ILocation> location;
+	std::shared_ptr<LogObserver> logObserver;
 public:
-	IUndoManager & undo() override;
+	State & undo() override;
 	IUndoManager & addState(State state) override;
 
 	void on_move(int id, Position from, Position to);
@@ -65,4 +65,4 @@ public:
 	OffsetState(std::string _state) : State(StateType::offset, _state) {};
 };
 
-#endif
+#endif // UNDO_MANAGER_H_

@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <iostream>
+#include <fstream>
 
 #include "Location.hpp"
 #include "MobFabric.hpp"
@@ -17,7 +18,6 @@ enum class Command {
 	printMobs,
 	moveMob,
 	startBattleRound,
-	startBattleTillEnd,
 	undo,
 	serializeMobs,
 	deserializeMobs
@@ -26,25 +26,24 @@ enum class Command {
 class LocationRedactor {
 private:
 	std::istream & inStream = std::cin;
+	std::ostream & outStream = std::cout;
 
 	std::shared_ptr<LogObserver> observer;
 	std::shared_ptr<ILocation> location;
 	std::shared_ptr<BattleManager> battleManager;
-	std::shared_ptr <IUndoManager> undoManager;
 
-	LocationRedactor & addMob(MobData ? &data);
-	LocationRedactor & removeMob(int id);
+	LocationRedactor & addMob();
+	LocationRedactor & removeMob();
 	LocationRedactor & printMobs();
-	LocationRedactor & moveMob(int id, Position from, Position to);
+	LocationRedactor & moveMob();
 	LocationRedactor & startBattleRound();
-	LocationRedactor & startBattleTillEnd();
 	LocationRedactor & undo();
-	LocationRedactor & serializeMobs(std::string outFileName = "mobsDump.txt");
-	LocationRedactor & deserializeMobs(std::string inFileName = "mobDump.txt");
+	LocationRedactor & serializeMobs();
+	LocationRedactor & deserializeMobs();
 public:
 	LocationRedactor() = default;
 
-	void inputCommand(Command command);
+	LocationRedactor & inputCommand(Command command);
 
 	LocationRedactor & setObserver(std::shared_ptr<LogObserver> _observer);
 	LocationRedactor & setLocation(std::shared_ptr<ILocation> _location);

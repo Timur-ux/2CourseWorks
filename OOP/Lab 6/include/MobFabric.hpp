@@ -2,16 +2,12 @@
 #define MOB_FABRIC_H_
 
 #include "Mob.hpp"
-#include <concepts>
-#include <type_traits>
-
-template <typename T>
-concept TConcretMob = std::is_base_of_v<Mob, T>;
+#include <memory>
 
 class MobFabric {
 public:
 	template <TConcretMob TMob>
-	static TMob & create();
+	static std::shared_ptr<TMob> create();
 };
 
 #endif // MOB_FABRIC_H_

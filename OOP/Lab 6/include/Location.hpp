@@ -20,12 +20,14 @@ class ILocation;
 
 struct MobData {
 
-	Mob mob;
+	std::shared_ptr<Mob> mob;
 	Position position;
+	MobType type;
 	int id = -1;
 
-	MobData(Mob _mob, Position _position)
-		: mob(mob), position(_position) {}
+	MobData() = default;
+	MobData(Mob _mob, Position _position, MobType _type)
+		: mob(mob), position(_position), type(_type) {}
 
 	MobData(MobData & other) :
 		mob(other.mob)
@@ -41,7 +43,8 @@ public:
 	virtual ILocation & removeMob(int id) = 0;
 	virtual ILocation & serialize(std::ostream & out) = 0;
 	virtual ILocation & deserialize(std::istream & in) = 0;
-	virtual ILocation & undo();
+	virtual ILocation & undo() = 0;
+	virtual std::map<int, MobData> & getMobsData() = 0;
 };
 
 class DangeonLocation : ILocation {
@@ -52,7 +55,6 @@ private:
 	int freeId = 0;
 	std::shared_ptr<DangeonUndoManager> undoManager;
 public:
-	friend LocationRedactor;
 	DangeonLocation() = default;
 
 	ILocation & addMob(MobData _mobData) override;
@@ -60,6 +62,8 @@ public:
 	ILocation & removeMob(int id) override;
 	ILocation & serialize(std::ostream & out) override;
 	ILocation & deserialize(std::istream & in) override;
+	ILocation & undo() override;
+	std::map<int, MobData> & getMobsData() override;
 
 	// TODO: add removeMob and connect UndoManager 
 };

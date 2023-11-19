@@ -1,6 +1,17 @@
 #ifndef BATTLE_VISITOR_H_
 #define BATTLE_VISITOR_H_
+
+#include <concepts>
+
 #include "Mob.hpp"
+
+namespace BVData {
+	constexpr std::vector<std::vector<bool>> beatMap{
+		{false, false, true},
+		{true, false, false},
+		{true, true, true}
+	}
+} // namespace battleVisitorData
 
 class IVisitor {
 public:
@@ -9,25 +20,30 @@ public:
 	virtual bool visit(Dragon & dragon) = 0;
 };
 
-class KnightStrangerVisitor : IVisitor {
+template <TConcretMob TMob>
+class Visitor : IVisitor {
 public:
-	virtual bool visit(KnightStranger & knight) override;
-	virtual bool visit(Elf & elf) override;
-	virtual bool visit(Dragon & dragon) override;
+	bool visit(KnightStranger & knight) override {
+		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<KnightStranger>::asInt];
+	};
+	bool visit(Elf & elf) override {
+		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<Elf>::asInt];
+	};
+	bool visit(Dragon & dragon) override {
+		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<Dragon>::asInt];
+	};
 };
 
-class ElfVisitor : IVisitor {
-public:
-	virtual bool visit(KnightStranger & knight) override;
-	virtual bool visit(Elf & elf) override;
-	virtual bool visit(Dragon & dragon) override;
-};
+bool KnightStranger::accept(IVisitor & visitor) {
+	return visitor.visit(*this);
+}
 
-class DragonVisitor : IVisitor {
-public:
-	virtual bool visit(KnightStranger & knight) override;
-	virtual bool visit(Elf & elf) override;
-	virtual bool visit(Dragon & dragon) override;
-};
+bool Elf::accept(IVisitor & visitor) {
+	return visitor.visit(*this);
+}
+
+bool Dragon::accept(IVisitor & visitor) {
+	return visitor.visit(*this);
+}
 
 #endif // BATTLE_VISITOR_H_

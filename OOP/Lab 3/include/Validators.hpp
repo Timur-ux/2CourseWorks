@@ -1,7 +1,11 @@
 #pragma once
 
 #include <typeinfo>
+
 #include "Figure.hpp"
+#include "Rectangle.hpp"
+#include "Trapezoid.hpp"
+#include"Romb.hpp"
 #include "Point.hpp"
 #include "Line.hpp"
 

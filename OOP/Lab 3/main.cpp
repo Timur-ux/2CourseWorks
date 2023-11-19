@@ -8,9 +8,9 @@ double calcUnionSquare(const std::vector<Figure *> & figures);
 
 int main() {
 	std::vector<Figure *> figures = {
-		FigureFabric<Rectangle>::createInstance({}),
-		FigureFabric<Trapezoid>::createInstance({}),
-		FigureFabric<Romb>::createInstance({})
+		FigureFabric<Rectangle>::createInstance(),
+		FigureFabric<Trapezoid>::createInstance(),
+		FigureFabric<Romb>::createInstance()
 	};
 	std::cout << "Inputs figures..." << std::endl;
 	for (Figure * figure : figures) {

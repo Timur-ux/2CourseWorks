@@ -2,16 +2,17 @@
 #define BATTLE_VISITOR_H_
 
 #include <concepts>
+#include <vector>
 
 #include "Mob.hpp"
 
 namespace BVData {
-	constexpr std::vector<std::vector<bool>> beatMap{
+	static std::vector<std::vector<bool>> beatMap{
 		{false, false, true},
 		{true, false, false},
 		{true, true, true}
-	}
-} // namespace battleVisitorData
+	};
+}; // namespace battleVisitorData
 
 class IVisitor {
 public:

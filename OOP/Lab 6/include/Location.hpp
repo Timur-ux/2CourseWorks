@@ -9,7 +9,7 @@
 #include "Mob.hpp"
 #include "UndoManager.hpp"
 
-using Position = struct {
+struct Position {
 	double x;
 	double y;
 
@@ -26,7 +26,7 @@ struct MobData {
 	int id = -1;
 
 	MobData() = default;
-	MobData(Mob _mob, Position _position, MobType _type)
+	MobData(std::shared_ptr<Mob> _mob, Position _position, MobType _type)
 		: mob(mob), position(_position), type(_type) {}
 
 	MobData(MobData & other) :
@@ -41,9 +41,7 @@ public:
 	virtual ILocation & addMob(MobData _mobData) = 0;
 	virtual ILocation & moveMob(int id, Position newPos) = 0;
 	virtual ILocation & removeMob(int id) = 0;
-	virtual ILocation & serialize(std::ostream & out) = 0;
-	virtual ILocation & deserialize(std::istream & in) = 0;
-	virtual ILocation & undo() = 0;
+	virtual MobData & getMobDataBy(int id) = 0;
 	virtual std::map<int, MobData> & getMobsData() = 0;
 };
 
@@ -53,16 +51,13 @@ private:
 	double height = 500;
 	std::map<int, MobData> mobs;
 	int freeId = 0;
-	std::shared_ptr<DangeonUndoManager> undoManager;
 public:
 	DangeonLocation() = default;
 
 	ILocation & addMob(MobData _mobData) override;
 	ILocation & moveMob(int id, Position newPos) override;
 	ILocation & removeMob(int id) override;
-	ILocation & serialize(std::ostream & out) override;
-	ILocation & deserialize(std::istream & in) override;
-	ILocation & undo() override;
+	MobData & getMobDataBy(int id) override;
 	std::map<int, MobData> & getMobsData() override;
 
 	// TODO: add removeMob and connect UndoManager 

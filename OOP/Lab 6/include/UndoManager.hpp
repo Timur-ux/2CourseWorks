@@ -7,12 +7,13 @@
 
 #include "Observer.hpp"
 
-enum class StateType;
+enum class StateType {
+	fullCopy,
+	base,
+	offset
+};
 
 class State;
-
-class OffsetState;
-class BaseState;
 
 class IUndoManager {
 public:
@@ -20,14 +21,17 @@ public:
 	virtual State & undo() = 0;
 };
 
+struct Position;
 class DangeonUndoManager : public IUndoManager {
 private:
 	std::stack<State> states;
 	std::shared_ptr<LogObserver> logObserver;
+	std::shared_ptr<ILocation> location;
 public:
 	State & undo() override;
 	IUndoManager & addState(State state) override;
 
+	void on_addMob(int id);
 	void on_move(int id, Position from, Position to);
 	void on_attack(int idAttacker, int idDefender);
 };
@@ -47,22 +51,6 @@ public:
 	virtual StateType getType() {
 		return type;
 	}
-};
-
-enum class StateType {
-	fullCopy,
-	base,
-	offset
-};
-
-class BaseState : public State {
-public:
-	BaseState(std::string _state) : State(StateType::base, _state) {};
-};
-
-class OffsetState : public State {
-public:
-	OffsetState(std::string _state) : State(StateType::offset, _state) {};
 };
 
 #endif // UNDO_MANAGER_H_

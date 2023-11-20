@@ -29,7 +29,7 @@ find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
 enable_testing()
-add_executable(05_main_test ${TEST_SOURCES})
-target_link_libraries(05_main_test ${GTEST_LIBRARIES} ${PROJECT_NAME}_lib)
+add_executable(06_main_test ${TEST_SOURCES})
+target_link_libraries(06_main_test ${GTEST_LIBRARIES} ${PROJECT_NAME}_lib)
 
-add_test(NAME BASIC COMMAND 05_main_tests)
+add_test(NAME BASIC COMMAND 06_main_tests)

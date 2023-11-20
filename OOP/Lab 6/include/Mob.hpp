@@ -1,6 +1,7 @@
 #ifndef MOB_H_
 #define MOB_H_
 
+#include <string>
 #include <map>
 #include <concepts>
 #include <type_traits>
@@ -10,7 +11,7 @@ class Mob;
 template <typename T>
 concept TConcretMob = std::is_base_of_v<Mob, T>;
 
-const enum class MobType {
+enum class MobType {
 	KnightStranger = 0,
 	Elf = 1,
 	Dragon = 2,
@@ -31,9 +32,8 @@ protected:
 	MobParameters::Status status;
 	std::string name;
 public:
-	virtual std::string getName() {
-		return name;
-	};
+	Mob(std::string _name) : name(_name), status(MobParameters::Status::alive) {}
+	virtual std::string getName();
 	virtual bool accept(IVisitor & visitor) = 0;
 };
 

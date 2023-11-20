@@ -11,6 +11,7 @@
 #include "Observer.hpp"
 #include "BattleManager.hpp"
 #include "UndoManager.hpp"
+#include "Serializer.hpp"
 
 enum class Command {
 	addMob,
@@ -28,9 +29,11 @@ private:
 	std::istream & inStream = std::cin;
 	std::ostream & outStream = std::cout;
 
-	std::shared_ptr<LogObserver> observer;
+	std::shared_ptr<LogObserver> logObserver;
 	std::shared_ptr<ILocation> location;
 	std::shared_ptr<BattleManager> battleManager;
+	std::shared_ptr<LocationSerializer> serializer;
+	std::shared_ptr<DangeonUndoManager> undoManager;
 
 	LocationRedactor & addMob();
 	LocationRedactor & removeMob();

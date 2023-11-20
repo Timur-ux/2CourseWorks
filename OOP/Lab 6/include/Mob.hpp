@@ -6,6 +6,8 @@
 #include <concepts>
 #include <type_traits>
 
+#include "Observer.hpp"
+
 class Mob;
 
 template <typename T>
@@ -33,9 +35,10 @@ protected:
 	std::string name;
 public:
 	Mob(std::string _name) : name(_name), status(MobParameters::Status::alive) {}
-	virtual std::string getName();
+	virtual std::string getName() const;
 	virtual bool accept(IVisitor & visitor) = 0;
 };
+
 
 class KnightStranger : public Mob {
 public:

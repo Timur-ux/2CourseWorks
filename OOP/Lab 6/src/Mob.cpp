@@ -1,5 +1,5 @@
 #include "Mob.hpp"
 
-std::string Mob::getName() {
+std::string Mob::getName() const {
 	return name;
-};
+}

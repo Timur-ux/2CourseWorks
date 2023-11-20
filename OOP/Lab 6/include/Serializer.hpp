@@ -1,8 +1,10 @@
 #ifndef SERIALIZER_H_
 #define SERIALIZER_H_
-#include <map>
+#include <memory>
 #include <iostream>
 #include <fstream>
+
+#include "Location.hpp"
 
 class ISerializer {
 public:
@@ -15,11 +17,11 @@ struct MobData;
 
 class LocationSerializer : ISerializer {
 private:
-	std::map <int, MobData> data;
+	std::shared_ptr<ILocation> location;
 public:
 	ISerializer & serialize(std::ostream & os) override;
 	ISerializer & deserialize(std::istream & is) override;
-	ISerializer & setDataToSerialize(std::map<int, MobData> & _data);
+	ISerializer & setLocation(std::shared_ptr<ILocation> _location);
 };
 
 #endif

@@ -33,8 +33,8 @@ LocationRedactor & LocationRedactor::inputCommand(Command command) {
 	return *this;
 }
 
-LocationRedactor & LocationRedactor::setObserver(std::shared_ptr<LogObserver> _observer) {
-	observer = _observer;
+LocationRedactor & LocationRedactor::setObserver(std::shared_ptr<LogObserver> _logObserver) {
+	logObserver = _logObserver;
 
 	return *this;
 }
@@ -53,30 +53,32 @@ LocationRedactor & LocationRedactor::setBattleManager(std::shared_ptr<BattleMana
 
 
 LocationRedactor & LocationRedactor::addMob() {
-	MobData mobData;
-	std::string type;
+	std::shared_ptr<Mob> mob;
+	MobType mobType;
+
+	std::string inputtedType;
 	Position position;
 
 	outStream << "Input <type> <position X> <position Y>: ";
-	inStream >> type >> position;
+	inStream >> inputtedType >> position;
 
-	if (type == "KnightStranger") {
-		mobData.mob = MobFabric::create<KnightStranger>();
-		mobData.type = MobType::KnightStranger;
+	if (inputtedType == "KnightStranger") {
+		mob = MobFabric::create<KnightStranger>();
+		mobType = MobType::KnightStranger;
 	}
-	else if (type == "Elf") {
-		mobData.mob = MobFabric::create<Elf>();
-		mobData.type = MobType::Elf;
+	else if (inputtedType == "Elf") {
+		mob = MobFabric::create<Elf>();
+		mobType = MobType::Elf;
 	}
-	else if (type == "Dragon") {
-		mobData.mob = MobFabric::create<Dragon>();
-		mobData.type = MobType::Dragon;
+	else if (inputtedType == "Dragon") {
+		mob = MobFabric::create<Dragon>();
+		mobType = MobType::Dragon;
 	}
 	else {
-		throw std::invalid_argument(std::string("LocationRedactor: Undefined mob type -- ") + type);
+		throw std::invalid_argument(std::string("LocationRedactor: Undefined mob type -- ") + inputtedType);
 	}
 
-	location->addMob(mobData);
+	location->addMob(MobData(mob, position, mobType));
 	return *this;
 }
 
@@ -97,7 +99,7 @@ LocationRedactor & LocationRedactor::printMobs() {
 	for (auto it = std::begin(data)
 			, last = std::end(data)
 		; it != last; ++it) {
-		MobData & data = it->second;
+		const MobData & data = it->second;
 		printMobData(outStream, data);
 		outStream << std::endl;
 	}
@@ -138,7 +140,7 @@ LocationRedactor & LocationRedactor::startBattleRound() {
 
 LocationRedactor & LocationRedactor::undo() {
 	outStream << "Doing undo..." << std::endl;
-	location->undo();
+	undoManager->undo();
 
 	return *this;
 }
@@ -155,7 +157,7 @@ LocationRedactor & LocationRedactor::serializeMobs() {
 	}
 
 	std::ofstream file(outName);
-	location->serialize(file);
+	serializer->serialize(file);
 
 	return *this;
 }
@@ -172,13 +174,13 @@ LocationRedactor & LocationRedactor::deserializeMobs() {
 	}
 
 	std::ifstream file(inputName);
-	location->deserialize(file);
+	serializer->deserialize(file);
 
 	return *this;
 }
 
-void printMobData(std::ostream & out, MobData & data) {
-	out << "Id: " << data.id << std::endl
-		<< "type: " << mobTypeAsString[data.type] << std::endl
-		<< "name: " << data.mob->getName() << std::endl;
+void printMobData(std::ostream & out, const MobData & data) {
+	out << "Id: " << data.getId() << std::endl
+		<< "type: " << mobTypeAsString[data.getMobType()] << std::endl
+		<< "name: " << data.getMob()->getName() << std::endl;
 }

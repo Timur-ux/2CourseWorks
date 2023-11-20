@@ -14,7 +14,6 @@ enum class StateType {
 };
 
 class State;
-
 class IUndoManager {
 public:
 	virtual IUndoManager & addState(State state) = 0;
@@ -22,6 +21,8 @@ public:
 };
 
 struct Position;
+class ILocation;
+class MobData;
 class DangeonUndoManager : public IUndoManager {
 private:
 	std::stack<State> states;
@@ -31,9 +32,9 @@ public:
 	State & undo() override;
 	IUndoManager & addState(State state) override;
 
-	void on_addMob(int id);
-	void on_move(int id, Position from, Position to);
-	void on_attack(int idAttacker, int idDefender);
+	void on_addMob(const MobData & mob);
+	void on_move(const MobData & mob, Position from, Position to);
+	void on_attack(const MobData & idAttacker, const MobData & idDefender);
 };
 
 
@@ -52,5 +53,13 @@ public:
 		return type;
 	}
 };
+
+/*
+	State Formats:
+	1. base -- <type> <name> <id>; <type> <name> <id>;...
+	2. offset -- <action*> <type> <name> <id>
+	3. fullCopy -- same as base
+*/
+
 
 #endif // UNDO_MANAGER_H_

@@ -5,6 +5,8 @@
 #include <fstream>
 
 #include "Location.hpp"
+#include "Mob.hpp"
+#include "MobFabric.hpp"
 
 class ISerializer {
 public:

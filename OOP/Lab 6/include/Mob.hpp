@@ -20,6 +20,9 @@ enum class enumMobType {
 	BaseMob = 3
 };
 
+std::ostream & operator<<(std::ostream & os, enumMobType type);
+std::istream & operator>>(std::istream & is, enumMobType & type);
+
 namespace MobParameters {
 	enum class Status {
 		alive = 0,

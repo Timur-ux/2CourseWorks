@@ -16,6 +16,7 @@ struct Position {
 
 	friend std::istream & operator>>(std::istream & is, Position & pos);
 	friend std::ostream & operator<<(std::ostream & os, Position & pos);
+	friend std::ostream & operator<<(std::ostream & os, Position && pos);
 
 	double getX() const {
 		return x;

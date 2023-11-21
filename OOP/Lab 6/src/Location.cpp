@@ -13,6 +13,12 @@ std::ostream & operator<<(std::ostream & os, const Position & pos) {
 	return os;
 }
 
+std::ostream & operator<<(std::ostream & os, Position && pos) {
+	os << (Position &)pos;
+
+	return os;
+}
+
 int MobData::getId() const {
 	return id;
 }
@@ -21,7 +27,7 @@ Position MobData::getPosition() const {
 	return position;
 }
 
-MobType MobData::getMobType() const {
+enumMobType MobData::getMobType() const {
 	return type;
 }
 

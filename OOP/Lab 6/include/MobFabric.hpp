@@ -8,14 +8,13 @@ class MobFabric {
 public:
 	template <TConcretMob TMob>
 	static std::shared_ptr<TMob> create();
-	template <TConcretMob TMob>
-	static std::shared_ptr<TMob> create(std::string strType);
+
+	static std::shared_ptr<Mob> create(std::string strType);
+
+	static std::shared_ptr<Mob> create(enumMobType enumType);
 };
 
-#endif // MOB_FABRIC_H_
-
-template<TConcretMob TMob>
-inline std::shared_ptr<TMob> MobFabric::create(std::string strType) {
+inline std::shared_ptr<Mob> MobFabric::create(std::string strType) {
 	if (strType == "KnightStranger") {
 		return create<KnightStranger>();
 	}
@@ -28,5 +27,23 @@ inline std::shared_ptr<TMob> MobFabric::create(std::string strType) {
 		return create<Dragon>();
 	}
 
-	throw std::invalid_argument("Undefined string representation of mob's type. Given: " + strType);
+	throw std::invalid_argument("Undefined string representation of mob's type: " + strType);
 }
+
+inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType) {
+	switch (enumType) {
+	case enumMobType::KnightStranger:
+		return create<KnightStranger>();
+	case enumMobType::Elf:
+		return create<Elf>();
+	case enumMobType::Dragon:
+		return create<Dragon>();
+	case enumMobType::BaseMob:
+		throw std::invalid_argument("Can not create mob with type: BaseMob");
+	}
+
+	throw std::invalid_argument("Undefined mob type: " + static_cast<int>(enumType));
+}
+
+
+#endif // MOB_FABRIC_H_

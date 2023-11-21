@@ -15,20 +15,29 @@ struct Position {
 	double y;
 
 	friend std::istream & operator>>(std::istream & is, Position & pos);
+	friend std::ostream & operator<<(std::ostream & os, Position & pos);
+
+	double getX() const {
+		return x;
+	}
+
+	double getY() const {
+		return y;
+	}
 };
 
 class DangeonLocation;
 
 class MobData {
 private:
-	int id = -1;
+	int id;
 	std::shared_ptr<Mob> mob;
 	Position position;
-	MobType type;
+	enumMobType type;
 public:
 	friend DangeonLocation;
 	MobData() = default;
-	MobData(std::shared_ptr<Mob> _mob, Position _position, MobType _type)
+	MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type)
 		: mob(mob), position(_position), type(_type) {}
 
 	MobData(MobData & other) :
@@ -38,7 +47,7 @@ public:
 
 	int getId() const;
 	Position getPosition() const;
-	MobType getMobType() const;
+	enumMobType getMobType() const;
 	std::shared_ptr<const Mob> getMob() const;
 };
 
@@ -57,7 +66,7 @@ private:
 	double height = 500;
 	std::map<int, MobData> mobs;
 	std::shared_ptr<LogObserver> LogObserver;
-	int freeId = 0;
+	int freeId = 1;
 public:
 	DangeonLocation() = default;
 

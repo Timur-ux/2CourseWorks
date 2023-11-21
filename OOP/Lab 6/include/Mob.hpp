@@ -13,7 +13,7 @@ class Mob;
 template <typename T>
 concept TConcretMob = std::is_base_of_v<Mob, T>;
 
-enum class MobType {
+enum class enumMobType {
 	KnightStranger = 0,
 	Elf = 1,
 	Dragon = 2,
@@ -33,64 +33,48 @@ class Mob {
 protected:
 	MobParameters::Status status;
 	std::string name;
+	Mob() = default;
 public:
 	Mob(std::string _name) : name(_name), status(MobParameters::Status::alive) {}
 	virtual std::string getName() const;
 	virtual bool accept(IVisitor & visitor) = 0;
 };
 
-
 class KnightStranger : public Mob {
 public:
+	KnightStranger(std::string _name = "Unnamed knight") : Mob(_name) {}
 	bool accept(IVisitor & visitor) override;
 };
 
 class Elf : public Mob {
 public:
+	Elf(std::string _name = "Unnamed elf") : Mob(_name) {}
 	bool accept(IVisitor & visitor) override;
 };
 
 class Dragon : public Mob {
 public:
+	Dragon(std::string _name = "Unnamed dragon") : Mob(_name) {}
 	bool accept(IVisitor & visitor) override;
 };
 
-template<TConcretMob TMob>
-struct MobTypeAs {
-	MobType asInt;
-	std::string asString;
-};
+template <TConcretMob TMob>
+struct MobTypeAs {};
 
-
-template <>
-struct MobTypeAs<Mob> {
-	static constexpr MobType asInt = MobType::BaseMob;
-	static constexpr std::string asString = "BaseMob";
-};
-
-
-template <>
 struct MobTypeAs<KnightStranger> {
-	static constexpr MobType asInt = MobType::KnightStranger;
-	static constexpr std::string asString{ "KnightStranger" };
+	static constexpr enumMobType asInt = enumMobType::KnightStranger;
+	static constexpr std::string asString = "KnightStranger";
 };
 
-template <>
 struct MobTypeAs<Elf> {
-	static constexpr MobType asInt = MobType::Elf;
-	static constexpr std::string asString{ "Elf" };
+	static constexpr enumMobType asInt = enumMobType::Elf;
+	static constexpr std::string asString = "Elf";
 };
 
-template <>
 struct MobTypeAs<Dragon> {
-	static constexpr MobType asInt = MobType::Dragon;
-	static constexpr std::string asString{ "Dragon" };
+	static constexpr enumMobType asInt = enumMobType::Dragon;
+	static constexpr std::string asString = "Dragon";
 };
 
-inline std::map<MobType, const std::string> mobTypeAsString{
-	{MobType::BaseMob, "BaseMob"},
-	{MobType::KnightStranger, "KnightStranger"},
-	{MobType::Elf, "Elf"},
-	{MobType::Dragon, "Dragon"}
-};
+
 #endif // MOB_H_

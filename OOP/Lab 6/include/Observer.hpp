@@ -39,9 +39,9 @@ public:
 		prefix = "[Location]";
 	}
 
-	LocationLogObserver & onAdd(const MobData & data, const Position & newPos);
-	LocationLogObserver & onMove(const MobData & data, const Position & newPos);
-	LocationLogObserver & onRemove(const MobData & data, const Position & newPos);
+	LocationLogObserver & onAdd(const MobData & mobData);
+	LocationLogObserver & onMove(const MobData & mobData, const Position & newPos);
+	LocationLogObserver & onRemove(const MobData & mobData);
 };
 
 class IUpdateData {
@@ -51,13 +51,14 @@ public:
 
 class LocationUpdateData : public IUpdateData {
 private:
-	std::string data = "Location Update Data Unsetted";
+	std::shared_ptr<const MobData> mobData;
+	std::string action = "";
+	std::string additionalArgs = "";
 public:
-	LocationUpdateData() = default;
-	LocationUpdateData(std::string _data) : data(_data) {}
+	friend LocationLogObserver;
+	LocationUpdateData(std::shared_ptr<const MobData> _mobData) : mobData(_mobData) {}
 
 	std::string asString() override;
-	void setData(std::string _data);
 };
 
 #endif // OBSERVER_H_

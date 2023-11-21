@@ -26,8 +26,6 @@ ILocation & DangeonLocation::addMob(MobData _mobData) {
 	_mobData.id = freeId;
 	mobs[freeId] = _mobData;
 
-	undoManager->on_addMob(_mobData);
-
 	return *this;
 }
 
@@ -41,4 +39,15 @@ ILocation & DangeonLocation::moveMob(int id, Position newPos) {
 	data.position = newPos;
 
 	return *this;
+}
+
+
+LocationLogObserver & LocationLogObserver::onAdd(const MobData & mobData, const Position & newPos) {
+	std::shared_ptr<LocationUpdateData> data = std::make_shared<LocationUpdateData>();
+	std::stringstream dataStream;
+	dataStream << "Id: " << mobData.getId() << ", action: add mob" << "\n";
+
+	data->setData(dataStream.str());
+	std::shared_ptr<IUpdateData> baseData = data;
+	update(data);
 }

@@ -44,10 +44,14 @@ class KnightStranger : public Mob {
 public:
 	bool accept(IVisitor & visitor) override;
 };
+
 class Elf : public Mob {
+public:
 	bool accept(IVisitor & visitor) override;
 };
+
 class Dragon : public Mob {
+public:
 	bool accept(IVisitor & visitor) override;
 };
 

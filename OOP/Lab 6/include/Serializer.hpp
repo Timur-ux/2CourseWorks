@@ -15,7 +15,7 @@ public:
 class ILocation;
 struct MobData;
 
-class LocationSerializer : ISerializer {
+class LocationSerializer : public ISerializer {
 private:
 	std::shared_ptr<ILocation> location;
 public:

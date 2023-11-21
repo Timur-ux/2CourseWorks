@@ -22,7 +22,7 @@ public:
 };
 
 template <TConcretMob TMob>
-class Visitor : IVisitor {
+class Visitor : public IVisitor {
 public:
 	bool visit(KnightStranger & knight) override {
 		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<KnightStranger>::asInt];

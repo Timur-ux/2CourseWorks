@@ -8,7 +8,7 @@
 #include <type_traits>
 
 #include "Mob.hpp"
-#include "UndoManager.hpp"
+#include "Observer.hpp"
 
 struct Position {
 	double x;
@@ -51,13 +51,12 @@ public:
 	virtual const std::map<int, MobData> & getMobsData() = 0;
 };
 
-class DangeonLocation : ILocation {
+class DangeonLocation : public ILocation {
 private:
 	double width = 500;
 	double height = 500;
 	std::map<int, MobData> mobs;
 	std::shared_ptr<LogObserver> LogObserver;
-	std::shared_ptr<DangeonUndoManager> undoManager;
 	int freeId = 0;
 public:
 	DangeonLocation() = default;

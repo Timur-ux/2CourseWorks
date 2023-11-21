@@ -32,9 +32,9 @@ public:
 	State & undo() override;
 	IUndoManager & addState(State state) override;
 
-	void on_addMob(const MobData & mob);
-	void on_move(const MobData & mob, Position from, Position to);
-	void on_attack(const MobData & idAttacker, const MobData & idDefender);
+	void onAdd(const MobData & mob);
+	void onMove(const MobData & mob, Position to);
+	void onAttack(const MobData & idAttacker, const MobData & idDefender);
 };
 
 

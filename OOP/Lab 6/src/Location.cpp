@@ -39,6 +39,8 @@ ILocation & DangeonLocation::addMob(MobData _mobData) {
 	_mobData.id = freeId;
 	mobs[freeId] = _mobData;
 
+	logObserver->onAdd(_mobData);
+
 	return *this;
 }
 
@@ -48,8 +50,21 @@ ILocation & DangeonLocation::moveMob(int id, Position newPos) {
 	}
 
 	MobData & data = mobs[id];
-
 	data.position = newPos;
+
+	logObserver->onMove(data, newPos);
+
+	return *this;
+}
+
+ILocation & DangeonLocation::removeMob(int id) {
+	auto mobIterator = mobs.find(id);
+	if (mobIterator == std::end(mobs)) {
+		throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
+	}
+
+	logObserver->onRemove(mobIterator->second);
+	mobs.erase(mobIterator);
 
 	return *this;
 }

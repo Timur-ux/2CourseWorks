@@ -43,7 +43,7 @@ public:
 	MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type, int _id = -1)
 		: mob(mob), position(_position), type(_type), id(_id) {}
 
-	MobData(MobData & other) :
+	MobData(const MobData & other) :
 		mob(other.mob)
 		, position(other.position)
 		, id(other.id) {}
@@ -68,16 +68,19 @@ private:
 	double width = 500;
 	double height = 500;
 	std::map<int, MobData> mobs;
-	std::shared_ptr<LogObserver> LogObserver;
+	std::shared_ptr<LocationLogObserver> logObserver;
 	int freeId = 1;
 public:
 	DangeonLocation() = default;
+	DangeonLocation(std::shared_ptr<LocationLogObserver> _logObserver) : logObserver(_logObserver) {}
 
 	ILocation & addMob(MobData _mobData) override;
 	ILocation & moveMob(int id, Position newPos) override;
 	ILocation & removeMob(int id) override;
 	MobData & getMobDataBy(int id) override;
 	const std::map<int, MobData> & getMobsData() override;
+
+	DangeonLocation & setLogObserver(std::shared_ptr<LogObserver> _logObserver);
 };
 
 #endif // LOCATION_H_

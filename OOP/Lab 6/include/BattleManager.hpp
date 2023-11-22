@@ -8,10 +8,10 @@
 #include "Location.hpp"
 
 struct DeadEvent {
-	MobData & attacker;
-	MobData & defender;
+	const MobData & attacker;
+	const MobData & defender;
 
-	DeadEvent(std::remove_const_t<MobData &> _attacker, std::remove_const_t<MobData &> _defender) :
+	DeadEvent(const MobData & _attacker, const MobData & _defender) :
 		attacker(_attacker)
 		, defender(_defender) {}
 };
@@ -22,7 +22,7 @@ protected:
 	std::list<DeadEvent> deadlist;
 public:
 	virtual void provideBattleRound(double attackDistance);
-	virtual std::list<DeadEvent> getDeadListForLastRound();
+	virtual std::list<DeadEvent> & getDeadListForLastRound();
 	virtual void setBattleLocation(std::shared_ptr<ILocation> location);
 };
 

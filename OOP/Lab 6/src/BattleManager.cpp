@@ -19,11 +19,19 @@ void BattleManager::provideBattleRound(double attackDistance) {
 
 			auto attackerVisitor = getBattleVisitor(attacker.getMobType());
 			if (calcDistance(attacker.getPosition(), defender.getPosition()) <= attackDistance
-			and defender.mob->accept(*attackerVisitor)) {
+				and defender.mob->accept(*attackerVisitor)) {
 				deadlist.push_back(DeadEvent(attacker, defender));
 			}
 		}
 	}
+}
+
+std::list<DeadEvent> & BattleManager::getDeadListForLastRound() {
+	return deadlist;
+}
+
+void BattleManager::setBattleLocation(std::shared_ptr<ILocation> _location) {
+	battleLocation = _location;
 }
 
 double calcDistance(const Position & from, const Position & to) {

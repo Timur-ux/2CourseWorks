@@ -25,13 +25,13 @@ template <TConcretMob TMob>
 class Visitor : public IBattleVisitor {
 public:
 	bool visit(KnightStranger & knight) override {
-		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<KnightStranger>::asInt];
+		return BVData::beatMap.at(MobTypeAs<TMob>::asInt)[MobTypeAs<KnightStranger>::asInt];
 	};
 	bool visit(Elf & elf) override {
-		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<Elf>::asInt];
+		return BVData::beatMap.at(MobTypeAs<TMob>::asInt)[MobTypeAs<Elf>::asInt];
 	};
 	bool visit(Dragon & dragon) override {
-		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<Dragon>::asInt];
+		return BVData::beatMap.at(MobTypeAs<TMob>::asInt)[MobTypeAs<Dragon>::asInt];
 	};
 };
 

@@ -22,7 +22,7 @@ class IState;
 class IUndoManager {
 public:
 	virtual IUndoManager & addState(IState && state) = 0;
-	virtual IState & undo() = 0;
+	virtual IUndoManager & undo() = 0;
 };
 
 class DangeonUndoManager : public IUndoManager {
@@ -34,12 +34,12 @@ private:
 public:
 	DangeonUndoManager(std::shared_ptr<ILocation> _location, std::shared_ptr<LogObserver> _logObserver) :
 		location(_location), logObserver(_logObserver), visitor(_location) {};
-	IState & undo() override;
+	IUndoManager & undo() override;
 	IUndoManager & addState(IState && state) override;
 
 	void onAdd(const MobData & mob);
-	void onMove(const MobData & mob, Position to);
-	void onAttack(const MobData & idAttacker, const MobData & idDefender);
+	void onMove(const MobData & mob, Position from, Position to);
+	void onRemove(const MobData & mob);
 };
 
 
@@ -62,9 +62,7 @@ public:
 	std::string toString() override;
 	IState & fromString(std::string _data) override;
 
-	void accept(UndoVisitor & visitor) override {
-		visitor.visit(*this);
-	}
+	void accept(UndoVisitor & visitor) override;
 
 };
 
@@ -81,9 +79,7 @@ public:
 	std::string toString() override;
 	IState & fromString(std::string _data) override;
 
-	void accept(UndoVisitor & visitor) override {
-		visitor.visit(*this);
-	}
+	void accept(UndoVisitor & visitor) override;
 };
 
 class StateMove : public IState {
@@ -102,9 +98,7 @@ public:
 	std::string toString() override;
 	IState & fromString(std::string _data) override;
 
-	void accept(UndoVisitor & visitor) override {
-		visitor.visit(*this);
-	}
+	void accept(UndoVisitor & visitor) override;
 };
 
 class StateRemove : public IState {
@@ -118,19 +112,16 @@ public:
 	std::string toString() override;
 	IState & fromString(std::string _data) override;
 
-	void accept(UndoVisitor & visitor) override {
-		visitor.visit(*this);
-	}
+	void accept(UndoVisitor & visitor) override;
 };
 
 class UndoUpdateData : public IUpdateData {
 private:
 	IState & state;
+	std::string undoType;
 public:
-	UndoUpdateData(IState & _state) : state(_state) {}
-	std::string asString() override {
-		return state.toString();
-	}
+	UndoUpdateData(IState & _state, bool isSave = true);
+	std::string asString() override;
 };
 
 #endif // UNDO_MANAGER_H_

@@ -1,4 +1,5 @@
 #include "UndoManager.hpp"
+#include "UndoVisitor.hpp"
 
 std::string StateAdd::toString() {
 	std::stringstream stateStream;
@@ -28,6 +29,10 @@ IState & StateAdd::fromString(std::string _data) {
 	mobToAdd = std::make_shared<MobData>(mob, pos, type, id);
 
 	return *this;
+}
+
+void StateAdd::accept(UndoVisitor & visitor) {
+	visitor.visit(*this);
 }
 
 std::string StateMove::toString() {
@@ -62,6 +67,10 @@ IState & StateMove::fromString(std::string _data) {
 	return *this;
 }
 
+void StateMove::accept(UndoVisitor & visitor) {
+	visitor.visit(*this);
+}
+
 std::string StateRemove::toString() {
 	std::stringstream stateStream;
 
@@ -90,6 +99,10 @@ IState & StateRemove::fromString(std::string _data) {
 	mobToRemove = std::make_shared<MobData>(mob, pos, type, id);
 
 	return *this;
+}
+
+void StateRemove::accept(UndoVisitor & visitor) {
+	visitor.visit(*this);
 }
 
 std::string StateBase::toString() {
@@ -123,6 +136,22 @@ IState & StateBase::fromString(std::string _data) {
 	return *this;
 }
 
+void StateBase::accept(UndoVisitor & visitor) {
+	visitor.visit(*this);
+}
+
+IUndoManager & DangeonUndoManager::undo() {
+	IState & state = states.top();
+
+	state.accept(visitor);
+	logObserver->update(
+		std::make_shared<UndoUpdateData>(state, false)
+	);
+	states.pop();
+
+	return *this;
+}
+
 IUndoManager & DangeonUndoManager::addState(IState && state) {
 	states.push(state);
 
@@ -131,4 +160,76 @@ IUndoManager & DangeonUndoManager::addState(IState && state) {
 	);
 
 	return *this;
+}
+
+void DangeonUndoManager::onAdd(const MobData & mob) {
+	addState(
+		StateAdd(
+			std::make_shared<MobData>(mob)
+		)
+	);
+}
+
+void DangeonUndoManager::onMove(const MobData & mob, Position from, Position to) {
+	addState(
+		StateMove(
+			std::make_shared<MobData>(mob),
+			from,
+			to
+		)
+	);
+}
+
+void DangeonUndoManager::onRemove(const MobData & mob) {
+	addState(
+		StateRemove(
+			std::make_shared<MobData>(mob)
+		)
+	);
+}
+
+UndoUpdateData::UndoUpdateData(IState & _state, bool isSave) : state(_state) {
+	if (isSave) {
+		undoType = "Undo(Remember)";
+	}
+	else {
+		undoType = "Undo(Return)";
+	}
+}
+
+std::string UndoUpdateData::asString() {
+	std::stringstream os;
+
+	os << undoType << ": " << state.toString();
+
+	return os.str();
+}
+
+void UndoVisitor::visit(StateAdd & state) {
+	auto mobData = state.mobToAdd;
+
+	location->removeMob(mobData->getId());
+}
+
+void UndoVisitor::visit(StateMove & state) {
+	auto mobData = state.mobToMove;
+
+	location->moveMob(
+		mobData->getId()
+		, state.from
+	);
+}
+
+void UndoVisitor::visit(StateRemove & state) {
+	auto mobData = state.mobToRemove;
+
+	location->addMob(*mobData);
+}
+
+void UndoVisitor::visit(StateBase & state) {
+	auto & statesAdd = state.mobAdds;
+
+	for (auto & stateAdd : statesAdd) {
+		visit(stateAdd);
+	}
 }

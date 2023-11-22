@@ -30,7 +30,7 @@ namespace MobParameters {
 	};
 }
 
-class IVisitor;
+class IBattleVisitor;
 
 class Mob {
 protected:
@@ -40,25 +40,25 @@ protected:
 public:
 	Mob(std::string _name) : name(_name), status(MobParameters::Status::alive) {}
 	virtual std::string getName() const;
-	virtual bool accept(IVisitor & visitor) = 0;
+	virtual bool accept(IBattleVisitor & visitor) = 0;
 };
 
 class KnightStranger : public Mob {
 public:
 	KnightStranger(std::string _name = "Unnamed knight") : Mob(_name) {}
-	bool accept(IVisitor & visitor) override;
+	bool accept(IBattleVisitor & visitor) override;
 };
 
 class Elf : public Mob {
 public:
 	Elf(std::string _name = "Unnamed elf") : Mob(_name) {}
-	bool accept(IVisitor & visitor) override;
+	bool accept(IBattleVisitor & visitor) override;
 };
 
 class Dragon : public Mob {
 public:
 	Dragon(std::string _name = "Unnamed dragon") : Mob(_name) {}
-	bool accept(IVisitor & visitor) override;
+	bool accept(IBattleVisitor & visitor) override;
 };
 
 template <TConcretMob TMob>
@@ -79,5 +79,28 @@ struct MobTypeAs<Dragon> {
 	static constexpr std::string asString = "Dragon";
 };
 
+class MobTypeCvt {
+private:
+	static std::map<enumMobType, std::string> enum2String;
+	static std::map<std::string, enumMobType> string2Enum;
+public:
+	static std::string to_string(enumMobType type);
+
+	static enumMobType to_enum(std::string type);
+};
+
+std::map<enumMobType, std::string> MobTypeCvt::enum2String{
+	{enumMobType::BaseMob, "BaseMob"},
+	{enumMobType::KnightStranger, "KnightStranger"},
+	{enumMobType::Elf, "Elf"},
+	{enumMobType::Dragon, "Dragon"}
+};
+
+std::map<std::string, enumMobType> MobTypeCvt::string2Enum{
+	{"BaseMob", enumMobType::BaseMob},
+	{"KnightStranger", enumMobType::KnightStranger},
+	{"Elf", enumMobType::Elf},
+	{"Dragon", enumMobType::Dragon}
+};
 
 #endif // MOB_H_

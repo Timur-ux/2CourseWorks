@@ -15,19 +15,7 @@ public:
 };
 
 inline std::shared_ptr<Mob> MobFabric::create(std::string strType) {
-	if (strType == "KnightStranger") {
-		return create<KnightStranger>();
-	}
-
-	if (strType == "Elf") {
-		return create<Elf>();
-	}
-
-	if (strType == "Dragon") {
-		return create<Dragon>();
-	}
-
-	throw std::invalid_argument("Undefined string representation of mob's type: " + strType);
+	return create(MobTypeCvt::to_enum(strType));
 }
 
 inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType) {

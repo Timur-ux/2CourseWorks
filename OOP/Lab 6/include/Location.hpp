@@ -38,8 +38,8 @@ private:
 public:
 	friend DangeonLocation;
 	MobData() = default;
-	MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type)
-		: mob(mob), position(_position), type(_type) {}
+	MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type, int _id = -1)
+		: mob(mob), position(_position), type(_type), id(_id) {}
 
 	MobData(MobData & other) :
 		mob(other.mob)

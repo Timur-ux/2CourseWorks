@@ -14,7 +14,7 @@ namespace BVData {
 	};
 }; // namespace battleVisitorData
 
-class IVisitor {
+class IBattleVisitor {
 public:
 	virtual bool visit(KnightStranger & knight) = 0;
 	virtual bool visit(Elf & elf) = 0;
@@ -22,7 +22,7 @@ public:
 };
 
 template <TConcretMob TMob>
-class Visitor : public IVisitor {
+class Visitor : public IBattleVisitor {
 public:
 	bool visit(KnightStranger & knight) override {
 		return BVData::beatMap[MobTypeAs<TMob>::asInt][MobTypeAs<KnightStranger>::asInt];
@@ -35,15 +35,15 @@ public:
 	};
 };
 
-bool KnightStranger::accept(IVisitor & visitor) {
+bool KnightStranger::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 
-bool Elf::accept(IVisitor & visitor) {
+bool Elf::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 
-bool Dragon::accept(IVisitor & visitor) {
+bool Dragon::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 

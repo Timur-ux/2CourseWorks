@@ -21,6 +21,9 @@ protected:
 	std::shared_ptr<ILocation> battleLocation;
 	std::list<DeadEvent> deadlist;
 public:
+	BattleManager() = default;
+	BattleManager(std::shared_ptr<ILocation> _location) : battleLocation(_location) {}
+
 	virtual void provideBattleRound(double attackDistance);
 	virtual std::list<DeadEvent> & getDeadListForLastRound();
 	virtual void setBattleLocation(std::shared_ptr<ILocation> location);

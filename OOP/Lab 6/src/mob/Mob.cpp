@@ -1,4 +1,4 @@
-#include "Mob.hpp"
+#include "mob/Mob.hpp"
 
 std::string Mob::getName() const {
 	return name;

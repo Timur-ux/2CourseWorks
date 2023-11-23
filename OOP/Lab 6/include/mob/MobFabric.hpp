@@ -33,5 +33,9 @@ inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType) {
 	throw std::invalid_argument("Undefined mob type: " + static_cast<int>(enumType));
 }
 
+template<TConcretMob TMob>
+inline std::shared_ptr<TMob> MobFabric::create() {
+	return std::make_shared<TMob>();
+}
 
 #endif // MOB_FABRIC_H_

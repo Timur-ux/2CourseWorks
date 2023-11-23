@@ -1,5 +1,5 @@
-#include "UndoManager.hpp"
-#include "UndoVisitor.hpp"
+#include "undoManager/UndoManager.hpp"
+#include "undoManager/UndoVisitor.hpp"
 
 std::string StateAdd::toString() {
 	std::stringstream stateStream;
@@ -141,22 +141,22 @@ void StateBase::accept(UndoVisitor & visitor) {
 }
 
 IUndoManager & DangeonUndoManager::undo() {
-	IState & state = states.top();
+	std::shared_ptr<IState> state = states.top();
 
-	state.accept(visitor);
+	state->accept(visitor);
 	logObserver->update(
-		std::make_shared<UndoUpdateData>(state, false)
+		std::make_shared<UndoUpdateData>(*state, false)
 	);
 	states.pop();
 
 	return *this;
 }
 
-IUndoManager & DangeonUndoManager::addState(IState && state) {
+IUndoManager & DangeonUndoManager::addState(std::shared_ptr<IState> state) {
 	states.push(state);
 
 	logObserver->update(
-		std::make_shared<UndoUpdateData>(state)
+		std::make_shared<UndoUpdateData>(*state)
 	);
 
 	return *this;
@@ -164,7 +164,7 @@ IUndoManager & DangeonUndoManager::addState(IState && state) {
 
 void DangeonUndoManager::onAdd(const MobData & mob) {
 	addState(
-		StateAdd(
+		std::make_shared<StateAdd>(
 			std::make_shared<MobData>(mob)
 		)
 	);
@@ -172,7 +172,7 @@ void DangeonUndoManager::onAdd(const MobData & mob) {
 
 void DangeonUndoManager::onMove(const MobData & mob, Position from, Position to) {
 	addState(
-		StateMove(
+		std::make_shared<StateMove>(
 			std::make_shared<MobData>(mob),
 			from,
 			to
@@ -182,7 +182,7 @@ void DangeonUndoManager::onMove(const MobData & mob, Position from, Position to)
 
 void DangeonUndoManager::onRemove(const MobData & mob) {
 	addState(
-		StateRemove(
+		std::make_shared<StateRemove>(
 			std::make_shared<MobData>(mob)
 		)
 	);

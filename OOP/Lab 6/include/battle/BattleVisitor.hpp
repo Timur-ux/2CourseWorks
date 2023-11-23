@@ -4,7 +4,7 @@
 #include <concepts>
 #include <vector>
 
-#include "Mob.hpp"
+#include "mob/Mob.hpp"
 
 namespace BVData {
 	static std::vector<std::vector<bool>> beatMap{

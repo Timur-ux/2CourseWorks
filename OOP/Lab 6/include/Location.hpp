@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include "Mob.hpp"
+#include "mob/Mob.hpp"
 #include "Observer.hpp"
 
 struct Position {
@@ -15,8 +15,8 @@ struct Position {
 	double y;
 
 	friend std::istream & operator>>(std::istream & is, Position & pos);
-	friend std::ostream & operator<<(std::ostream & os, Position & pos);
-	friend std::ostream & operator<<(std::ostream & os, Position && pos);
+	friend std::ostream & operator<<(std::ostream & os, const Position & pos);
+	friend std::ostream & operator<<(std::ostream & os, const Position && pos);
 
 	double getX() const {
 		return x;

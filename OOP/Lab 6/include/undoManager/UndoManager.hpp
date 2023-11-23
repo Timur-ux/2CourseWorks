@@ -9,7 +9,7 @@
 
 #include "Location.hpp"
 #include "Observer.hpp"
-#include "MobFabric.hpp"
+#include "mob/MobFabric.hpp"
 #include "UndoVisitor.hpp"
 
 enum class StateType {
@@ -21,13 +21,13 @@ enum class StateType {
 class IState;
 class IUndoManager {
 public:
-	virtual IUndoManager & addState(IState && state) = 0;
+	virtual IUndoManager & addState(std::shared_ptr<IState> state) = 0;
 	virtual IUndoManager & undo() = 0;
 };
 
 class DangeonUndoManager : public IUndoManager {
 private:
-	std::stack<IState> states;
+	std::stack<std::shared_ptr<IState>> states;
 	std::shared_ptr<LogObserver> logObserver;
 	std::shared_ptr<ILocation> location;
 	UndoVisitor visitor;
@@ -35,7 +35,7 @@ public:
 	DangeonUndoManager(std::shared_ptr<ILocation> _location, std::shared_ptr<LogObserver> _logObserver) :
 		location(_location), logObserver(_logObserver), visitor(_location) {};
 	IUndoManager & undo() override;
-	IUndoManager & addState(IState && state) override;
+	IUndoManager & addState(std::shared_ptr<IState> state) override;
 
 	void onAdd(const MobData & mob);
 	void onMove(const MobData & mob, Position from, Position to);

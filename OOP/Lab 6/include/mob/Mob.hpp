@@ -64,18 +64,21 @@ public:
 template <TConcretMob TMob>
 struct MobTypeAs {};
 
+template <>
 struct MobTypeAs<KnightStranger> {
-	static constexpr enumMobType asInt = enumMobType::KnightStranger;
+	static constexpr int asInt = static_cast<int>(enumMobType::KnightStranger);
 	static constexpr std::string asString = "KnightStranger";
 };
 
+template <>
 struct MobTypeAs<Elf> {
-	static constexpr enumMobType asInt = enumMobType::Elf;
+	static constexpr int asInt = static_cast<int>(enumMobType::Elf);
 	static constexpr std::string asString = "Elf";
 };
 
+template <>
 struct MobTypeAs<Dragon> {
-	static constexpr enumMobType asInt = enumMobType::Dragon;
+	static constexpr int asInt = static_cast<int>(enumMobType::Dragon);
 	static constexpr std::string asString = "Dragon";
 };
 
@@ -89,14 +92,14 @@ public:
 	static enumMobType to_enum(std::string type);
 };
 
-std::map<enumMobType, std::string> MobTypeCvt::enum2String{
+inline std::map<enumMobType, std::string> MobTypeCvt::enum2String{
 	{enumMobType::BaseMob, "BaseMob"},
 	{enumMobType::KnightStranger, "KnightStranger"},
 	{enumMobType::Elf, "Elf"},
 	{enumMobType::Dragon, "Dragon"}
 };
 
-std::map<std::string, enumMobType> MobTypeCvt::string2Enum{
+inline std::map<std::string, enumMobType> MobTypeCvt::string2Enum{
 	{"BaseMob", enumMobType::BaseMob},
 	{"KnightStranger", enumMobType::KnightStranger},
 	{"Elf", enumMobType::Elf},

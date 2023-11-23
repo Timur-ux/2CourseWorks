@@ -31,6 +31,20 @@ public:
 	void update(std::shared_ptr<IUpdateData> data) override;
 };
 
+class RedactorLogObserver : public LogObserver {
+public:
+	RedactorLogObserver(std::shared_ptr<std::ofstream> _outStream) : LogObserver(_outStream) {
+		prefix = "[Redactor]";
+	}
+};
+
+class UndoManagerLogObserver : public LogObserver {
+public:
+	UndoManagerLogObserver(std::shared_ptr<std::ofstream> _outStream) : LogObserver(_outStream) {
+		prefix = "[Undo Manager]";
+	}
+};
+
 class MobData;
 struct Position;
 class LocationLogObserver : public LogObserver {

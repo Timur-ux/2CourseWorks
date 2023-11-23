@@ -39,4 +39,6 @@ ISerializer & LocationSerializer::deserialize(std::istream & is) {
 
 ISerializer & LocationSerializer::setLocation(std::shared_ptr<ILocation> _location) {
 	location = _location;
+
+	return *this;
 }

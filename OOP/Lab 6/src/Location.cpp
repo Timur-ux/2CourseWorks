@@ -13,8 +13,8 @@ std::ostream & operator<<(std::ostream & os, const Position & pos) {
 	return os;
 }
 
-std::ostream & operator<<(std::ostream & os, Position && pos) {
-	os << (Position &)pos;
+std::ostream & operator<<(std::ostream & os, const Position && pos) {
+	os << (const Position &)pos;
 
 	return os;
 }
@@ -69,9 +69,20 @@ ILocation & DangeonLocation::removeMob(int id) {
 	return *this;
 }
 
+MobData & DangeonLocation::getMobDataBy(int id) {
+	auto mobIt = mobs.find(id);
+	if (mobIt == std::end(mobs)) {
+		throw std::invalid_argument("Undefined mob id: " + std::to_string(id));
+	}
+
+	return mobIt->second;
+}
+
 std::string LocationUpdateData::asString() {
 	std::stringstream dataStream;
 	dataStream << "Id: " << mobData->getId() << "; action: " << action << " " << additionalArgs;
+
+	return dataStream.str();
 }
 
 LocationLogObserver & LocationLogObserver::onAdd(const MobData & mobData) {
@@ -80,6 +91,8 @@ LocationLogObserver & LocationLogObserver::onAdd(const MobData & mobData) {
 	);
 	data->action = "add";
 	update(data);
+
+	return *this;
 }
 LocationLogObserver & LocationLogObserver::onMove(const MobData & mobData, const Position & newPos) {
 	auto data = std::make_shared<LocationUpdateData>(
@@ -90,6 +103,8 @@ LocationLogObserver & LocationLogObserver::onMove(const MobData & mobData, const
 	std::stringstream argsStream;
 	argsStream << "from " << mobData.getPosition() << " to " << newPos;
 	update(data);
+
+	return *this;
 }
 
 LocationLogObserver & LocationLogObserver::onRemove(const MobData & mobData) {
@@ -98,4 +113,10 @@ LocationLogObserver & LocationLogObserver::onRemove(const MobData & mobData) {
 	);
 	data->action = "remove";
 	update(data);
+
+	return *this;
+}
+
+const std::map<int, MobData> & DangeonLocation::getMobsData() {
+	return mobs;
 }

@@ -2,6 +2,8 @@
 
 LogObserver & LogObserver::setPrefix(std::string _prefix) {
 	prefix = "[" + _prefix + "]";
+
+	return *this;
 }
 
 void LogObserver::update(std::shared_ptr<IUpdateData> data) {

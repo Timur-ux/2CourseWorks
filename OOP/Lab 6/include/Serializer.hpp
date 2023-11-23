@@ -5,8 +5,8 @@
 #include <fstream>
 
 #include "Location.hpp"
-#include "Mob.hpp"
-#include "MobFabric.hpp"
+#include "mob/Mob.hpp"
+#include "mob/MobFabric.hpp"
 
 class ISerializer {
 public:
@@ -21,6 +21,9 @@ class LocationSerializer : public ISerializer {
 private:
 	std::shared_ptr<ILocation> location;
 public:
+	LocationSerializer() = default;
+	LocationSerializer(std::shared_ptr<ILocation> _location) : location(_location) {}
+
 	ISerializer & serialize(std::ostream & os) override;
 	ISerializer & deserialize(std::istream & is) override;
 	ISerializer & setLocation(std::shared_ptr<ILocation> _location);

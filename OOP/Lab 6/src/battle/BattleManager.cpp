@@ -1,4 +1,4 @@
-#include "BattleManager.hpp"
+#include "battle/BattleManager.hpp"
 #include <cmath>
 
 double calcDistance(const Position & from, const Position & to);

@@ -7,7 +7,8 @@ LogObserver & LogObserver::setPrefix(std::string _prefix) {
 }
 
 void LogObserver::update(std::shared_ptr<IUpdateData> data) {
-	*outStream << prefix << " " << data->asString() << std::endl;
+	std::string dataStr = data->asString();
+	*outStream << prefix << " " << dataStr << std::endl;
 }
 
 void Observer::setOutputStream(std::shared_ptr<std::ostream> other) {

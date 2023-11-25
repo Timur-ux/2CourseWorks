@@ -1,8 +1,6 @@
 #include "LocationRedactor.hpp"
 
-void printMobData(std::ostream & out, const MobData & data);
-
-LocationRedactor & LocationRedactor::inputCommand(Command command) {
+void LocationRedactor::doCommand(Command command) {
 	switch (command) {
 	case Command::addMob:
 		addMob();
@@ -28,7 +26,19 @@ LocationRedactor & LocationRedactor::inputCommand(Command command) {
 	case Command::deserializeMobs:
 		deserializeMobs();
 		break;
+	case Command::printCommandList:
+		printCommandList();
+		break;
 	}
+}
+
+LocationRedactor & LocationRedactor::inputCommand(std::string command) {
+	auto commandIt = str2EnumCommand.find(command);
+	if (commandIt == std::end(str2EnumCommand)) {
+		throw std::invalid_argument("Undefined command: " + command);
+	}
+
+	doCommand(commandIt->second);
 
 	return *this;
 }
@@ -63,16 +73,23 @@ LocationRedactor & LocationRedactor::setUndoManager(std::shared_ptr<DangeonUndoM
 	return *this;
 }
 
-LocationRedactor & LocationRedactor::setOStream(std::shared_ptr<std::ostream> _outStream) {
+LocationRedactor & LocationRedactor::setOStream(std::ostream * _outStream) {
 	outStream = _outStream;
 
 	return *this;
 }
 
-LocationRedactor & LocationRedactor::setIStream(std::shared_ptr<std::istream> _inStream) {
+LocationRedactor & LocationRedactor::setIStream(std::istream * _inStream) {
 	inStream = _inStream;
 
 	return *this;
+}
+
+void LocationRedactor::printCommandList() {
+	int i = 1;
+	for (auto & command : str2EnumCommand) {
+		*outStream << i++ << ") " << command.first << std::endl;
+	}
 }
 
 
@@ -102,7 +119,10 @@ LocationRedactor & LocationRedactor::addMob() {
 		throw std::invalid_argument(std::string("LocationRedactor: Undefined mob type -- ") + inputtedType);
 	}
 
-	location->addMob(MobData(mob, position, mobType));
+	MobData mobData(mob, position, mobType);
+	location->addMob(mobData);
+	undoManager->onAdd(mobData);
+
 	return *this;
 }
 
@@ -111,6 +131,8 @@ LocationRedactor & LocationRedactor::removeMob() {
 
 	*outStream << "Input <Mob's id>: ";
 	*inStream >> id;
+
+	undoManager->onRemove(location->getMobDataBy(id));
 	location->removeMob(id);
 
 	return *this;
@@ -123,9 +145,7 @@ LocationRedactor & LocationRedactor::printMobs() {
 	for (auto it = std::begin(data)
 			, last = std::end(data)
 		; it != last; ++it) {
-		const MobData & data = it->second;
-		printMobData(*outStream, data);
-		*outStream << std::endl;
+		*outStream << it->second << std::endl;
 	}
 
 	return *this;
@@ -137,6 +157,10 @@ LocationRedactor & LocationRedactor::moveMob() {
 
 	*outStream << "Input <Mob's Id> <new Position>: ";
 	*inStream >> id >> newPos;
+
+	auto & mobData = location->getMobDataBy(id);
+
+	undoManager->onMove(mobData, mobData.getPosition(), newPos);
 	location->moveMob(id, newPos);
 
 	return *this;
@@ -145,18 +169,26 @@ LocationRedactor & LocationRedactor::moveMob() {
 LocationRedactor & LocationRedactor::startBattleRound() {
 	double attackDistance;
 
-	*outStream << "Input <attack distance>";
+	*outStream << "Input <attack distance>: ";
 	*inStream >> attackDistance;
 
 	battleManager->provideBattleRound(attackDistance);
 	std::list<DeadEvent> deadlist = battleManager->getDeadListForLastRound();
 
 	for (auto & deadEvent : deadlist) {
-		*outStream << "Attacker: ";
-		printMobData(*outStream, deadEvent.attacker);
-		*outStream << "Defender: ";
-		printMobData(*outStream, deadEvent.defender);
-		*outStream << std::endl;
+		*outStream
+			<< "Attacker: " << deadEvent.attacker << std::endl
+			<< "Defender: " << deadEvent.defender << std::endl
+			<< "--------------------------------" << std::endl;
+	}
+
+	for (auto & event : deadlist) {
+		try {
+			location->removeMob(event.defender.getId());
+		}
+		catch (std::invalid_argument & e) {
+			continue;
+		}
 	}
 
 	return *this;
@@ -201,10 +233,4 @@ LocationRedactor & LocationRedactor::deserializeMobs() {
 	serializer->deserialize(file);
 
 	return *this;
-}
-
-void printMobData(std::ostream & out, const MobData & data) {
-	out << "Id: " << data.getId() << std::endl
-		<< "type: " << MobTypeCvt::to_string(data.getMobType()) << std::endl
-		<< "name: " << data.getMob()->getName() << std::endl;
 }

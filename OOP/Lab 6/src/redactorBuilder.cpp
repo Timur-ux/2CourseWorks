@@ -2,12 +2,10 @@
 #include <fstream>
 
 
-std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, bool createNew) {
+std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> outFile, bool createNew) {
 	if (builder.isAllCompounentsSet() and not(createNew)) {
 		return builder.build();
 	}
-
-	auto outFile = std::make_shared<std::ofstream>(fileLogName);
 
 	auto redactorLog = std::make_shared<RedactorLogObserver>(outFile);
 
@@ -28,12 +26,6 @@ std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builde
 		.setUndoManager(undo);
 
 	return builder.build();
-}
-
-RedactorDirector & RedactorDirector::setFileLogName(std::string _fileLogName) {
-	fileLogName = _fileLogName;
-
-	return *this;
 }
 
 Builder::Builder() {

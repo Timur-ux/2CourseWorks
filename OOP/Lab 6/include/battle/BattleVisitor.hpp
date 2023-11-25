@@ -4,7 +4,7 @@
 #include <concepts>
 #include <vector>
 
-#include "mob/Mob.hpp"
+#include "../mob/Mob.hpp"
 
 namespace BVData {
 	static std::vector<std::vector<bool>> beatMap{
@@ -35,15 +35,15 @@ public:
 	};
 };
 
-bool KnightStranger::accept(IBattleVisitor & visitor) {
+inline bool KnightStranger::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 
-bool Elf::accept(IBattleVisitor & visitor) {
+inline bool Elf::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 
-bool Dragon::accept(IBattleVisitor & visitor) {
+inline bool Dragon::accept(IBattleVisitor & visitor) {
 	return visitor.visit(*this);
 }
 

@@ -6,7 +6,7 @@
 #include <concepts>
 #include <type_traits>
 
-#include "Observer.hpp"
+#include "../Observer.hpp"
 
 class Mob;
 

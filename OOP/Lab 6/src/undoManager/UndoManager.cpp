@@ -4,11 +4,7 @@
 std::string StateAdd::toString() {
 	std::stringstream stateStream;
 
-	stateStream << "add "
-		<< mobToAdd->getId()
-		<< " " << MobTypeCvt::to_string(mobToAdd->getMobType())
-		<< " " << mobToAdd->getMob()->getName()
-		<< " " << mobToAdd->getPosition();
+	stateStream << "add " << *mobToAdd;
 
 	return stateStream.str();
 }
@@ -163,10 +159,9 @@ IUndoManager & DangeonUndoManager::addState(std::shared_ptr<IState> state) {
 }
 
 void DangeonUndoManager::onAdd(const MobData & mob) {
+	std::shared_ptr<MobData> mobPtr{ new MobData(mob) };
 	addState(
-		std::make_shared<StateAdd>(
-			std::make_shared<MobData>(mob)
-		)
+		std::make_shared<StateAdd>(mobPtr)
 	);
 }
 

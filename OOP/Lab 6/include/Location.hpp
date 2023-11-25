@@ -41,17 +41,22 @@ public:
 
 	MobData() = default;
 	MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type, int _id = -1)
-		: mob(mob), position(_position), type(_type), id(_id) {}
+		: mob(_mob), position(_position), type(_type), id(_id) {}
 
 	MobData(const MobData & other) :
 		mob(other.mob)
 		, position(other.position)
+		, type(other.type)
 		, id(other.id) {}
+
+
 
 	int getId() const;
 	Position getPosition() const;
 	enumMobType getMobType() const;
 	std::shared_ptr<const Mob> getMob() const;
+
+	friend std::ostream & operator<<(std::ostream & os, const MobData & _mobData);
 };
 
 class ILocation {

@@ -31,12 +31,9 @@ public:
 };
 
 class RedactorDirector {
-private:
-	std::string fileLogName = "LocationRedactor.log";
 public:
 	RedactorDirector() = default;
-	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder, bool createNew);
-	RedactorDirector & setFileLogName(std::string _fileLogName);
+	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> logFile, bool createNew);
 };
 
 #endif

@@ -19,6 +19,15 @@ std::ostream & operator<<(std::ostream & os, const Position && pos) {
 	return os;
 }
 
+std::ostream & operator<<(std::ostream & os, const MobData & _mobData) {
+	os << "Id: " << _mobData.getId() << std::endl
+		<< "type: " << MobTypeCvt::to_string(_mobData.getMobType()) << std::endl
+		<< "name: " << _mobData.getMob()->getName() << std::endl
+		<< "position: " << _mobData.getPosition() << std::endl;
+
+	return os;
+}
+
 int MobData::getId() const {
 	return id;
 }
@@ -38,6 +47,7 @@ std::shared_ptr<const Mob> MobData::getMob() const {
 ILocation & DangeonLocation::addMob(MobData _mobData) {
 	_mobData.id = freeId;
 	mobs[freeId] = _mobData;
+	++freeId;
 
 	logObserver->onAdd(_mobData);
 
@@ -50,9 +60,11 @@ ILocation & DangeonLocation::moveMob(int id, Position newPos) {
 	}
 
 	MobData & data = mobs[id];
+
+	Position oldPos = data.getPosition();
 	data.position = newPos;
 
-	logObserver->onMove(data, newPos);
+	logObserver->onMove(data, oldPos, newPos);
 
 	return *this;
 }
@@ -80,36 +92,43 @@ MobData & DangeonLocation::getMobDataBy(int id) {
 
 std::string LocationUpdateData::asString() {
 	std::stringstream dataStream;
-	dataStream << "Id: " << mobData->getId() << "; action: " << action << " " << additionalArgs;
+	dataStream << "Id: " << mobData->getId() << "; action: " << action << "; " << additionalArgs;
 
 	return dataStream.str();
 }
 
 LocationLogObserver & LocationLogObserver::onAdd(const MobData & mobData) {
 	auto data = std::make_shared<LocationUpdateData>(
-		std::shared_ptr<const MobData>{ &mobData }
+		std::make_shared<const MobData>(mobData)
 	);
+
+	std::stringstream argsStream;
+	argsStream << "position: " << mobData.getPosition();
+
 	data->action = "add";
+	data->additionalArgs = argsStream.str();
 	update(data);
 
 	return *this;
 }
-LocationLogObserver & LocationLogObserver::onMove(const MobData & mobData, const Position & newPos) {
+LocationLogObserver & LocationLogObserver::onMove(const MobData & mobData, const Position & oldPos, const Position & newPos) {
 	auto data = std::make_shared<LocationUpdateData>(
-		std::shared_ptr<const MobData>{ &mobData }
+		std::make_shared<const MobData>(mobData)
 	);
-	data->action = "move";
 
 	std::stringstream argsStream;
-	argsStream << "from " << mobData.getPosition() << " to " << newPos;
-	update(data);
+	argsStream << "from " << oldPos << " to " << newPos;
 
+	data->action = "move";
+	data->additionalArgs = argsStream.str();
+
+	update(data);
 	return *this;
 }
 
 LocationLogObserver & LocationLogObserver::onRemove(const MobData & mobData) {
 	auto data = std::make_shared<LocationUpdateData>(
-			std::shared_ptr<const MobData>{ &mobData }
+			std::make_shared<const MobData>(mobData)
 	);
 	data->action = "remove";
 	update(data);

@@ -54,7 +54,7 @@ public:
 	}
 
 	LocationLogObserver & onAdd(const MobData & mobData);
-	LocationLogObserver & onMove(const MobData & mobData, const Position & newPos);
+	LocationLogObserver & onMove(const MobData & mobData, const Position & oldPos, const Position & newPos);
 	LocationLogObserver & onRemove(const MobData & mobData);
 };
 

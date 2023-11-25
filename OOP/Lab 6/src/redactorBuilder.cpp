@@ -2,7 +2,11 @@
 #include <fstream>
 
 
-std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder) {
+std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, bool createNew) {
+	if (builder.isAllCompounentsSet() and not(createNew)) {
+		return builder.build();
+	}
+
 	auto outFile = std::make_shared<std::ofstream>(fileLogName);
 
 	auto redactorLog = std::make_shared<RedactorLogObserver>(outFile);
@@ -26,36 +30,67 @@ std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builde
 	return builder.build();
 }
 
+RedactorDirector & RedactorDirector::setFileLogName(std::string _fileLogName) {
+	fileLogName = _fileLogName;
+
+	return *this;
+}
+
 Builder::Builder() {
-	redactor = std::make_shared<LocationRedactor>();
+	redactor = std::shared_ptr<LocationRedactor>(nullptr);
 }
 
 std::shared_ptr<LocationRedactor> Builder::build() {
-	return redactor;
+	if (redactor.get() != nullptr) {
+		auto result = redactor;
+		redactor = std::shared_ptr<LocationRedactor>(nullptr);
+		return result;
+	}
+	redactor = std::make_shared<LocationRedactor>();
+
+	redactor->setLocation(location)
+		.setBattleManager(battleManager)
+		.setObserver(observer)
+		.setSerializer(serializer)
+		.setUndoManager(undoManager);
+
+	auto result = redactor;
+	redactor = std::shared_ptr<LocationRedactor>(nullptr);
+
+	allCompounentsSet = true;
+	return result;
 }
 
 Builder & Builder::setObserver(std::shared_ptr<LogObserver> _observer) {
-	redactor->setObserver(_observer);
+	observer = _observer;
 
 	return *this;
 }
 
 Builder & Builder::setLocation(std::shared_ptr<ILocation> _location) {
-	redactor->setLocation(_location);
+	location = _location;
+
+	return *this;
 }
 
 Builder & Builder::setBattleManager(std::shared_ptr<BattleManager> _battleManager) {
-	redactor->setBattleManager(_battleManager);
+	battleManager = _battleManager;
 
 	return *this;
 }
 
 Builder & Builder::setSerializer(std::shared_ptr<LocationSerializer> _serializer) {
-	redactor->setSerializer(_serializer);
+	serializer = _serializer;
 
 	return *this;
 }
 
 Builder & Builder::setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager) {
-	redactor->setUndoManager(_undoManager);
+	undoManager = _undoManager;
+
+	return *this;
+}
+
+bool Builder::isAllCompounentsSet() {
+	return allCompounentsSet;
 }

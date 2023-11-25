@@ -11,6 +11,13 @@
 class Builder {
 public:
 	std::shared_ptr<LocationRedactor> redactor;
+
+	std::shared_ptr<ILocation> location;
+	std::shared_ptr<LogObserver> observer;
+	std::shared_ptr<BattleManager> battleManager;
+	std::shared_ptr<LocationSerializer> serializer;
+	std::shared_ptr<DangeonUndoManager> undoManager;
+	bool allCompounentsSet = false;
 public:
 	Builder();
 
@@ -20,13 +27,16 @@ public:
 	virtual Builder & setBattleManager(std::shared_ptr<BattleManager> _battleManager);
 	virtual Builder & setSerializer(std::shared_ptr<LocationSerializer> _serializer);
 	virtual Builder & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
+	virtual bool isAllCompounentsSet();
 };
 
 class RedactorDirector {
 private:
 	std::string fileLogName = "LocationRedactor.log";
 public:
-	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder);
+	RedactorDirector() = default;
+	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder, bool createNew);
+	RedactorDirector & setFileLogName(std::string _fileLogName);
 };
 
 #endif

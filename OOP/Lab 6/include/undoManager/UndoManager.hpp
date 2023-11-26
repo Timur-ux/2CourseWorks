@@ -29,10 +29,11 @@ class DangeonUndoManager : public IUndoManager {
 private:
 	std::stack<std::shared_ptr<IState>> states;
 	std::shared_ptr<LogObserver> logObserver;
-	std::shared_ptr<ILocation> location;
+	std::weak_ptr<ILocation> location;
 	UndoVisitor visitor;
+	bool isNowUndoTime = false;
 public:
-	DangeonUndoManager(std::shared_ptr<ILocation> _location, std::shared_ptr<LogObserver> _logObserver) :
+	DangeonUndoManager(std::weak_ptr<ILocation> _location, std::shared_ptr<LogObserver> _logObserver) :
 		location(_location), logObserver(_logObserver), visitor(_location) {};
 	IUndoManager & undo() override;
 	IUndoManager & addState(std::shared_ptr<IState> state) override;
@@ -46,7 +47,6 @@ public:
 class IState {
 public:
 	virtual std::string toString() = 0;
-	virtual IState & fromString(std::string _data) = 0;
 	virtual void accept(UndoVisitor & visitor) = 0;
 };
 
@@ -60,7 +60,6 @@ public:
 	StateBase(std::vector<StateAdd> & _mobsAdds) : mobAdds(_mobsAdds) {}
 
 	std::string toString() override;
-	IState & fromString(std::string _data) override;
 
 	void accept(UndoVisitor & visitor) override;
 
@@ -77,7 +76,6 @@ public:
 	StateAdd(std::shared_ptr<MobData> _mobToAdd) : mobToAdd(_mobToAdd) {}
 
 	std::string toString() override;
-	IState & fromString(std::string _data) override;
 
 	void accept(UndoVisitor & visitor) override;
 };
@@ -96,7 +94,6 @@ public:
 		, to(_to) {}
 
 	std::string toString() override;
-	IState & fromString(std::string _data) override;
 
 	void accept(UndoVisitor & visitor) override;
 };
@@ -110,7 +107,6 @@ public:
 	StateRemove(std::shared_ptr<MobData> _mobToRemove) : mobToRemove(_mobToRemove) {};
 
 	std::string toString() override;
-	IState & fromString(std::string _data) override;
 
 	void accept(UndoVisitor & visitor) override;
 };

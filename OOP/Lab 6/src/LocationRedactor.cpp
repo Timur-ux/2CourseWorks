@@ -97,22 +97,24 @@ LocationRedactor & LocationRedactor::addMob() {
 	std::shared_ptr<Mob> mob;
 	enumMobType mobType;
 
-	std::string inputtedType;
+	std::string inputtedType, name;
 	Position position;
 
-	*outStream << "Input <type> <position X> <position Y>: ";
-	*inStream >> inputtedType >> position;
+	*outStream << "Input <type> <name with _> <position X> <position Y>: ";
+	*inStream >> inputtedType >> name >> position;
+
+	name = replace(name, '_', ' ');
 
 	if (inputtedType == "KnightStranger") {
-		mob = MobFabric::create<KnightStranger>();
+		mob = MobFabric::create<KnightStranger>(name);
 		mobType = enumMobType::KnightStranger;
 	}
 	else if (inputtedType == "Elf") {
-		mob = MobFabric::create<Elf>();
+		mob = MobFabric::create<Elf>(name);
 		mobType = enumMobType::Elf;
 	}
 	else if (inputtedType == "Dragon") {
-		mob = MobFabric::create<Dragon>();
+		mob = MobFabric::create<Dragon>(name);
 		mobType = enumMobType::Dragon;
 	}
 	else {
@@ -121,7 +123,6 @@ LocationRedactor & LocationRedactor::addMob() {
 
 	MobData mobData(mob, position, mobType);
 	location->addMob(mobData);
-	undoManager->onAdd(mobData);
 
 	return *this;
 }
@@ -132,7 +133,6 @@ LocationRedactor & LocationRedactor::removeMob() {
 	*outStream << "Input <Mob's id>: ";
 	*inStream >> id;
 
-	undoManager->onRemove(location->getMobDataBy(id));
 	location->removeMob(id);
 
 	return *this;
@@ -160,7 +160,6 @@ LocationRedactor & LocationRedactor::moveMob() {
 
 	auto & mobData = location->getMobDataBy(id);
 
-	undoManager->onMove(mobData, mobData.getPosition(), newPos);
 	location->moveMob(id, newPos);
 
 	return *this;
@@ -206,7 +205,7 @@ LocationRedactor & LocationRedactor::serializeMobs() {
 	std::string outName;
 
 	*outStream << "Input <outputFileName> ( \"" << defaultOutName << "\" by default): ";
-	*inStream >> outName;
+	getline(*inStream, outName);
 
 	if (outName.size() == 0) {
 		outName = defaultOutName;
@@ -223,13 +222,17 @@ LocationRedactor & LocationRedactor::deserializeMobs() {
 	std::string inputName;
 
 	*outStream << "Input <outputFileName> ( \"" << defaultInputName << "\" by default): ";
-	*inStream >> inputName;
+	getline(*inStream, inputName);
 
 	if (inputName.size() == 0) {
 		inputName = defaultInputName;
 	}
 
 	std::ifstream file(inputName);
+	if (not(file.is_open())) {
+		std::cerr << "Cannot open: " << inputName << std::endl;
+		return *this;
+	}
 	serializer->deserialize(file);
 
 	return *this;

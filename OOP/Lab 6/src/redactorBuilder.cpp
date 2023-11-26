@@ -3,14 +3,14 @@
 
 
 std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> outFile, bool createNew) {
-	if (builder.isAllCompounentsSet() and not(createNew)) {
+	if (not(createNew)) {
 		return builder.build();
 	}
 
 	auto redactorLog = std::make_shared<RedactorLogObserver>(outFile);
 
 	auto locationLog = std::make_shared<LocationLogObserver>(outFile);
-	auto location = std::make_shared<DangeonLocation>(locationLog);
+	auto location = std::make_shared<DangeonLocation>(locationLog, nullptr);
 
 	auto battleManager = std::make_shared<BattleManager>(location);
 
@@ -18,6 +18,7 @@ std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builde
 
 	auto undoLog = std::make_shared<UndoManagerLogObserver>(outFile);
 	auto undo = std::make_shared<DangeonUndoManager>(location, undoLog);
+	location->setUndoManager(undo);
 
 	builder.setLocation(location)
 		.setBattleManager(battleManager)
@@ -33,11 +34,6 @@ Builder::Builder() {
 }
 
 std::shared_ptr<LocationRedactor> Builder::build() {
-	if (redactor.get() != nullptr) {
-		auto result = redactor;
-		redactor = std::shared_ptr<LocationRedactor>(nullptr);
-		return result;
-	}
 	redactor = std::make_shared<LocationRedactor>();
 
 	redactor->setLocation(location)
@@ -47,9 +43,6 @@ std::shared_ptr<LocationRedactor> Builder::build() {
 		.setUndoManager(undoManager);
 
 	auto result = redactor;
-	redactor = std::shared_ptr<LocationRedactor>(nullptr);
-
-	allCompounentsSet = true;
 	return result;
 }
 

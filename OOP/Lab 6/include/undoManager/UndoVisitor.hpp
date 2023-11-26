@@ -14,9 +14,9 @@ class StateBase;
 
 class UndoVisitor {
 private:
-	std::shared_ptr<ILocation> location;
+	std::weak_ptr<ILocation> location;
 public:
-	UndoVisitor(std::shared_ptr<ILocation> _location) : location(_location) {}
+	UndoVisitor(std::weak_ptr<ILocation> _location) : location(_location) {}
 	void visit(StateAdd & state);
 	void visit(StateMove & state);
 	void visit(StateRemove & state);

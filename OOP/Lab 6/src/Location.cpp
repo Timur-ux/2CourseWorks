@@ -1,5 +1,4 @@
 #include "Location.hpp"
-#include "Observer.hpp"
 
 std::istream & operator>>(std::istream & is, Position & pos) {
 	is >> pos.x >> pos.y;
@@ -8,7 +7,7 @@ std::istream & operator>>(std::istream & is, Position & pos) {
 }
 
 std::ostream & operator<<(std::ostream & os, const Position & pos) {
-	os << "{" << pos.getX() << " " << pos.getY() << "}";
+	os << pos.getX() << " " << pos.getY();
 
 	return os;
 }
@@ -22,10 +21,30 @@ std::ostream & operator<<(std::ostream & os, const Position && pos) {
 std::ostream & operator<<(std::ostream & os, const MobData & _mobData) {
 	os << "Id: " << _mobData.getId() << std::endl
 		<< "type: " << MobTypeCvt::to_string(_mobData.getMobType()) << std::endl
-		<< "name: " << _mobData.getMob()->getName() << std::endl
+		<< "name: " << replace(_mobData.getMob()->getName(), ' ', '_') << std::endl
 		<< "position: " << _mobData.getPosition() << std::endl;
 
 	return os;
+}
+
+std::istream & operator>>(std::istream & is, MobData & _mobData) {
+	std::string temp, type, name;
+	int id;
+	Position pos;
+
+	if (not(is >> temp)) {
+		return is;
+	}
+
+	is >> id >> temp >> type >> temp >> name >> temp >> pos;
+	name = replace(name, '_', ' ');
+
+	_mobData.id = id;
+	_mobData.mob = MobFabric::create(type, name);
+	_mobData.type = MobTypeCvt::to_enum(type);
+	_mobData.position = pos;
+
+	return is;
 }
 
 int MobData::getId() const {
@@ -42,43 +61,6 @@ enumMobType MobData::getMobType() const {
 
 std::shared_ptr<const Mob> MobData::getMob() const {
 	return std::shared_ptr<const Mob>(mob);
-}
-
-ILocation & DangeonLocation::addMob(MobData _mobData) {
-	_mobData.id = freeId;
-	mobs[freeId] = _mobData;
-	++freeId;
-
-	logObserver->onAdd(_mobData);
-
-	return *this;
-}
-
-ILocation & DangeonLocation::moveMob(int id, Position newPos) {
-	if (mobs.find(id) == std::end(mobs)) {
-		throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
-	}
-
-	MobData & data = mobs[id];
-
-	Position oldPos = data.getPosition();
-	data.position = newPos;
-
-	logObserver->onMove(data, oldPos, newPos);
-
-	return *this;
-}
-
-ILocation & DangeonLocation::removeMob(int id) {
-	auto mobIterator = mobs.find(id);
-	if (mobIterator == std::end(mobs)) {
-		throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
-	}
-
-	logObserver->onRemove(mobIterator->second);
-	mobs.erase(mobIterator);
-
-	return *this;
 }
 
 MobData & DangeonLocation::getMobDataBy(int id) {
@@ -138,4 +120,16 @@ LocationLogObserver & LocationLogObserver::onRemove(const MobData & mobData) {
 
 const std::map<int, MobData> & DangeonLocation::getMobsData() {
 	return mobs;
+}
+
+DangeonLocation & DangeonLocation::setLogObserver(std::shared_ptr<LocationLogObserver> _logObserver) {
+	logObserver = _logObserver;
+
+	return *this;
+}
+
+DangeonLocation & DangeonLocation::setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager) {
+	undoManager = _undoManager;
+
+	return *this;
 }

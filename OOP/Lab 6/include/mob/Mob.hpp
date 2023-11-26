@@ -39,6 +39,7 @@ protected:
 	Mob() = default;
 public:
 	Mob(std::string _name) : name(_name), status(MobParameters::Status::alive) {}
+
 	virtual std::string getName() const;
 	virtual bool accept(IBattleVisitor & visitor) = 0;
 };

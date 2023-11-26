@@ -8,7 +8,9 @@
 #include <type_traits>
 
 #include "mob/Mob.hpp"
+#include "mob/MobFabric.hpp"
 #include "Observer.hpp"
+#include "utils.hpp"
 
 struct Position {
 	double x;
@@ -57,6 +59,7 @@ public:
 	std::shared_ptr<const Mob> getMob() const;
 
 	friend std::ostream & operator<<(std::ostream & os, const MobData & _mobData);
+	friend std::istream & operator>>(std::istream & is, MobData & _mobData);
 };
 
 class ILocation {
@@ -68,16 +71,20 @@ public:
 	virtual const std::map<int, MobData> & getMobsData() = 0;
 };
 
+class DangeonUndoManager;
 class DangeonLocation : public ILocation {
 private:
 	double width = 500;
 	double height = 500;
 	std::map<int, MobData> mobs;
 	std::shared_ptr<LocationLogObserver> logObserver;
+	std::shared_ptr<DangeonUndoManager> undoManager;
 	int freeId = 1;
 public:
 	DangeonLocation() = default;
-	DangeonLocation(std::shared_ptr<LocationLogObserver> _logObserver) : logObserver(_logObserver) {}
+	DangeonLocation(std::shared_ptr<LocationLogObserver> _logObserver, std::shared_ptr<DangeonUndoManager> _undoManager)
+		: logObserver(_logObserver)
+		, undoManager(_undoManager) {}
 
 	ILocation & addMob(MobData _mobData) override;
 	ILocation & moveMob(int id, Position newPos) override;
@@ -85,7 +92,8 @@ public:
 	MobData & getMobDataBy(int id) override;
 	const std::map<int, MobData> & getMobsData() override;
 
-	DangeonLocation & setLogObserver(std::shared_ptr<LogObserver> _logObserver);
+	DangeonLocation & setLogObserver(std::shared_ptr<LocationLogObserver> _logObserver);
+	DangeonLocation & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
 };
 
 #endif // LOCATION_H_

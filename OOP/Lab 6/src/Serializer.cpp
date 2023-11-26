@@ -5,32 +5,15 @@ ISerializer & LocationSerializer::serialize(std::ostream & os) {
 
 	for (auto it = std::cbegin(mobs)
 		, last = std::cend(mobs); it != last; ++it) {
-		auto & mobData = it->second;
-		os << mobData.getId()
-			<< " " << mobData.getMobType()
-			<< " " << mobData.getMob()->getName()
-			<< " " << mobData.getPosition()
-			<< '\n';
+		os << it->second;
 	}
 
 	return *this;
 }
 
 ISerializer & LocationSerializer::deserialize(std::istream & is) {
-	std::string data;
-	while (std::getline(is, data)) {
-		std::stringstream dataStream(data);
-		int id;
-		enumMobType type;
-		std::string name;
-		Position pos;
-
-		dataStream >> id >> type >> name >> pos;
-
-		auto mob = MobFabric::create(type);
-
-		MobData mobData(mob, pos, type);
-
+	MobData mobData;
+	while (is >> mobData) {
 		location->addMob(mobData);
 	}
 

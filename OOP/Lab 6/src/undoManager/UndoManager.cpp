@@ -4,27 +4,9 @@
 std::string StateAdd::toString() {
 	std::stringstream stateStream;
 
-	stateStream << "add " << *mobToAdd;
+	stateStream << "action: add; Id: " << mobToAdd->getId();
 
 	return stateStream.str();
-}
-
-IState & StateAdd::fromString(std::string _data) {
-	std::stringstream stateStream(_data);
-
-	std::shared_ptr<Mob> mob;
-	std::string action, strMobType, name;
-	Position pos;
-	int id;
-
-	stateStream >> action >> id >> strMobType >> name >> pos;
-
-	enumMobType type = MobTypeCvt::to_enum(strMobType);
-	mob = MobFabric::create(type);
-
-	mobToAdd = std::make_shared<MobData>(mob, pos, type, id);
-
-	return *this;
 }
 
 void StateAdd::accept(UndoVisitor & visitor) {
@@ -34,33 +16,9 @@ void StateAdd::accept(UndoVisitor & visitor) {
 std::string StateMove::toString() {
 	std::stringstream stateStream;
 
-	stateStream << "move "
-		<< mobToMove->getId()
-		<< " " << MobTypeCvt::to_string(mobToMove->getMobType())
-		<< " " << mobToMove->getMob()->getName()
-		<< " " << from
-		<< " " << to;
+	stateStream << "action: move; Id: " << mobToMove->getId();
 
 	return stateStream.str();
-}
-
-IState & StateMove::fromString(std::string _data) {
-	std::stringstream stateStream(_data);
-
-	std::shared_ptr<Mob> mob;
-	std::string action, strMobType, name;
-	Position _from, _to;
-	int id;
-
-	stateStream >> action >> id >> strMobType >> name >> _from >> _to;
-
-	enumMobType type = MobTypeCvt::to_enum(strMobType);
-	mob = MobFabric::create(type);
-	from = _from;
-	to = _to;
-	mobToMove = std::make_shared<MobData>(mob, to, type, id);
-
-	return *this;
 }
 
 void StateMove::accept(UndoVisitor & visitor) {
@@ -70,31 +28,9 @@ void StateMove::accept(UndoVisitor & visitor) {
 std::string StateRemove::toString() {
 	std::stringstream stateStream;
 
-	stateStream << "remove "
-		<< mobToRemove->getId()
-		<< " " << MobTypeCvt::to_string(mobToRemove->getMobType())
-		<< " " << mobToRemove->getMob()->getName()
-		<< " " << mobToRemove->getPosition();
+	stateStream << "action: remove; Id: " << mobToRemove->getId();
 
 	return stateStream.str();
-}
-
-IState & StateRemove::fromString(std::string _data) {
-	std::stringstream stateStream(_data);
-
-	std::shared_ptr<Mob> mob;
-	std::string action, strMobType, name;
-	Position pos;
-	int id;
-
-	stateStream >> action >> id >> strMobType >> name >> pos;
-
-	enumMobType type = MobTypeCvt::to_enum(strMobType);
-	mob = MobFabric::create(type);
-
-	mobToRemove = std::make_shared<MobData>(mob, pos, type, id);
-
-	return *this;
 }
 
 void StateRemove::accept(UndoVisitor & visitor) {
@@ -111,49 +47,35 @@ std::string StateBase::toString() {
 	return stateStream.str();
 }
 
-IState & StateBase::fromString(std::string _data) {
-	mobAdds.erase(std::begin(mobAdds), std::end(mobAdds));
-	std::stringstream streamData(_data);
-	std::string delimeter;
-	std::string mobAddData;
-
-	StateAdd state;
-
-	while (streamData >> mobAddData >> delimeter) {
-		state.fromString(mobAddData);
-
-		if (delimeter != ";") {
-			break;
-		}
-
-		mobAdds.push_back(state);
-	}
-
-	return *this;
-}
-
 void StateBase::accept(UndoVisitor & visitor) {
 	visitor.visit(*this);
 }
 
 IUndoManager & DangeonUndoManager::undo() {
+	if (states.empty()) {
+		return *this;
+	}
+
+	isNowUndoTime = true;
+
 	std::shared_ptr<IState> state = states.top();
+	states.pop();
 
 	state->accept(visitor);
 	logObserver->update(
 		std::make_shared<UndoUpdateData>(*state, false)
 	);
-	states.pop();
 
+	isNowUndoTime = false;
 	return *this;
 }
 
 IUndoManager & DangeonUndoManager::addState(std::shared_ptr<IState> state) {
-	states.push(state);
+	if (isNowUndoTime) {
+		return *this;
+	}
 
-	logObserver->update(
-		std::make_shared<UndoUpdateData>(*state)
-	);
+	states.push(state);
 
 	return *this;
 }
@@ -203,22 +125,31 @@ std::string UndoUpdateData::asString() {
 void UndoVisitor::visit(StateAdd & state) {
 	auto mobData = state.mobToAdd;
 
-	location->removeMob(mobData->getId());
+	std::shared_ptr<ILocation> _location = location.lock();
+	if (_location) {
+		_location->removeMob(mobData->getId());
+	}
 }
 
 void UndoVisitor::visit(StateMove & state) {
 	auto mobData = state.mobToMove;
 
-	location->moveMob(
-		mobData->getId()
-		, state.from
-	);
+	std::shared_ptr<ILocation> _location = location.lock();
+	if (_location) {
+		_location->moveMob(
+			mobData->getId()
+			, state.from
+		);
+	}
 }
 
 void UndoVisitor::visit(StateRemove & state) {
 	auto mobData = state.mobToRemove;
 
-	location->addMob(*mobData);
+	std::shared_ptr<ILocation> _location = location.lock();
+	if (_location) {
+		_location->addMob(*mobData);
+	}
 }
 
 void UndoVisitor::visit(StateBase & state) {
@@ -227,4 +158,43 @@ void UndoVisitor::visit(StateBase & state) {
 	for (auto & stateAdd : statesAdd) {
 		visit(stateAdd);
 	}
+}
+
+ILocation & DangeonLocation::addMob(MobData _mobData) {
+	_mobData.id = freeId++;
+	mobs[_mobData.id] = _mobData;
+
+	logObserver->onAdd(_mobData);
+	undoManager->onAdd(_mobData);
+
+	return *this;
+}
+
+ILocation & DangeonLocation::moveMob(int id, Position newPos) {
+	if (mobs.find(id) == std::end(mobs)) {
+		throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
+	}
+
+	MobData & data = mobs[id];
+
+	Position oldPos = data.getPosition();
+	data.position = newPos;
+
+	logObserver->onMove(data, oldPos, newPos);
+	undoManager->onMove(data, oldPos, newPos);
+
+	return *this;
+}
+
+ILocation & DangeonLocation::removeMob(int id) {
+	auto mobIterator = mobs.find(id);
+	if (mobIterator == std::end(mobs)) {
+		throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
+	}
+
+	logObserver->onRemove(mobIterator->second);
+	undoManager->onRemove(mobIterator->second);
+	mobs.erase(mobIterator);
+
+	return *this;
 }

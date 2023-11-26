@@ -7,25 +7,25 @@
 class MobFabric {
 public:
 	template <TConcretMob TMob>
-	static std::shared_ptr<TMob> create();
+	static std::shared_ptr<TMob> create(std::string name = "");
 
-	static std::shared_ptr<Mob> create(std::string strType);
+	static std::shared_ptr<Mob> create(std::string strType, std::string name = "");
 
-	static std::shared_ptr<Mob> create(enumMobType enumType);
+	static std::shared_ptr<Mob> create(enumMobType enumType, std::string name = "");
 };
 
-inline std::shared_ptr<Mob> MobFabric::create(std::string strType) {
-	return create(MobTypeCvt::to_enum(strType));
+inline std::shared_ptr<Mob> MobFabric::create(std::string strType, std::string name) {
+	return create(MobTypeCvt::to_enum(strType), name);
 }
 
-inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType) {
+inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType, std::string name) {
 	switch (enumType) {
 	case enumMobType::KnightStranger:
-		return create<KnightStranger>();
+		return create<KnightStranger>(name);
 	case enumMobType::Elf:
-		return create<Elf>();
+		return create<Elf>(name);
 	case enumMobType::Dragon:
-		return create<Dragon>();
+		return create<Dragon>(name);
 	case enumMobType::BaseMob:
 		throw std::invalid_argument("Can not create mob with type: BaseMob");
 	}
@@ -34,8 +34,8 @@ inline std::shared_ptr<Mob> MobFabric::create(enumMobType enumType) {
 }
 
 template<TConcretMob TMob>
-inline std::shared_ptr<TMob> MobFabric::create() {
-	return std::make_shared<TMob>();
+inline std::shared_ptr<TMob> MobFabric::create(std::string name) {
+	return std::make_shared<TMob>(name);
 }
 
 #endif // MOB_FABRIC_H_

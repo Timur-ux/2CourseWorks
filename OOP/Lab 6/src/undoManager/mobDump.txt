@@ -1,8 +1,0 @@
-Id: 2
-type: Dragon
-name: A
-position: 5 15
-Id: 3
-type: Elf
-name: B
-position: 5 15

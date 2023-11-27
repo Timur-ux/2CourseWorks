@@ -2,8 +2,8 @@
 #include <fstream>
 
 
-std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> outFile, bool createNew) {
-	if (not(createNew)) {
+std::shared_ptr<LocationRedactor> RedactorDirector::createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> outFile, bool createNewLocation) {
+	if (not(createNewLocation)) {
 		return builder.build();
 	}
 

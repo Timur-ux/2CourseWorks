@@ -8,6 +8,7 @@
 #include "Serializer.hpp"
 #include "Observer.hpp"
 
+class RedactorTest;
 class Builder {
 public:
 	std::shared_ptr<LocationRedactor> redactor;
@@ -19,6 +20,7 @@ public:
 	std::shared_ptr<DangeonUndoManager> undoManager;
 	bool allCompounentsSet = false;
 public:
+	friend RedactorTest;
 	Builder();
 
 	virtual std::shared_ptr<LocationRedactor> build();
@@ -33,7 +35,7 @@ public:
 class RedactorDirector {
 public:
 	RedactorDirector() = default;
-	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> logFile, bool createNew);
+	std::shared_ptr<LocationRedactor> createDangeonRedactor(Builder & builder, std::shared_ptr<std::ofstream> logFile, bool createNewLocation = true);
 };
 
 #endif

@@ -16,9 +16,8 @@ struct Position {
 	double x;
 	double y;
 
-	friend std::istream & operator>>(std::istream & is, Position & pos);
-	friend std::ostream & operator<<(std::ostream & os, const Position & pos);
-	friend std::ostream & operator<<(std::ostream & os, const Position && pos);
+	Position() = default;
+	Position(double _x, double _y) : x(_x), y(_y) {}
 
 	double getX() const {
 		return x;
@@ -27,6 +26,12 @@ struct Position {
 	double getY() const {
 		return y;
 	}
+
+	friend std::istream & operator>>(std::istream & is, Position & pos);
+	friend std::ostream & operator<<(std::ostream & os, const Position & pos);
+	friend std::ostream & operator<<(std::ostream & os, const Position && pos);
+	friend bool operator==(const Position & lhs, const Position & rhs);
+
 };
 
 class DangeonLocation;
@@ -79,7 +84,6 @@ private:
 	std::map<int, MobData> mobs;
 	std::shared_ptr<LocationLogObserver> logObserver;
 	std::shared_ptr<DangeonUndoManager> undoManager;
-	int freeId = 1;
 public:
 	DangeonLocation() = default;
 	DangeonLocation(std::shared_ptr<LocationLogObserver> _logObserver, std::shared_ptr<DangeonUndoManager> _undoManager)

@@ -161,7 +161,24 @@ void UndoVisitor::visit(StateBase & state) {
 }
 
 ILocation & DangeonLocation::addMob(MobData _mobData) {
-	_mobData.id = freeId++;
+	auto pos = _mobData.getPosition();
+	if (pos.getX() > width / 2 or pos.getX() < -(width / 2)) {
+		throw std::invalid_argument(
+		"position on X out of range. Max: abs("
+		+ std::to_string(width / 2)
+		+ "). Given: "
+		+ std::to_string(pos.getX()));
+	}
+	if (pos.getY() > height / 2 or pos.getY() < -(height / 2)) {
+		throw std::invalid_argument(
+		"position on Y out of range. Max: abs("
+		+ std::to_string(height / 2)
+		+ "). Given: "
+		+ std::to_string(pos.getY()));
+	}
+	if (_mobData.id < 0 or mobs.find(_mobData.id) != std::end(mobs)) {
+		_mobData.id = mobs.size();
+	}
 	mobs[_mobData.id] = _mobData;
 
 	logObserver->onAdd(_mobData);

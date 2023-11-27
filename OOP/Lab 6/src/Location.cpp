@@ -18,6 +18,10 @@ std::ostream & operator<<(std::ostream & os, const Position && pos) {
 	return os;
 }
 
+bool operator==(const Position & lhs, const Position & rhs) {
+	return (lhs.getX() == rhs.getX()) and (lhs.getY() == rhs.getY());
+}
+
 std::ostream & operator<<(std::ostream & os, const MobData & _mobData) {
 	os << "Id: " << _mobData.getId() << std::endl
 		<< "type: " << MobTypeCvt::to_string(_mobData.getMobType()) << std::endl

@@ -5,63 +5,99 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <type_traits>
 
-#include "Mob.hpp"
-#include "UndoManager.hpp"
+#include "mob/Mob.hpp"
+#include "mob/MobFabric.hpp"
+#include "Observer.hpp"
+#include "utils.hpp"
 
-using Position = struct {
-	double x;
-	double y;
+struct Position {
+    double x;
+    double y;
 
-	friend std::istream & operator>>(std::istream & is, Position & pos);
+    Position() = default;
+    Position(double _x, double _y) : x(_x), y(_y) {}
+
+    double getX() const {
+        return x;
+    }
+
+    double getY() const {
+        return y;
+    }
+
+    friend std::istream & operator>>(std::istream & is, Position & pos);
+    friend std::ostream & operator<<(std::ostream & os, const Position & pos);
+    friend std::ostream & operator<<(std::ostream & os, const Position && pos);
+    friend bool operator==(const Position & lhs, const Position & rhs);
+
 };
 
-class ILocation;
+class DangeonLocation;
+class BattleManager;
+class MobData {
+private:
+    long long int id;
+    std::shared_ptr<Mob> mob;
+    Position position;
+    enumMobType type;
+public:
+    friend DangeonLocation;
+    friend BattleManager;
 
-struct MobData {
+    MobData() = default;
+    MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type, int _id = -1)
+        : mob(_mob), position(_position), type(_type), id(_id) {}
 
-	Mob mob;
-	Position position;
-	int id = -1;
+    MobData(const MobData & other) :
+        mob(other.mob)
+        , position(other.position)
+        , type(other.type)
+        , id(other.id) {}
 
-	MobData(Mob _mob, Position _position)
-		: mob(mob), position(_position) {}
 
-	MobData(MobData & other) :
-		mob(other.mob)
-		, position(other.position)
-		, id(other.id) {}
+
+    int getId() const;
+    Position getPosition() const;
+    enumMobType getMobType() const;
+    std::shared_ptr<const Mob> getMob() const;
+
+    friend std::ostream & operator<<(std::ostream & os, const MobData & _mobData);
+    friend std::istream & operator>>(std::istream & is, MobData & _mobData);
 };
 
-class LocationRedactor;
 class ILocation {
 public:
-	virtual ILocation & addMob(MobData _mobData) = 0;
-	virtual ILocation & moveMob(int id, Position newPos) = 0;
-	virtual ILocation & removeMob(int id) = 0;
-	virtual ILocation & serialize(std::ostream & out) = 0;
-	virtual ILocation & deserialize(std::istream & in) = 0;
-	virtual ILocation & undo();
+    virtual ILocation & addMob(MobData _mobData) = 0;
+    virtual ILocation & moveMob(int id, Position newPos) = 0;
+    virtual ILocation & removeMob(int id) = 0;
+    virtual MobData & getMobDataBy(int id) = 0;
+    virtual const std::map<int, MobData> & getMobsData() = 0;
 };
 
-class DangeonLocation : ILocation {
+class DangeonUndoManager;
+class DangeonLocation : public ILocation {
 private:
-	double width = 500;
-	double height = 500;
-	std::map<int, MobData> mobs;
-	int freeId = 0;
-	std::shared_ptr<DangeonUndoManager> undoManager;
+    double width = 500;
+    double height = 500;
+    std::map<int, MobData> mobs;
+    std::shared_ptr<LocationLogObserver> logObserver;
+    std::shared_ptr<DangeonUndoManager> undoManager;
 public:
-	friend LocationRedactor;
-	DangeonLocation() = default;
+    DangeonLocation() = default;
+    DangeonLocation(std::shared_ptr<LocationLogObserver> _logObserver, std::shared_ptr<DangeonUndoManager> _undoManager)
+        : logObserver(_logObserver)
+        , undoManager(_undoManager) {}
 
-	ILocation & addMob(MobData _mobData) override;
-	ILocation & moveMob(int id, Position newPos) override;
-	ILocation & removeMob(int id) override;
-	ILocation & serialize(std::ostream & out) override;
-	ILocation & deserialize(std::istream & in) override;
+    ILocation & addMob(MobData _mobData) override;
+    ILocation & moveMob(int id, Position newPos) override;
+    ILocation & removeMob(int id) override;
+    MobData & getMobDataBy(int id) override;
+    const std::map<int, MobData> & getMobsData() override;
 
-	// TODO: add removeMob and connect UndoManager 
+    DangeonLocation & setLogObserver(std::shared_ptr<LocationLogObserver> _logObserver);
+    DangeonLocation & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
 };
 
 #endif // LOCATION_H_

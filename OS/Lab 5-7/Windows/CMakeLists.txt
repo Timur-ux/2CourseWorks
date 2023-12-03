@@ -8,6 +8,6 @@ include_directories(${INCLUDE_DIR})
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 
 
-add_executable(director Director_main.cpp)
-add_executable(worker Worker_main.cpp)
+add_executable(ControlCenter "ControlCenter.cpp" ${SOURCES})
+add_executable(CalculatingCenter "CalculatingCenter.cpp" ${SOURCES})
 

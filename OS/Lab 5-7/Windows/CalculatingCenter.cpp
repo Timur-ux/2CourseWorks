@@ -32,7 +32,6 @@ int main(int argc, char * argw[]) {
             std::cerr << e.what() << std::endl;
             ++errorsCount;
         }
-        std::cerr << "Client: " << request.data() << std::endl;
         errorsCount = 0;
 
         std::stringstream commandStream(request.data());
@@ -48,7 +47,6 @@ int main(int argc, char * argw[]) {
             int value;
             commandStream >> name;
             if (commandStream >> value) {
-                std::cout << "Client: HERE" << std::endl;
                 dict[name] = value;
                 client.sendData(strToVChar(calc_center_return::execSucceed));
             }
@@ -58,9 +56,9 @@ int main(int argc, char * argw[]) {
                     response << calc_center_return::notFound;
                 }
                 else {
-                    response << calc_center_return::execSucceed << ' ' << dict[name];
-                    client.sendData(strToVChar(response.str()));
+                    response << calc_center_return::execSucceed << ':' << dict[name];
                 }
+                client.sendData(strToVChar(response.str()));
             }
         }
     }

@@ -8,8 +8,8 @@ namespace calc_center_command {
 }
 
 namespace calc_center_return {
-	std::string execSucceed{"execSucceed"};
-	std::string notFound{"notFound"};
+	std::string execSucceed{"Ok"};
+	std::string notFound{"NotFound"};
 }
 
 std::vector<char> strToVChar(std::string s) {

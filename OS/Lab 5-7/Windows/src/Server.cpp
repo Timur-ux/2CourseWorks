@@ -79,8 +79,13 @@ void Server::startListen()
 		}
 
 		clients[clientSocket] = clientInfo;
-		lastClient = clientSocket;
+		notify_all(clientSocket);
 	}
+}
+
+void Server::stopListen()
+{
+	isNowListening = false;
 }
 
 void Server::sendTo(SOCKET client, std::vector<char> data)
@@ -90,7 +95,7 @@ void Server::sendTo(SOCKET client, std::vector<char> data)
 
 	packetSize = send(client, data.data(), data.size(), 0);
 	if (packetSize == SOCKET_ERROR) {
-		std::cerr << "Warning: sending message to client failed #" << WSAGetLastError();
+		std::cerr << "Warning: sending message to client failed #" << WSAGetLastError() << std::endl;
 	}
 }
 
@@ -110,9 +115,72 @@ std::vector<char> Server::recieveFrom(SOCKET client)
 		return {};
 	}
 
-	{
-		std::unique_lock<std::mutex> lock(mqMutex);
-		mqRecieved.push(Message{ client, servSocket, data });
-	}
+	mqRecieved.push(Message{ client, servSocket, data });
 	return data;
+}
+
+void Server::subscribe(ISockSubscriber* subscriber)
+{
+	subscribers.emplace_back(subscriber);
+}
+
+void Server::notify_all(SOCKET socket)
+{
+	for (auto subscriber : subscribers) {
+		subscriber->update(socket);
+	}
+}
+
+std::vector<SOCKET> Server::chekAndGetDeadSockets(long waitTime_sec, long waitTime_microsec)
+{
+	if (clients.size() == 0) {
+		return {};
+	}
+
+	std::vector<SOCKET> deadsockets;
+
+	int i = 0;
+	fd_set socketsSet;
+	FD_ZERO(&socketsSet);
+
+	if (clients.size() > FD_SETSIZE) {
+		std::cerr << "Warning: clients quantity more than fd_set limit: " << FD_SETSIZE << std::endl;
+	}
+
+	for (auto& client : clients) {
+		SOCKET currentSocket = client.first;
+		FD_SET(currentSocket, &socketsSet);
+	}
+	
+	TIMEVAL timeval;
+	timeval.tv_sec = waitTime_sec;
+	timeval.tv_usec = waitTime_microsec;
+
+	int goodSockets = select(
+		NULL
+		, NULL
+		, NULL
+		, &socketsSet
+		, &timeval
+	);
+
+	if (goodSockets == SOCKET_ERROR) {
+		std::stringstream errorStream;
+		errorStream << "Error: select failed #" << WSAGetLastError();
+		throw std::runtime_error(errorStream.str());
+	}
+
+	if (goodSockets == 0) {
+		std::cerr << "Warning: select's timelimit expired" << std::endl;
+	}
+
+	for (auto& client : clients) {
+		SOCKET currentSocket = client.first;
+
+		if (!FD_ISSET(currentSocket, &socketsSet)) {
+			deadsockets.push_back(currentSocket);
+		}
+	}
+
+	return deadsockets;
 }

@@ -56,6 +56,11 @@ Server::~Server()
 	WSACleanup();
 }
 
+MessageQueue<Message>& Server::getRecievedMessages()
+{
+	return mqRecieved;
+}
+
 void Server::startListen()
 {
 	int errStat;

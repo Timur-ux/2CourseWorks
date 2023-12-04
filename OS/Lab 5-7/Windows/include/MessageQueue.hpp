@@ -30,7 +30,7 @@ template<typename TMessage>
 inline void MessageQueue<TMessage>::pop()
 {
 	std::unique_lock<std::shared_mutex> lock(mutex);
-	queue.pop();
+	mq.pop();
 }
 
 template<typename TMessage>

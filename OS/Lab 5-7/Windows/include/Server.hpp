@@ -47,6 +47,7 @@ public:
 	Server(std::string IP, unsigned short port);
 	~Server();
 
+	MessageQueue<Message>& getRecievedMessages();
 	void startListen();
 	void stopListen();
 	

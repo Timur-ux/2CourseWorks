@@ -12,9 +12,10 @@
 #include "CalcCenterCommands.hpp"
 
 const std::string caclucatingCenterName = "CalculatingCenter.exe";
-std::vector<char> strToVChar(std::string);
 
 auto main(int argc, char * argw[]) -> int {
+    std::cin.tie(0);
+
     BinTree topology;
 
     std::string IP = "127.0.0.1";
@@ -43,6 +44,15 @@ auto main(int argc, char * argw[]) -> int {
 
     std::string command;
     while (true) {
+        MessageQueue<Message>& recievedMessages = server->getRecievedMessages();
+
+        while (!recievedMessages.empty()) {
+            Message message = recievedMessages.front();
+            recievedMessages.pop();
+
+            std::cout << message.data.data() << std::endl;
+        }
+        
         std::cin >> command;
         if (command == "create") {
             long long id, parent;
@@ -69,10 +79,10 @@ auto main(int argc, char * argw[]) -> int {
                 , &si
                 , pi
             )) {
-                std::cout << "OK: " << pi->dwProcessId << std::endl;
+                std::cerr << "Error: CreateProcess failed #" << GetLastError() << std::endl;
             }
             else {
-                std::cerr << "Error: CreateProcess failed" << std::endl;
+                std::cout << "OK: " << pi->dwProcessId << std::endl;
             }
         }
         else if (command == "kill") {
@@ -91,16 +101,26 @@ auto main(int argc, char * argw[]) -> int {
                 continue;
             }
 
+            topology.remove(id);
             server->sendTo(socket, strToVChar(calc_center_command::terminate));
         }
         else if (command == "exec") {
             std::string name;
             long long id, value;
 
-            std::stringstream commandStream;
-            std::cin >> id >> name >> value;
-
-            commandStream << calc_center_command::exec << ' ' << name << ' ' << value;
+            std::string command;
+            
+            getline(std::cin, command);
+            std::stringstream commandStream(command);
+            std::stringstream sendStream;
+            
+            commandStream >> id >> name;
+            if (commandStream >> value) {
+                sendStream << calc_center_command::exec << ' ' << name << ' ' << value;
+            }
+            else {
+                sendStream << calc_center_command::exec << ' ' << name;
+            }
 
             SOCKET socket;
             try {
@@ -111,7 +131,7 @@ auto main(int argc, char * argw[]) -> int {
                 continue;
             }
 
-            server->sendTo(socket, strToVChar(commandStream.str()));
+            server->sendTo(socket, strToVChar(sendStream.str()));
             std::thread(&Server::recieveFrom, server, socket).detach();
         }
         else if (command == "pingall") {
@@ -134,16 +154,10 @@ auto main(int argc, char * argw[]) -> int {
                 std::cout << ';';
             }
             std::cout << std::endl;
+        } 
+        else {
+            std::cout << "Undefined command" << std::endl;
+            continue;
         }
     }
-}
-
-
-std::vector<char> strToVChar(std::string s) {
-    std::vector<char> result;
-    for (char c : s) {
-        result.push_back(c);
-    }
-
-    return result;
 }

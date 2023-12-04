@@ -34,6 +34,7 @@ std::shared_ptr<BinTree::Node> BinTree::findNode(long long id)
 }
 
 void BinTree::add(long long id, CalcCenterData data) {
+    lastId = id;
     if (!root) {
         root = std::make_shared<Node>(id, data);
         return;
@@ -41,7 +42,9 @@ void BinTree::add(long long id, CalcCenterData data) {
 
     std::shared_ptr<Node> currentNode = root;
     while (true) {
+
         if (id == currentNode->id) {
+            lastId = 0;
             throw std::invalid_argument("Already exist");
         }
         if (id > currentNode->id) {
@@ -57,7 +60,6 @@ void BinTree::add(long long id, CalcCenterData data) {
         if (id < currentNode->id) {
             if (currentNode->left == nullptr) {
                 currentNode->left = std::make_shared<Node>(id, data);
-                lastId = id;
                 return;
             }
 
@@ -172,6 +174,7 @@ void BinTree::closeProcesses(std::shared_ptr<Node> fromNode)
     closeProcesses(fromNode->right);
     closeProcesses(fromNode->left);
 
+    CloseHandle(fromNode->data.pi->hProcess);
     closeProcess(*fromNode->data.pi);
     remove(fromNode->id);
 }
@@ -185,4 +188,6 @@ void BinTree::update(SOCKET socket)
 {
     std::shared_ptr<Node> lastNode = findNode(lastId);
     lastNode->data.socket = socket;
+
+    lastId = 0;
 }

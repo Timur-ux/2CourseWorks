@@ -9,8 +9,7 @@ file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 
 add_library(sources_lib STATIC ${SOURCES})
 
-add_executable(ControlCenter "ControlCenter.cpp" ${SOURCES})
-add_executable(CalculatingCenter "CalculatingCenter.cpp" ${SOURCES})
+add_executable(ControlCenter "ControlCenter.cpp")
+add_executable(CalculatingCenter "CalculatingCenter.cpp" src/Client.cpp)
 
 target_link_libraries(ControlCenter sources_lib)
-target_link_libraries(CalculatingCenter sources_lib)

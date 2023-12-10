@@ -7,8 +7,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-#include "mob/Mob.hpp"
-#include "mob/MobFabric.hpp"
+#include "mob/allMobsHeadersInOneHeader.hpp"
 #include "Observer.hpp"
 #include "utils.hpp"
 
@@ -34,11 +33,11 @@ struct Position {
 
 };
 
+
 class DangeonLocation;
 class BattleManager;
 class MobData {
 private:
-    long long int id;
     std::shared_ptr<Mob> mob;
     Position position;
     enumMobType type;
@@ -48,17 +47,16 @@ public:
 
     MobData() = default;
     MobData(std::shared_ptr<Mob> _mob, Position _position, enumMobType _type, int _id = -1)
-        : mob(_mob), position(_position), type(_type), id(_id) {}
+        : mob(_mob), position(_position), type(_type) {}
 
     MobData(const MobData & other) :
         mob(other.mob)
         , position(other.position)
-        , type(other.type)
-        , id(other.id) {}
+        , type(other.type) {}
 
 
 
-    int getId() const;
+    long long getId() const;
     Position getPosition() const;
     enumMobType getMobType() const;
     std::shared_ptr<const Mob> getMob() const;
@@ -77,10 +75,10 @@ public:
 };
 
 class DangeonUndoManager;
-class DangeonLocation : public ILocation {
+class DangeonLocation : public ILocation, public IMobObserver {
 private:
-    double width = 500;
-    double height = 500;
+    double width = 50;
+    double height = 50;
     std::map<int, MobData> mobs;
     std::shared_ptr<LocationLogObserver> logObserver;
     std::shared_ptr<DangeonUndoManager> undoManager;
@@ -98,6 +96,8 @@ public:
 
     DangeonLocation & setLogObserver(std::shared_ptr<LocationLogObserver> _logObserver);
     DangeonLocation & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
+
+    void on_move(ILocationSubscriber * subscriber, double dx, double dy) override;
 };
 
 #endif // LOCATION_H_

@@ -1,11 +1,12 @@
 #ifndef BATTLE_MANAGER_H_
 #define BATTLE_MANAGER_H_
+
 #include <memory>
 #include <list>
 #include <type_traits>
 
 #include "BattleVisitor.hpp"
-#include "Location.hpp"
+#include "../Location.hpp"
 
 struct BattleEvent {
     const MobData & attacker;

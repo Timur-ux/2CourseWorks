@@ -6,7 +6,7 @@
 #include <map>
 #include <typeindex>
 #include <typeinfo>
-#include "../mob/Mob.hpp"
+#include "../mob/allMobsHeadersInOneHeader.hpp"
 
 #define TID(T) (std::type_index(typeid(T)))
 

@@ -13,9 +13,9 @@
 
 const std::string caclucatingCenterName = "CalculatingCenter.exe";
 
-auto main(int argc, char * argw[]) -> int {
-    std::cin.tie(0);
+void printLastDataFromStream(std::stringstream& os);
 
+auto main(int argc, char * argw[]) -> int {
     BinTree topology;
 
     std::string IP = "127.0.0.1";
@@ -38,32 +38,39 @@ auto main(int argc, char * argw[]) -> int {
     std::cerr << "Server initialization done" << std::endl;
 
     server->subscribe(&topology);
-
+    topology.subscribe(server.get());
     std::thread(&Server::startListen, server).detach();
+    std::thread(&Server::startRecieving, server).detach();
     std::cerr << "Server: start listening" << std::endl;
 
-    std::string command;
     while (true) {
-        MessageQueue<Message>& recievedMessages = server->getRecievedMessages();
-
-        while (!recievedMessages.empty()) {
-            Message message = recievedMessages.front();
-            recievedMessages.pop();
-
-            std::cout << message.data.data() << std::endl;
-        }
+        std::string request;
+        std::string command;
+        std::getline(std::cin, request);
         
-        std::cin >> command;
+        if (request.size() < 2) {
+            continue;
+        }
+
+        std::stringstream requestStream(request);
+        requestStream >> command;
+
         if (command == "create") {
-            long long id, parent;
-            std::cin >> id >> parent;
+            long long id;
+            requestStream >> id;
+
 
             STARTUPINFO si;
             PROCESS_INFORMATION* pi = new PROCESS_INFORMATION;
             ZeroMemory(&si, sizeof(si));
             ZeroMemory(pi, sizeof(*pi));
-
-            topology.add(id, { 0, pi });
+            try {
+                topology.add(id, { 0, pi });
+            }
+            catch (std::exception& e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+                continue;
+            }
 
             std::stringstream commandStream;
             commandStream << caclucatingCenterName << ' ' << IP << ' ' << port;
@@ -87,7 +94,7 @@ auto main(int argc, char * argw[]) -> int {
         }
         else if (command == "kill") {
             long long id;
-            std::cin >> id;
+            requestStream >> id;
             if (id < 0) {
                 id *= -1;
             }
@@ -102,7 +109,14 @@ auto main(int argc, char * argw[]) -> int {
             }
 
             topology.remove(id);
-            server->sendTo(socket, strToVChar(calc_center_command::terminate));
+            try {
+                server->sendTo(socket, strToVChar(calc_center_command::terminate));
+            }
+            catch (std::exception& e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+            }
+            
+            server->disconnectClient(socket);
         }
         else if (command == "exec") {
             std::string name;
@@ -110,16 +124,12 @@ auto main(int argc, char * argw[]) -> int {
 
             std::string command;
             
-            getline(std::cin, command);
-            std::stringstream commandStream(command);
             std::stringstream sendStream;
             
-            commandStream >> id >> name;
-            if (commandStream >> value) {
-                sendStream << calc_center_command::exec << ' ' << name << ' ' << value;
-            }
-            else {
-                sendStream << calc_center_command::exec << ' ' << name;
+            requestStream >> id >> name;
+            sendStream << calc_center_command::exec << ' ' << name;
+            if (requestStream >> value) {
+                sendStream << ' ' << value;
             }
 
             SOCKET socket;
@@ -131,8 +141,13 @@ auto main(int argc, char * argw[]) -> int {
                 continue;
             }
 
-            server->sendTo(socket, strToVChar(sendStream.str()));
-            std::thread(&Server::recieveFrom, server, socket).detach();
+            try {
+                server->sendTo(socket, strToVChar(sendStream.str()));
+            }
+            catch (std::exception& e) {
+                std::cerr << "Error: " << e.what() << std::endl;
+                topology.remove(id);
+            }
         }
         else if (command == "pingall") {
             std::vector<SOCKET> deadsockets = server->chekAndGetDeadSockets(3, 0);

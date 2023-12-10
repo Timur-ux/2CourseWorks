@@ -6,13 +6,12 @@
 #include <map>
 #include <string>
 #include <stdexcept>
-#include <queue>
-#include <mutex>
+#include <shared_mutex>
 #include <vector>
 
 #include "bufferSize.hpp"
 #include "Observer.hpp"
-#include "MessageQueue.hpp"
+#include "print.hpp"
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -31,33 +30,56 @@ struct Message {
 	std::vector<char> data;
 };
 
-class Server : public ISockObserver {
+struct ClientInfo {
+	SOCKET socket;
+	sockaddr_in addr;
+	long long id = 0;
+};
+
+struct ListenData {
+	bool isNowListening = false;
+};
+
+struct RecievingData {
+	bool isNowRecieving;
+	long waitSec = 0;
+	long waitMicroSec = 300000;
+};
+
+class Server : public ISockObserver, public ISockSubscriber {
 private:
 	WSADATA wsData;
 	SOCKET servSocket = NULL;
 	sockaddr_in servInfo;
 
-	std::map<SOCKET, sockaddr_in> clients;
-	MessageQueue<Message> mqRecieved;
+	std::map<SOCKET, ClientInfo> clients;
 
-	bool isNowListening = false;
+	ListenData listenData;
+	RecievingData recievingData;
 
 	std::vector<ISockSubscriber*> subscribers;
+	std::shared_mutex servMutex;
 public:
 	Server(std::string IP, unsigned short port);
 	~Server();
 
-	MessageQueue<Message>& getRecievedMessages();
 	void startListen();
 	void stopListen();
-	
+	void startRecieving();
+	void stopRecieving();
+
 	void sendTo(SOCKET client, std::vector<char> data);
-	std::vector<char> recieveFrom(SOCKET client);
+	void recieveFrom(SOCKET client);
+	void disconnectClient(SOCKET client);
 
 	void subscribe(ISockSubscriber* subscriber) override;
-	void notify_all(SOCKET socket) override;
+	void notify_all(ObserverData data) override;
+
+	void update(ObserverData data) override;
 
 	std::vector<SOCKET> chekAndGetDeadSockets(long waitTime_sec = 1, long waitTime_microsec = 0);
+
+	ClientInfo getClientInfoBySocket(SOCKET socket);
 };
 
 #endif // !SERVER_H_

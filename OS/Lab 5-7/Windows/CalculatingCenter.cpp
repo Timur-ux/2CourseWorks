@@ -29,7 +29,6 @@ int main(int argc, char * argw[]) {
             request = client.recieve();
         }
         catch (std::exception& e) {
-            std::cerr << e.what() << std::endl;
             ++errorsCount;
         }
         errorsCount = 0;
@@ -56,7 +55,7 @@ int main(int argc, char * argw[]) {
                     response << calc_center_return::notFound;
                 }
                 else {
-                    response << calc_center_return::execSucceed << ':' << dict[name];
+                    response << calc_center_return::execSucceed << ' ' << dict[name];
                 }
                 client.sendData(strToVChar(response.str()));
             }

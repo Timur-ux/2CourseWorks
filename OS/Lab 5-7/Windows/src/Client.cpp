@@ -57,8 +57,7 @@ Client::~Client()
 void Client::sendData(std::vector<char> data)
 {
 	data.resize(MESSAGE_BUFFER_SIZE, '\0');
-
-	int packetSize = send(clientSocket, data.data(), data.size(), 0);
+	int packetSize = send(clientSocket, data.data(), static_cast<int>(data.size()), 0);
 
 	if (packetSize == SOCKET_ERROR) {
 		std::cerr << "Warning: sending data to server failed #" << WSAGetLastError() << std::endl;
@@ -69,7 +68,7 @@ std::vector<char> Client::recieve()
 {
 	std::vector<char> result(MESSAGE_BUFFER_SIZE);
 
-	int packetSize = recv(clientSocket, result.data(), result.size(), 0);
+	int packetSize = recv(clientSocket, result.data(), static_cast<int>(result.size()), 0);
 
 	if (packetSize == SOCKET_ERROR) {
 		std::stringstream errorStream;

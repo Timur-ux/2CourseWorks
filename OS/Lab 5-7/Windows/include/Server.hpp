@@ -1,13 +1,12 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <WinSock2.h>
-#include <WS2tcpip.h>
 #include <map>
 #include <string>
 #include <stdexcept>
 #include <shared_mutex>
 #include <vector>
+#include <zmq.hpp>
 
 #include "bufferSize.hpp"
 #include "Observer.hpp"
@@ -15,19 +14,13 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-#define MY_FD_SETSIZE 124
-
-#ifdef MY_FD_SETSIZE
-	#define FD_SETSIZE MY_FD_SETSIZE
-#endif
-
 constexpr int SOCKET_VERSION_MINOR = 2;
 constexpr int SOCKET_VERSION_MAJOR = 2;
 
 struct Message {
-	SOCKET sender;
-	SOCKET reciever;
-	std::vector<char> data;
+	int clientId;
+	int messageNumber;
+	char message[MESSAGE_BUFFER_SIZE];
 };
 
 struct ClientInfo {
@@ -49,8 +42,8 @@ struct RecievingData {
 class Server : public ISockObserver, public ISockSubscriber {
 private:
 	WSADATA wsData;
-	SOCKET servSocket = NULL;
-	sockaddr_in servInfo;
+	void* context;
+	void* servSocket;
 
 	std::map<SOCKET, ClientInfo> clients;
 

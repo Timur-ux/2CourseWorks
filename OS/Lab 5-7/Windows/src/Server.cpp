@@ -8,41 +8,14 @@ Server::Server(std::string IP, unsigned short port)
 {
 	int errStat;
 
-	// ip to specific numeric format
-	in_addr ipToNum;
-	errStat = inet_pton(AF_INET, IP.c_str(), &ipToNum);
-	if (errStat <= 0) {
-		throw std::runtime_error("Error: IP translation to specific numeric format failed");
-	}
+	context = zmq_ctx_new();
+	servSocket = zmq_socket(context, ZMQ_REP);
 
-	// WinSocket version initialization
-	errStat = WSAStartup(MAKEWORD(SOCKET_VERSION_MINOR, SOCKET_VERSION_MAJOR), &wsData);
-	if (errStat != 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: WinSock version initialization failed #" << WSAGetLastError();
-		throw std::runtime_error(errorStream.str());
-	}
+	std::stringstream addrStream;
+	addrStream << "tcp://" << IP << ':' << port;
 
-	// create server socket
-	servSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (servSocket == INVALID_SOCKET) {
-		std::stringstream errorStream;
-		errorStream << "Error: server socket initialization failed #" << WSAGetLastError();
-		throw std::runtime_error(errorStream.str());
-	}
+	zmq_bind(servSocket, addrStream.str().c_str());
 
-	// binding server socket
-	ZeroMemory(&servInfo, sizeof(servInfo));
-	servInfo.sin_family = AF_INET;
-	servInfo.sin_addr = ipToNum;
-	servInfo.sin_port = htons(port);
-
-	errStat = bind(servSocket, (sockaddr*)&servInfo, sizeof(servInfo));
-	if (errStat != 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: binding server socket to server info failed #" << WSAGetLastError();
-		throw std::runtime_error(errorStream.str());
-	}
 }
 
 Server::~Server()

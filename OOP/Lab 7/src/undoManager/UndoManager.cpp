@@ -13,18 +13,6 @@ void StateAdd::accept(UndoVisitor & visitor) {
     visitor.visit(*this);
 }
 
-std::string StateMove::toString() {
-    std::stringstream stateStream;
-
-    stateStream << "action: move; Id: " << mobToMove->getId();
-
-    return stateStream.str();
-}
-
-void StateMove::accept(UndoVisitor & visitor) {
-    visitor.visit(*this);
-}
-
 std::string StateRemove::toString() {
     std::stringstream stateStream;
 
@@ -87,16 +75,6 @@ void DangeonUndoManager::onAdd(const MobData & mob) {
     );
 }
 
-void DangeonUndoManager::onMove(const MobData & mob, Position from, Position to) {
-    addState(
-        std::make_shared<StateMove>(
-            std::make_shared<MobData>(mob),
-            from,
-            to
-        )
-    );
-}
-
 void DangeonUndoManager::onRemove(const MobData & mob) {
     addState(
         std::make_shared<StateRemove>(
@@ -131,18 +109,6 @@ void UndoVisitor::visit(StateAdd & state) {
     }
 }
 
-void UndoVisitor::visit(StateMove & state) {
-    auto mobData = state.mobToMove;
-
-    std::shared_ptr<ILocation> _location = location.lock();
-    if (_location) {
-        _location->moveMob(
-            mobData->getId()
-            , state.from
-        );
-    }
-}
-
 void UndoVisitor::visit(StateRemove & state) {
     auto mobData = state.mobToRemove;
 
@@ -162,14 +128,14 @@ void UndoVisitor::visit(StateBase & state) {
 
 ILocation & DangeonLocation::addMob(MobData _mobData) {
     auto pos = _mobData.getPosition();
-    if (pos.getX() > width or pos.getX() < 0) {
+    if (pos.getX() >= width or pos.getX() < 0) {
         throw std::invalid_argument(
         "position on X out of range. Max: "
         + std::to_string(width)
         + ". Min: 0. Given: "
         + std::to_string(pos.getX()));
     }
-    if (pos.getY() > height or pos.getY() < 0) {
+    if (pos.getY() >= height or pos.getY() < 0) {
         throw std::invalid_argument(
         "position on Y out of range. Max: "
         + std::to_string(height)
@@ -177,26 +143,11 @@ ILocation & DangeonLocation::addMob(MobData _mobData) {
         + std::to_string(pos.getY()));
     }
 
+    _mobData.getMob()->setMobObserver(this);
     mobs[_mobData.getId()] = _mobData;
 
-    logObserver->onAdd(_mobData);
-    undoManager->onAdd(_mobData);
-
-    return *this;
-}
-
-ILocation & DangeonLocation::moveMob(int id, Position newPos) {
-    if (mobs.find(id) == std::end(mobs)) {
-        throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
-    }
-
-    MobData & data = mobs[id];
-
-    Position oldPos = data.getPosition();
-    data.position = newPos;
-
-    logObserver->onMove(data, oldPos, newPos);
-    undoManager->onMove(data, oldPos, newPos);
+    if (logObserver) logObserver->onAdd(_mobData);
+    if (undoManager) undoManager->onAdd(_mobData);
 
     return *this;
 }
@@ -207,8 +158,8 @@ ILocation & DangeonLocation::removeMob(int id) {
         throw std::invalid_argument("Location hasn't mob with id: " + std::to_string(id));
     }
 
-    logObserver->onRemove(mobIterator->second);
-    undoManager->onRemove(mobIterator->second);
+    if (logObserver) logObserver->onRemove(mobIterator->second);
+    if (undoManager) undoManager->onRemove(mobIterator->second);
     mobs.erase(mobIterator);
 
     return *this;

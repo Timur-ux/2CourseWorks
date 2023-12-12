@@ -1,5 +1,8 @@
 #include "Location.hpp"
 
+#include <vector>
+#include <cmath>
+
 std::istream & operator>>(std::istream & is, Position & pos) {
     is >> pos.x >> pos.y;
 
@@ -50,11 +53,26 @@ std::istream & operator>>(std::istream & is, MobData & _mobData) {
     return is;
 }
 
+void MobData::moveTo(Position newPos) {
+    std::lock_guard<std::shared_mutex> lock(mutex);
+
+    position = newPos;
+}
+
+MobData & MobData::operator=(const MobData & other) {
+    mob = other.mob;
+    position = other.getPosition();
+    type = other.getMobType();
+
+    return *this;
+}
+
 long long MobData::getId() const {
     return mob->getId();
 }
 
 Position MobData::getPosition() const {
+    std::shared_lock<std::shared_mutex> lock(mutex);
     return position;
 }
 
@@ -62,8 +80,20 @@ enumMobType MobData::getMobType() const {
     return type;
 }
 
-std::shared_ptr<const Mob> MobData::getMob() const {
-    return std::shared_ptr<const Mob>(mob);
+std::shared_ptr<Mob> MobData::getMob() const {
+    return mob;
+}
+
+double MobData::getAttackRange() const {
+    return mob->getAttackRange();
+}
+
+double MobData::getMoveRange() const {
+    return mob->getMoveRange();
+}
+
+MobParameters::Status MobData::getStatus() const {
+    return mob->getStatus();
 }
 
 MobData & DangeonLocation::getMobDataBy(int id) {
@@ -137,8 +167,6 @@ DangeonLocation & DangeonLocation::setUndoManager(std::shared_ptr<DangeonUndoMan
     return *this;
 }
 
-
-double mathMod(double val, double mod);
 void DangeonLocation::on_move(ILocationSubscriber * subscriber, double dx, double dy) {
     int id = subscriber->getId();
     auto mobIt = mobs.find(id);
@@ -154,7 +182,33 @@ void DangeonLocation::on_move(ILocationSubscriber * subscriber, double dx, doubl
     mobData.position = newPos;
 }
 
-double mathMod(double val, double mod) {
-    // double result = val % mod;
-    return 0;
+void DangeonLocation::drawMap() {
+    std::vector<std::vector<char>> map(height, std::vector<char>(width, ' '));
+    for (auto & pair : mobs) {
+        auto & mobData = pair.second;
+        Position pos = mobData.getPosition();
+        char c;
+
+        if (mobData.getStatus() == MobParameters::Status::died) {
+            c = '.';
+        }
+        else {
+            c = MobTypeCvt::to_string(mobData.getMobType())[0];
+        }
+
+        map[pos.getY()][pos.getX()] = c;
+    }
+
+    std::ostringstream outStream;
+
+    outStream << std::endl;
+    for (auto & row : map) {
+        for (char c : row) {
+            outStream << '[' << c << ']';
+        }
+        outStream << std::endl;
+    }
+    outStream << std::endl;
+
+    print() << outStream.str();
 }

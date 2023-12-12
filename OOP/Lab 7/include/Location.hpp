@@ -6,6 +6,7 @@
 #include <memory>
 #include <stdexcept>
 #include <type_traits>
+#include <shared_mutex>
 
 #include "mob/allMobsHeadersInOneHeader.hpp"
 #include "Observer.hpp"
@@ -41,6 +42,9 @@ private:
     std::shared_ptr<Mob> mob;
     Position position;
     enumMobType type;
+    mutable std::shared_mutex mutex;
+
+    void moveTo(Position newPos);
 public:
     friend DangeonLocation;
     friend BattleManager;
@@ -55,11 +59,15 @@ public:
         , type(other.type) {}
 
 
+    MobData & operator=(const MobData & other);
 
     long long getId() const;
     Position getPosition() const;
     enumMobType getMobType() const;
-    std::shared_ptr<const Mob> getMob() const;
+    std::shared_ptr<Mob> getMob() const;
+    double getAttackRange() const;
+    double getMoveRange() const;
+    MobParameters::Status getStatus() const;
 
     friend std::ostream & operator<<(std::ostream & os, const MobData & _mobData);
     friend std::istream & operator>>(std::istream & is, MobData & _mobData);
@@ -68,10 +76,10 @@ public:
 class ILocation {
 public:
     virtual ILocation & addMob(MobData _mobData) = 0;
-    virtual ILocation & moveMob(int id, Position newPos) = 0;
     virtual ILocation & removeMob(int id) = 0;
     virtual MobData & getMobDataBy(int id) = 0;
     virtual const std::map<int, MobData> & getMobsData() = 0;
+    virtual void drawMap() = 0;
 };
 
 class DangeonUndoManager;
@@ -89,7 +97,6 @@ public:
         , undoManager(_undoManager) {}
 
     ILocation & addMob(MobData _mobData) override;
-    ILocation & moveMob(int id, Position newPos) override;
     ILocation & removeMob(int id) override;
     MobData & getMobDataBy(int id) override;
     const std::map<int, MobData> & getMobsData() override;
@@ -98,6 +105,8 @@ public:
     DangeonLocation & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
 
     void on_move(ILocationSubscriber * subscriber, double dx, double dy) override;
+
+    void drawMap() override;
 };
 
 #endif // LOCATION_H_

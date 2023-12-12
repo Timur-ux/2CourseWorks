@@ -6,9 +6,11 @@
 #include <concepts>
 #include <type_traits>
 #include <iostream>
+#include <shared_mutex>
 
 #include "../Observer.hpp"
 #include "../generators/idGenerator.hpp"
+#include "utils.hpp"
 
 static IdGenerator idGenerator;
 
@@ -46,8 +48,10 @@ protected:
     unsigned int moveRange;
 
     IMobObserver * mobObserver;
+    mutable std::shared_mutex mutex;
 
-    void setStatus(MobParameters::Status newStatus);
+    virtual void takeDamage(GameCube otherCube);
+
 public:
     friend BattleManager;
 
@@ -63,7 +67,12 @@ public:
         idGenerator.freeId(id);
     }
 
-    virtual void moveWithShift(double dx, double dy, double dtime);
+    virtual double getAttackRange() const;
+    virtual double getMoveRange() const;
+
+    void attack(Mob & other) const;
+
+    virtual void moveWithShift(double dx, double dy, std::chrono::milliseconds dtime);
 
     MobParameters::Status getStatus() const;
     std::string getName() const;
@@ -72,8 +81,6 @@ public:
     virtual bool accept(IBattleVisitor & visitor) = 0;
 
     void setMobObserver(IMobObserver * other) override;
-    long long getId() override;
-    void on_move(double eta) override;
 };
 
 template <TConcretMob TMob>

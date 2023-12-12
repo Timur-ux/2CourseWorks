@@ -8,9 +8,7 @@
 double calcDistance(const Position & from, const Position & to);
 std::shared_ptr<IBattleVisitor> getBattleVisitor(enumMobType type);
 
-bool throwGameCubesAndCheckIfKill();
-
-void BattleManager::provideBattleRound(double attackDistance) {
+void BattleManager::provideBattleRound() {
     std::list<long long> killedMobs;
     deadlist.erase(std::begin(deadlist), std::end(deadlist));
     auto & mobsData = battleLocation->getMobsData();
@@ -29,14 +27,29 @@ void BattleManager::provideBattleRound(double attackDistance) {
             }
 
             auto attackerVisitor = getBattleVisitor(attacker.getMobType());
-            if (calcDistance(attacker.getPosition(), defender.getPosition()) <= attackDistance
+            if (calcDistance(attacker.getPosition(), defender.getPosition()) <= attacker.getAttackRange()
                 and defender.mob->accept(*attackerVisitor)) {
-                if (throwGameCubesAndCheckIfKill()) {
-                    deadlist.push_back(BattleEvent(attacker, defender));
+                attacker.getMob()->attack(*defender.getMob());
+
+                if (defender.getStatus() == MobParameters::Status::died) {
+                    deadlist.push_back(BattleEvent{ attacker, defender });
+                    killedMobs.push_back(defender.getId());
                 }
             }
         }
     }
+}
+
+void BattleManager::startContiniousBattle(std::chrono::milliseconds dtime) {
+    isNowBattle = true;
+    while (isNowBattle) {
+        provideBattleRound();
+        std::this_thread::sleep_for(dtime);
+    }
+}
+
+void BattleManager::stopBattle() {
+    isNowBattle = false;
 }
 
 std::list<BattleEvent> & BattleManager::getDeadListForLastRound() {
@@ -65,12 +78,19 @@ std::shared_ptr<IBattleVisitor> getBattleVisitor(enumMobType type) {
     case enumMobType::BaseMob:
         throw std::invalid_argument("Can not create battle visitor for base class: Mob");
     }
+
+    throw std::invalid_argument("Undefined mob type");
+}
+SafeBool & SafeBool::operator=(bool _value) {
+    std::lock_guard<std::shared_mutex> lock(mutex);
+
+    value = _value;
+
+    return *this;
 }
 
-bool throwGameCubesAndCheckIfKill() {
-    static int cubeSides = 6;
-    int attackerThrow = rand() % cubeSides + 1;
-    int defenderThrow = rand() % cubeSides + 1;
+SafeBool::operator bool() const {
+    std::shared_lock<std::shared_mutex> lock(mutex);
 
-    return attackerThrow > defenderThrow;
+    return value;
 }

@@ -84,7 +84,6 @@ struct IMobObserver {
 struct ILocationSubscriber {
     virtual void setMobObserver(IMobObserver * observer) = 0;
 
-    virtual long long getId() = 0;
-    virtual void on_move(double eta) = 0;
+    virtual long long getId() const = 0;
 };
 #endif // OBSERVER_H_

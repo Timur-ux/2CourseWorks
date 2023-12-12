@@ -8,19 +8,17 @@
 #include "Location.hpp"
 
 class StateAdd;
-class StateMove;
 class StateRemove;
 class StateBase;
 
 class UndoVisitor {
 private:
-	std::weak_ptr<ILocation> location;
+    std::weak_ptr<ILocation> location;
 public:
-	UndoVisitor(std::weak_ptr<ILocation> _location) : location(_location) {}
-	void visit(StateAdd & state);
-	void visit(StateMove & state);
-	void visit(StateRemove & state);
-	void visit(StateBase & state);
+    UndoVisitor(std::weak_ptr<ILocation> _location) : location(_location) {}
+    void visit(StateAdd & state);
+    void visit(StateRemove & state);
+    void visit(StateBase & state);
 };
 
 

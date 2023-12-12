@@ -46,7 +46,7 @@ void Mob::moveWithShift(double dx, double dy, std::chrono::milliseconds dtime) {
     double abs = sqrt(dx * dx + dy * dy);
     double ex = dx / abs, ey = dy / abs;
 
-    double k = double(dtime.count()) / 1000;
+    double k = dtime.count() / 1000;
 
     double curMoveRange = moveRange * k;
 

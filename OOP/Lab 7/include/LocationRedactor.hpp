@@ -6,6 +6,8 @@
 #include <iostream>
 #include <fstream>
 #include <map>
+#include <thread>
+#include <chrono>
 
 #include "Location.hpp"
 #include "mob/MobFabric.hpp"
@@ -14,12 +16,15 @@
 #include "undoManager/UndoManager.hpp"
 #include "Serializer.hpp"
 
+using namespace std::chrono_literals;
+
 enum class CommandType {
     addMob,
     removeMob,
     printMobs,
     moveMob,
     startBattleRound,
+    startContiniousBattle,
     undo,
     serializeMobs,
     deserializeMobs,
@@ -30,8 +35,8 @@ const std::map<std::string, CommandType> str2EnumCommand{
     {"add", CommandType::addMob},
     {"remove", CommandType::removeMob},
     {"print", CommandType::printMobs},
-    {"move", CommandType::moveMob},
     {"start battle round", CommandType::startBattleRound},
+    {"start continious battle", CommandType::startContiniousBattle},
     {"undo", CommandType::undo},
     {"serialize", CommandType::serializeMobs},
     {"deserialize", CommandType::deserializeMobs},
@@ -52,8 +57,8 @@ private:
     LocationRedactor & addMob();
     LocationRedactor & removeMob();
     LocationRedactor & printMobs();
-    LocationRedactor & moveMob();
     LocationRedactor & startBattleRound();
+    LocationRedactor & startContiniousBattle();
     LocationRedactor & undo();
     LocationRedactor & serializeMobs();
     LocationRedactor & deserializeMobs();
@@ -72,6 +77,23 @@ public:
     LocationRedactor & setUndoManager(std::shared_ptr<DangeonUndoManager> _undoManager);
     LocationRedactor & setOStream(std::ostream * _outStream);
     LocationRedactor & setIStream(std::istream * _inStream);
+};
+
+
+void printLocationEvery(std::shared_ptr<ILocation> location, std::chrono::milliseconds dtime, std::chrono::seconds duration);
+
+class MobsMover {
+private:
+    SafeBool isNowMoving{ false };
+
+    std::shared_ptr<ILocation> location;
+    std::chrono::milliseconds dtime;
+
+public:
+    MobsMover(std::shared_ptr<ILocation> _location, std::chrono::milliseconds _dtime) : location(_location), dtime(_dtime) {}
+
+    void stopMoving();
+    void operator()();
 };
 
 #endif // IO_MANAGER_H_

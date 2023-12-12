@@ -11,11 +11,11 @@ void LocationRedactor::doCommand(CommandType command) {
     case CommandType::printMobs:
         printMobs();
         break;
-    case CommandType::moveMob:
-        moveMob();
-        break;
     case CommandType::startBattleRound:
         startBattleRound();
+        break;
+    case CommandType::startContiniousBattle:
+        startContiniousBattle();
         break;
     case CommandType::undo:
         undo();
@@ -151,27 +151,12 @@ LocationRedactor & LocationRedactor::printMobs() {
     return *this;
 }
 
-LocationRedactor & LocationRedactor::moveMob() {
-    int id;
-    Position newPos;
-
-    *outStream << "Input <Mob's Id> <new Position>: ";
-    *inStream >> id >> newPos;
-
-    auto & mobData = location->getMobDataBy(id);
-
-    location->moveMob(id, newPos);
-
-    return *this;
-}
-
 LocationRedactor & LocationRedactor::startBattleRound() {
     double attackDistance;
 
-    *outStream << "Input <attack distance>: ";
-    *inStream >> attackDistance;
+    *outStream << "Battle starting..." << std::endl;
 
-    battleManager->provideBattleRound(attackDistance);
+    battleManager->provideBattleRound();
     auto & deadlist = battleManager->getDeadListForLastRound();
 
     for (auto & deadEvent : deadlist) {
@@ -189,6 +174,26 @@ LocationRedactor & LocationRedactor::startBattleRound() {
             continue;
         }
     }
+
+    return *this;
+}
+
+LocationRedactor & LocationRedactor::startContiniousBattle() {
+    constexpr auto dtime = 250ms;
+    MobsMover mobMover(location, dtime);
+
+    std::thread t1(printLocationEvery, location, 1000ms, 30s);
+    std::thread t2(BattleManager::startContiniousBattle, battleManager, dtime);
+    std::thread t3(std::ref(mobMover));
+
+    t1.detach();
+    t2.detach();
+    t3.detach();
+
+    std::this_thread::sleep_for(30s);
+
+    battleManager->stopBattle();
+    mobMover.stopMoving();
 
     return *this;
 }
@@ -236,4 +241,47 @@ LocationRedactor & LocationRedactor::deserializeMobs() {
     serializer->deserialize(file);
 
     return *this;
+}
+
+void printLocationEvery(std::shared_ptr<ILocation> location, std::chrono::milliseconds dtime, std::chrono::seconds duration) {
+    std::chrono::seconds current = 0s;
+    while (current <= duration) {
+        location->drawMap();
+
+        current += 1s;
+
+        std::this_thread::sleep_for(dtime);
+    }
+}
+
+void MobsMover::stopMoving() {
+    isNowMoving = false;
+}
+
+void MobsMover::operator()() {
+    static std::vector<std::pair<double, double>> moveDirections{
+        {1, 0},
+        {-1, 0},
+        {0, 1},
+        {0, -1}
+    };
+
+    isNowMoving = true;
+    while (isNowMoving) {
+        auto & mobDatas = location->getMobsData();
+        for (auto & pair : mobDatas) {
+            const MobData & mobData = pair.second;
+            if (mobData.getStatus() == MobParameters::Status::died) {
+                continue;
+            }
+
+            std::pair<double, double> curDir = moveDirections[rand() % moveDirections.size()];
+            double dx = curDir.first;
+            double dy = curDir.second;
+
+            mobData.getMob()->moveWithShift(dx, dy, dtime);
+        }
+
+        std::this_thread::sleep_for(dtime);
+    }
 }

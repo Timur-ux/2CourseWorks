@@ -80,6 +80,8 @@ public:
     virtual MobData & getMobDataBy(int id) = 0;
     virtual const std::map<int, MobData> & getMobsData() = 0;
     virtual void drawMap() = 0;
+    virtual double getWidth() = 0;
+    virtual double getHeight() = 0;
 };
 
 class DangeonUndoManager;
@@ -107,6 +109,9 @@ public:
     void on_move(ILocationSubscriber * subscriber, double dx, double dy) override;
 
     void drawMap() override;
+
+    double getWidth() override;
+    double getHeight() override;
 };
 
 #endif // LOCATION_H_

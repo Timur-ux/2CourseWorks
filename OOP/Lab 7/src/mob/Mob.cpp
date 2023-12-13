@@ -75,7 +75,3 @@ std::istream & operator>>(std::istream & is, enumMobType & type) {
 
     return is;
 }
-
-int throwCube() {
-    return rand() % 6 + 1;
-}

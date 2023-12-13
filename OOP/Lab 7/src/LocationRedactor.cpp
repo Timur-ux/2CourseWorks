@@ -1,15 +1,22 @@
 #include "LocationRedactor.hpp"
+#include <cmath>
 
 void LocationRedactor::doCommand(CommandType command) {
     switch (command) {
     case CommandType::addMob:
         addMob();
         break;
+    case CommandType::generateMobs:
+        generateMobs();
+        break;
     case CommandType::removeMob:
         removeMob();
         break;
     case CommandType::printMobs:
         printMobs();
+        break;
+    case CommandType::printAliveMobs:
+        printMobs(true);
         break;
     case CommandType::startBattleRound:
         startBattleRound();
@@ -127,6 +134,28 @@ LocationRedactor & LocationRedactor::addMob() {
     return *this;
 }
 
+LocationRedactor & LocationRedactor::generateMobs() {
+    int n;
+    double width = location->getWidth();
+    double height = location->getHeight();
+
+    *outStream << "Input quantity of mobs to generate: ";
+    *inStream >> n;
+
+    std::vector<enumMobType> types{ enumMobType::KnightStranger, enumMobType::Elf, enumMobType::Dragon };
+
+    for (int i = 0; i < n; ++i) {
+        enumMobType type = types[rand() % types.size()];
+        auto mob = MobFabric::create(type);
+        double x = std::fmod(rand(), width);
+        double y = std::fmod(rand(), height);
+
+        location->addMob(MobData(mob, Position(x, y), type));
+    }
+
+    return *this;
+}
+
 LocationRedactor & LocationRedactor::removeMob() {
     int id;
 
@@ -138,13 +167,16 @@ LocationRedactor & LocationRedactor::removeMob() {
     return *this;
 }
 
-LocationRedactor & LocationRedactor::printMobs() {
+LocationRedactor & LocationRedactor::printMobs(bool aliveOnly) {
     *outStream << "List of mobs on this location below:" << std::endl << std::endl;
 
     auto & data = location->getMobsData();
     for (auto it = std::begin(data)
             , last = std::end(data)
         ; it != last; ++it) {
+        if (aliveOnly and it->second.getStatus() == MobParameters::Status::died) {
+            continue;
+        }
         *outStream << it->second << std::endl;
     }
 
@@ -188,12 +220,14 @@ LocationRedactor & LocationRedactor::startContiniousBattle() {
 
     t1.detach();
     t2.detach();
-    t3.detach();
 
     std::this_thread::sleep_for(30s);
 
     battleManager->stopBattle();
     mobMover.stopMoving();
+
+    if (t3.joinable())
+        t3.join();
 
     return *this;
 }

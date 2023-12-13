@@ -20,8 +20,10 @@ using namespace std::chrono_literals;
 
 enum class CommandType {
     addMob,
+    generateMobs,
     removeMob,
     printMobs,
+    printAliveMobs,
     moveMob,
     startBattleRound,
     startContiniousBattle,
@@ -32,9 +34,11 @@ enum class CommandType {
 };
 
 const std::map<std::string, CommandType> str2EnumCommand{
+    {"generate mobs", CommandType::generateMobs},
     {"add", CommandType::addMob},
     {"remove", CommandType::removeMob},
     {"print", CommandType::printMobs},
+    {"print alive", CommandType::printAliveMobs},
     {"start battle round", CommandType::startBattleRound},
     {"start continious battle", CommandType::startContiniousBattle},
     {"undo", CommandType::undo},
@@ -55,8 +59,9 @@ private:
     std::shared_ptr<DangeonUndoManager> undoManager;
 
     LocationRedactor & addMob();
+    LocationRedactor & generateMobs();
     LocationRedactor & removeMob();
-    LocationRedactor & printMobs();
+    LocationRedactor & printMobs(bool aliveOnly = false);
     LocationRedactor & startBattleRound();
     LocationRedactor & startContiniousBattle();
     LocationRedactor & undo();

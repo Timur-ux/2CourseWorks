@@ -29,7 +29,8 @@ std::ostream & operator<<(std::ostream & os, const MobData & _mobData) {
     os << "Id: " << _mobData.getId() << std::endl
         << "type: " << MobTypeCvt::to_string(_mobData.getMobType()) << std::endl
         << "name: " << replace(_mobData.getMob()->getName(), ' ', '_') << std::endl
-        << "position: " << _mobData.getPosition() << std::endl;
+        << "position: " << _mobData.getPosition() << std::endl
+        << "status: " << (_mobData.getStatus() == MobParameters::Status::alive ? "alive" : "died") << std::endl;
 
     return os;
 }
@@ -43,7 +44,7 @@ std::istream & operator>>(std::istream & is, MobData & _mobData) {
         return is;
     }
 
-    is >> id >> temp >> type >> temp >> name >> temp >> pos;
+    is >> id >> temp >> type >> temp >> name >> temp >> pos >> temp >> temp;
     name = replace(name, '_', ' ');
 
     _mobData.mob = MobFabric::create(type, name);
@@ -211,4 +212,12 @@ void DangeonLocation::drawMap() {
     outStream << std::endl;
 
     print() << outStream.str();
+}
+
+double DangeonLocation::getWidth() {
+    return width;
+}
+
+double DangeonLocation::getHeight() {
+    return height;
 }

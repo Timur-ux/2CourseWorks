@@ -4,64 +4,16 @@
 
 void printCommandWithIdAfterRetStatus(std::string command, long long id);
 
-Server::Server(std::string IP, unsigned short port)
+Server::Server(std::string _IP, unsigned short _port)
+	: IP(_IP)
+	, port(_port)
+	, context(1)
+	, servSocket(context, ZMQ_PUB)
 {
-	int errStat;
-
-	context = zmq_ctx_new();
-	servSocket = zmq_socket(context, ZMQ_REP);
-
 	std::stringstream addrStream;
 	addrStream << "tcp://" << IP << ':' << port;
 
-	zmq_bind(servSocket, addrStream.str().c_str());
-
-}
-
-Server::~Server()
-{
-	if (servSocket) {
-		closesocket(servSocket);
-	}
-
-	for (auto& elem : clients) {
-		closesocket(elem.first);
-	}
-
-	WSACleanup();
-}
-
-
-void Server::startListen()
-{
-	int errStat;
-	errStat = listen(servSocket, SOMAXCONN);
-	if (errStat != 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: socket listening failed #" << WSAGetLastError();
-		throw std::runtime_error(errorStream.str());
-	}
-
-	listenData.isNowListening = true;
-	while (listenData.isNowListening) {
-		sockaddr_in clientInfo;
-		ZeroMemory(&clientInfo, sizeof(clientInfo));
-		int clientInfoSize = sizeof(clientInfo);
-
-		SOCKET clientSocket = accept(servSocket, (sockaddr*)&clientInfo, &clientInfoSize);
-
-		if (clientSocket == INVALID_SOCKET) {
-			std::cerr << "Warning: client detected but can't connect to a client #" << WSAGetLastError() << std::endl;
-		}
-
-		clients[clientSocket] = { clientSocket, clientInfo, 0 };
-		notify_all({ clientSocket, 0 });
-	}
-}
-
-void Server::stopListen()
-{
-	listenData.isNowListening = false;
+	servSocket.bind(addrStream.str().c_str());
 }
 
 void Server::sendTo(SOCKET client, std::vector<char> data)

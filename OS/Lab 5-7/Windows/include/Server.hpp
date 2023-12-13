@@ -29,35 +29,27 @@ struct ClientInfo {
 	long long id = 0;
 };
 
-struct ListenData {
-	bool isNowListening = false;
-};
-
 struct RecievingData {
 	bool isNowRecieving;
-	long waitSec = 0;
-	long waitMicroSec = 300000;
 };
 
 class Server : public ISockObserver, public ISockSubscriber {
 private:
-	WSADATA wsData;
-	void* context;
-	void* servSocket;
+	std::string IP;
+	unsigned short port;
+
+	zmq::context_t context;
+	zmq::socket_t servSocket;
 
 	std::map<SOCKET, ClientInfo> clients;
 
-	ListenData listenData;
 	RecievingData recievingData;
 
 	std::vector<ISockSubscriber*> subscribers;
 	std::shared_mutex servMutex;
 public:
 	Server(std::string IP, unsigned short port);
-	~Server();
 
-	void startListen();
-	void stopListen();
 	void startRecieving();
 	void stopRecieving();
 

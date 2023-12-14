@@ -3,78 +3,47 @@
 #include <sstream>
 #include <iostream>
 
-Client::Client(std::string servIP, unsigned short servPort)
-{
-	int errState;
+Client::Client(std::string _servIP, unsigned short _portToRecv, unsigned short _portToSend, long long _id)
+    : servIP(_servIP)
+    , portToRecv(_portToRecv)
+    , portToSend(_portToSend)
+    , id(_id)
+    , context(1)
+    , clientSocketRecv(context, ZMQ_SUB)
+    , clientSocketSend(context, ZMQ_PUSH) {
 
-	errState = WSAStartup(MAKEWORD(SOCKET_VERSION_MINOR, SOCKET_VERSION_MAJOR), &wsData);
-	if (errState != 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: WinSock version initialization failed #" << WSAGetLastError();
-		throw std::invalid_argument(errorStream.str());
-	}
+    std::ostringstream oss;
+    oss << "tcp://" << servIP << ':';
+    clientSocketRecv.connect((oss.str() + std::to_string(portToRecv)).c_str());
+    clientSocketSend.connect((oss.str() + std::to_string(portToSend)).c_str());
 
-	in_addr ipToNum;
-	errState = inet_pton(AF_INET, (PCSTR)servIP.c_str(), &ipToNum);
-	if (errState <= 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: IP translation to specific numeric format failed #" << WSAGetLastError();
-		throw std::invalid_argument(errorStream.str());
-	}
-
-	clientSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (clientSocket == INVALID_SOCKET) {
-		std::stringstream errorStream;
-		errorStream << "Error: socket initialization failed #" << WSAGetLastError();
-		throw std::invalid_argument(errorStream.str());
-	}
-
-	sockaddr_in servInfo;
-	ZeroMemory(&servInfo, sizeof(servInfo));
-
-	servInfo.sin_family = AF_INET;
-	servInfo.sin_addr = ipToNum;
-	servInfo.sin_port = htons(servPort);
-
-	errState = connect(clientSocket, (sockaddr*)&servInfo, sizeof(servInfo));
-
-	if (errState != 0) {
-		std::stringstream errorStream;
-		errorStream << "Error: socket connection to server failed #" << WSAGetLastError();
-		throw std::invalid_argument(errorStream.str());
-	}
+    clientSocketRecv.setsockopt(ZMQ_SUBSCRIBE, &id, sizeof(id));
 }
 
-Client::~Client()
-{
-	if (clientSocket) {
-		closesocket(clientSocket);
-	}
+void Client::sendData(pt::ptree data) {
+    std::ostringstream oss;
 
-	WSACleanup();
+    data.put<long long>("Response.id", id);
+
+    oss << id << ' ';
+    pt::write_json(oss, data);
+
+    zmq::message_t message(oss.str());
+
+    clientSocketSend.send(message, zmq::send_flags::none);
 }
 
-void Client::sendData(std::vector<char> data)
-{
-	data.resize(MESSAGE_BUFFER_SIZE, '\0');
-	int packetSize = send(clientSocket, data.data(), static_cast<int>(data.size()), 0);
+pt::ptree Client::recieve() {
+    zmq::message_t message;
 
-	if (packetSize == SOCKET_ERROR) {
-		std::cerr << "Warning: sending data to server failed #" << WSAGetLastError() << std::endl;
-	}
-}
+    clientSocketRecv.recv(message, zmq::recv_flags::none);
 
-std::vector<char> Client::recieve()
-{
-	std::vector<char> result(MESSAGE_BUFFER_SIZE);
+    std::istringstream iss(reinterpret_cast<char *>(message.data()));
+    long long id;
+    pt::ptree result;
 
-	int packetSize = recv(clientSocket, result.data(), static_cast<int>(result.size()), 0);
+    iss >> id;
 
-	if (packetSize == SOCKET_ERROR) {
-		std::stringstream errorStream;
-		errorStream << "Warning: recieving data from server failed #" << WSAGetLastError();
-		throw std::runtime_error(errorStream.str());
-	}
-
-	return result;
+    pt::read_json(iss, result);
+    return result;
 }

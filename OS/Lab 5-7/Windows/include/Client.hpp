@@ -1,29 +1,32 @@
 #ifndef CLIENT_H_
 #define CLIENT_H_
 
-#include <WinSock2.h>
-#include <WS2tcpip.h>
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <zmq.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
-#include "bufferSize.hpp"
-
-#pragma comment(lib, "Ws2_32.lib")
-
-const int SOCKET_VERSION_MINOR = 2;
-const int SOCKET_VERSION_MAJOR = 2;
+namespace pt = boost::property_tree;
 
 class Client {
 private:
-	WSADATA wsData;
-	SOCKET clientSocket = 0;
-public:
-	Client(std::string servIP, unsigned short servPort);
-	~Client();
+    long long id;
 
-	void sendData(std::vector<char> data);
-	std::vector<char> recieve();
+    std::string servIP;
+    unsigned short portToRecv;
+    unsigned short portToSend;
+
+    zmq::context_t context;
+    zmq::socket_t clientSocketRecv;
+    zmq::socket_t clientSocketSend;
+
+public:
+    Client(std::string _servIP, unsigned short _portToRecv, unsigned short _portToSend, long long _id);
+
+    void sendData(pt::ptree data);
+    pt::ptree recieve();
 };
 
 #endif // !CLIENT_H_

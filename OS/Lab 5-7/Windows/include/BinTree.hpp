@@ -6,11 +6,8 @@
 #include <Windows.h>
 #include <vector>
 
-#include "Observer.hpp"
-
 struct CalcCenterData {
-    SOCKET socket;
-    PROCESS_INFORMATION *pi;
+    PROCESS_INFORMATION * pi;
 };
 
 bool closeProcess(PROCESS_INFORMATION pi);
@@ -26,15 +23,12 @@ private:
         Node(int _id, CalcCenterData _data) : id(_id), data(_data), right(nullptr), left(nullptr) {}
     };
 
-    long long int lastId = 0;
     std::shared_ptr<Node>root{ nullptr };
 
     std::shared_ptr<Node> findNode(long long id);
 
     long long __findIdWithSock(std::shared_ptr<Node> curNode, SOCKET socket);
     void closeProcesses(std::shared_ptr<Node> fromNode);
-
-    std::vector<ISockSubscriber*> subscribers;
 public:
     BinTree() = default;
     ~BinTree();
@@ -45,7 +39,7 @@ public:
     long long findIdWithSock(SOCKET socket);
     void update(ObserverData data) override;
 
-    void subscribe(ISockSubscriber* subscriber) override;
+    void subscribe(ISockSubscriber * subscriber) override;
     void notify_all(ObserverData data) override;
 };
 

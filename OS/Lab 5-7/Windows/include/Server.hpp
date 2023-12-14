@@ -1,70 +1,72 @@
 #ifndef SERVER_H_
 #define SERVER_H_
 
-#include <map>
+#include <list>
 #include <string>
 #include <stdexcept>
 #include <shared_mutex>
 #include <vector>
 #include <zmq.hpp>
+#include <thread>
+#include <chrono>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
-#include "bufferSize.hpp"
-#include "Observer.hpp"
 #include "print.hpp"
+#include "safeBool.hpp"
+#include "MessageQueue.hpp"
+#include "CalcCenterCommands.hpp"
 
-#pragma comment(lib, "Ws2_32.lib")
+using namespace std::chrono_literals;
+namespace pt = boost::property_tree;
 
-constexpr int SOCKET_VERSION_MINOR = 2;
-constexpr int SOCKET_VERSION_MAJOR = 2;
+struct Message;
+class Server {
+private:
+    std::string IP;
+    unsigned short port1;
+    unsigned short port2;
+
+    zmq::context_t context;
+    zmq::socket_t servSocketSend;
+    zmq::socket_t servSocketRecv;
+
+    std::list<long long> clients;
+
+    SafeBool isNowRecieving{ false };
+    SafeBool isNowPrinting{ false };
+    MessageQueue<Message> dataMQ;
+    MessageQueue<Message> pingMQ;
+public:
+    Server(std::string IP, unsigned short port1, unsigned short port2);
+
+    void startRecieving();
+    void stopRecieving();
+
+    void startPrintingMessages();
+    void stopPrintingMessages();
+
+    void sendTo(int id, pt::ptree data);
+
+    void addClient(long long id);
+
+    std::list<long long> pingall(); // return bad id
+
+};
+
+enum class MessageType {
+    data,
+    ping
+};
 
 struct Message {
-	int clientId;
-	int messageNumber;
-	char message[MESSAGE_BUFFER_SIZE];
+    long long senderId;
+    MessageType type;
+    std::string data;
+
+    Message(long long _senderId, MessageType _type, std::string _data)
+        : senderId(_senderId)
+        , type(_type)
+        , data(_data) {}
 };
-
-struct ClientInfo {
-	SOCKET socket;
-	sockaddr_in addr;
-	long long id = 0;
-};
-
-struct RecievingData {
-	bool isNowRecieving;
-};
-
-class Server : public ISockObserver, public ISockSubscriber {
-private:
-	std::string IP;
-	unsigned short port;
-
-	zmq::context_t context;
-	zmq::socket_t servSocket;
-
-	std::map<SOCKET, ClientInfo> clients;
-
-	RecievingData recievingData;
-
-	std::vector<ISockSubscriber*> subscribers;
-	std::shared_mutex servMutex;
-public:
-	Server(std::string IP, unsigned short port);
-
-	void startRecieving();
-	void stopRecieving();
-
-	void sendTo(SOCKET client, std::vector<char> data);
-	void recieveFrom(SOCKET client);
-	void disconnectClient(SOCKET client);
-
-	void subscribe(ISockSubscriber* subscriber) override;
-	void notify_all(ObserverData data) override;
-
-	void update(ObserverData data) override;
-
-	std::vector<SOCKET> chekAndGetDeadSockets(long waitTime_sec = 1, long waitTime_microsec = 0);
-
-	ClientInfo getClientInfoBySocket(SOCKET socket);
-};
-
 #endif // !SERVER_H_

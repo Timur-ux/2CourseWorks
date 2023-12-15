@@ -12,7 +12,7 @@ struct CalcCenterData {
 
 bool closeProcess(PROCESS_INFORMATION pi);
 
-class BinTree : public ISockSubscriber, public ISockObserver {
+class BinTree {
 private:
     struct Node {
         long long id;
@@ -27,8 +27,7 @@ private:
 
     std::shared_ptr<Node> findNode(long long id);
 
-    long long __findIdWithSock(std::shared_ptr<Node> curNode, SOCKET socket);
-    void closeProcesses(std::shared_ptr<Node> fromNode);
+    void closeAllProcesses(std::shared_ptr<Node> fromNode);
 public:
     BinTree() = default;
     ~BinTree();
@@ -36,11 +35,6 @@ public:
     void add(long long id, CalcCenterData data);
     void remove(long long id);
     CalcCenterData find(long long id);
-    long long findIdWithSock(SOCKET socket);
-    void update(ObserverData data) override;
-
-    void subscribe(ISockSubscriber * subscriber) override;
-    void notify_all(ObserverData data) override;
 };
 
 #endif

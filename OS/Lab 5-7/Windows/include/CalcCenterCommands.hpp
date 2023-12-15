@@ -1,16 +1,16 @@
 #ifndef CACL_CENTER_COMMANDS_H_
 #define CACL_CENTER_COMMANDS_H_
-#include <vector>
+#include <string>
 
 namespace calc_center_command {
-    std::string terminate{ "terminate" };
-    std::string exec{ "exec" };
-    std::string ping{ "ping" };
+    inline std::string terminate{ "terminate" };
+    inline std::string exec{ "exec" };
+    inline std::string ping{ "ping" };
 };
 
 namespace calc_center_return {
-    std::string execSucceed{ "Ok" };
-    std::string notFound{ "NotFound" };
+    inline std::string execSucceed{ "Ok" };
+    inline std::string notFound{ "NotFound" };
 };
 
 #endif // !CACL_CENTER_COMMANDS_H_

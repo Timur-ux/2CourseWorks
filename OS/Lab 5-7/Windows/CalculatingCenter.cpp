@@ -5,61 +5,64 @@
 #include <sstream>
 
 #include "Client.hpp"
-#include "bufferSize.hpp"
 #include "CalcCenterCommands.hpp"
 
-
-
 int main(int argc, char * argw[]) {
-    if (argc != 3) {
-        throw std::invalid_argument("Error: invalid input parameters. Usage: <program name> <server IP> <server port>");
+    if (argc != 5) {
+        throw std::invalid_argument("Usage: <program name> <server IP> <server port 1> <server port 2> <id>");
     }
 
     std::map<std::string, int> dict;
 
     std::string serverIP = argw[1];
-    unsigned int serverPort = atoi(argw[2]);
+    unsigned short serverPort1 = atoi(argw[2]);
+    unsigned short serverPort2 = atoi(argw[3]);
+    long long id = atoi(argw[4]);
 
-    Client client(serverIP, serverPort);
+    Client client(serverIP, serverPort1, serverPort2, id);
 
-    int errorsCount = 0;
-    while (errorsCount < 100) {
-        std::vector<char> request;
-        try {
-            request = client.recieve();
-        }
-        catch (std::exception& e) {
-            ++errorsCount;
-        }
-        errorsCount = 0;
+    while (true) {
+        pt::ptree request = client.recieve();
+        pt::ptree response;
 
-        std::stringstream commandStream(request.data());
+        std::string type = request.get<std::string>("Request.type");
 
-        std::string command;
-        commandStream >> command;
+        response.put<std::string>("Response.type", type);
+        
+        if (type == calc_center_command::exec) {
+            std::string name = request.get<std::string>("Request.command.name");
+            bool isSet = request.get<bool>("Request.command.isSet");
 
-        if (command == calc_center_command::terminate) {
-            break;
-        }
-        else if (command == calc_center_command::exec) {
-            std::string name;
-            int value;
-            commandStream >> name;
-            if (commandStream >> value) {
+            if (isSet) {
+                int value = request.get<int>("Request.command.value");
                 dict[name] = value;
-                client.sendData(strToVChar(calc_center_return::execSucceed));
+
+                response.put<std::string>("Response.execType", "SetValue");
             }
             else {
-                std::stringstream response;
-                if (dict.find(name) == dict.end()) {
-                    response << calc_center_return::notFound;
+                response.put<std::string>("Response.execType", "GetValue");
+                auto nameIt = dict.find(name);
+                if (nameIt == std::end(dict)) {
+                    response.put<bool>("Response.found", false);
                 }
                 else {
-                    response << calc_center_return::execSucceed << ' ' << dict[name];
+                    response.put<int>("Response.value", nameIt->second);
+                    response.put<bool>("Response.found", true);
                 }
-                client.sendData(strToVChar(response.str()));
             }
+            response.put<std::string>("Response.status", calc_center_return::execSucceed);
         }
+        else if (type == calc_center_command::ping) {
+            response.put<std::string>("Response.status", calc_center_return::execSucceed);
+        }
+        else if (type == calc_center_command::terminate) {
+            return 0;
+        }
+        else {
+            continue;
+        }
+
+        client.sendData(response);
     }
 
     return 0;

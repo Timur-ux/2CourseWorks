@@ -14,10 +14,11 @@ Client::Client(std::string _servIP, unsigned short _portToRecv, unsigned short _
 
     std::ostringstream oss;
     oss << "tcp://" << servIP << ':';
+
     clientSocketRecv.connect((oss.str() + std::to_string(portToRecv)).c_str());
     clientSocketSend.connect((oss.str() + std::to_string(portToSend)).c_str());
 
-    clientSocketRecv.setsockopt(ZMQ_SUBSCRIBE, &id, sizeof(id));
+    clientSocketRecv.set(zmq::sockopt::subscribe, std::to_string(id));
 }
 
 void Client::sendData(pt::ptree data) {
@@ -38,12 +39,14 @@ pt::ptree Client::recieve() {
 
     clientSocketRecv.recv(message, zmq::recv_flags::none);
 
-    std::istringstream iss(reinterpret_cast<char *>(message.data()));
+    std::string messageData(reinterpret_cast<char*>(message.data()), message.size());
+
+    std::istringstream iss(messageData);
+
     long long id;
     pt::ptree result;
 
     iss >> id;
-
     pt::read_json(iss, result);
     return result;
 }

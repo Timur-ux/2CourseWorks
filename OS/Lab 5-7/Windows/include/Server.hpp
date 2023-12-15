@@ -20,7 +20,22 @@
 using namespace std::chrono_literals;
 namespace pt = boost::property_tree;
 
-struct Message;
+enum class MessageType {
+    data,
+    ping
+};
+
+struct Message {
+    long long senderId;
+    MessageType type;
+    pt::ptree data;
+
+    Message(long long _senderId, MessageType _type, pt::ptree _data)
+        : senderId(_senderId)
+        , type(_type)
+        , data(_data) {}
+};
+
 class Server {
 private:
     std::string IP;
@@ -46,27 +61,13 @@ public:
     void startPrintingMessages();
     void stopPrintingMessages();
 
-    void sendTo(int id, pt::ptree data);
+    void sendTo(long long id, pt::ptree data);
 
     void addClient(long long id);
+    void removeClient(long long id);
 
     std::list<long long> pingall(); // return bad id
 
 };
 
-enum class MessageType {
-    data,
-    ping
-};
-
-struct Message {
-    long long senderId;
-    MessageType type;
-    std::string data;
-
-    Message(long long _senderId, MessageType _type, std::string _data)
-        : senderId(_senderId)
-        , type(_type)
-        , data(_data) {}
-};
 #endif // !SERVER_H_

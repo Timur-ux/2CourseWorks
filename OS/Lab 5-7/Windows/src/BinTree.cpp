@@ -1,16 +1,14 @@
 #include "BinTree.hpp"
 #include <iostream>
 
-bool closeProcess(PROCESS_INFORMATION pi)
-{
+bool closeProcess(PROCESS_INFORMATION pi) {
     return TerminateProcess(
         pi.hProcess
         , 0
     );
 }
 
-std::shared_ptr<BinTree::Node> BinTree::findNode(long long id)
-{
+std::shared_ptr<BinTree::Node> BinTree::findNode(long long id) {
     if (!root) {
         throw std::invalid_argument("id: Not found");
     }
@@ -34,7 +32,6 @@ std::shared_ptr<BinTree::Node> BinTree::findNode(long long id)
 }
 
 void BinTree::add(long long id, CalcCenterData data) {
-    lastId = id;
     if (!root) {
         root = std::make_shared<Node>(id, data);
         return;
@@ -44,13 +41,11 @@ void BinTree::add(long long id, CalcCenterData data) {
     while (true) {
 
         if (id == currentNode->id) {
-            lastId = 0;
             throw std::invalid_argument("Already exist");
         }
         if (id > currentNode->id) {
             if (currentNode->right == nullptr) {
                 currentNode->right = std::make_shared<Node>(id, data);
-                lastId = id;
                 return;
             }
 
@@ -92,7 +87,15 @@ void BinTree::remove(long long id) {
     }
 
     if (!parentNode) {
-        root = nullptr;
+        if (!root->left && !root->right) {
+            root = nullptr;
+        }
+        else if (root->right) {
+            root = root->right;
+        }
+        else {
+            root = root->left;
+        }
         return;
     }
 
@@ -134,82 +137,23 @@ void BinTree::remove(long long id) {
     }
 }
 
-CalcCenterData BinTree::find(long long id)
-{
+CalcCenterData BinTree::find(long long id) {
     return findNode(id)->data;
 }
 
-long long BinTree::findIdWithSock(SOCKET socket)
-{
-    if (!root) {
-        throw std::invalid_argument("BinTree is empty");
-    }
-    return __findIdWithSock(root, socket);
-}
-
-long long BinTree::__findIdWithSock(std::shared_ptr<Node> curNode, SOCKET socket)
-{
-    if (!curNode) {
-        return -1;
-    }
-
-    if (curNode->data.socket == socket) {
-        return curNode->id;
-    }
-
-    long long leftId = __findIdWithSock(curNode->left, socket);
-    long long rightId = __findIdWithSock(curNode->right, socket);
-
-    if (leftId != -1 && rightId != -1) {
-        std::cerr << "Warning: multiple enties of socket in BinTree" << std::endl;
-    }
-
-    if (leftId != -1) {
-        return leftId;
-    }
-    if (rightId != -1) {
-        return rightId;
-    }
-
-    throw std::invalid_argument("socket: Not found tree not with given socket");
-}
-
-void BinTree::closeProcesses(std::shared_ptr<Node> fromNode)
-{
+void BinTree::closeAllProcesses(std::shared_ptr<Node> fromNode) {
     if (!fromNode) {
         return;
     }
-    
-    closeProcesses(fromNode->right);
-    closeProcesses(fromNode->left);
+
+    closeAllProcesses(fromNode->right);
+    closeAllProcesses(fromNode->left);
 
     CloseHandle(fromNode->data.pi->hProcess);
     closeProcess(*fromNode->data.pi);
     remove(fromNode->id);
 }
 
-BinTree::~BinTree()
-{
-    closeProcesses(root);
-}
-
-void BinTree::update(ObserverData data)
-{
-    std::shared_ptr<Node> lastNode = findNode(lastId);
-    lastNode->data.socket = data.socket;
-
-    data.id = lastNode->id;
-    notify_all(data);
-
-    lastId = 0;
-}
-
-void BinTree::subscribe(ISockSubscriber* subscriber) {
-    subscribers.push_back(subscriber);
-}
-
-void BinTree::notify_all(ObserverData data) {
-    for (ISockSubscriber* subscriber : subscribers) {
-        subscriber->update(data);
-    }
+BinTree::~BinTree() {
+    closeAllProcesses(root);
 }

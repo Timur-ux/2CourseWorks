@@ -4,7 +4,6 @@ set(INCLUDE_DIR include)
 set(SOURCE_DIR src)
 
 include_directories(${INCLUDE_DIR})
-include_directories("C:/Program Files/boost/boost_1_82_0/")
 
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 

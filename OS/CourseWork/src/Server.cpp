@@ -6,23 +6,87 @@
 #define all(x) std::begin(x), std::end(x)
 #define in(container, item) std::find(all(container), item) != std::end(container)
 
-Server::Server(std::string _IP, unsigned short _port1, unsigned short _port2)
+pt::ptree Server::checkAndSetNewUser(pt::ptree authData)
+{
+    boost::optional<std::string> login = authData.get_optional<std::string>("Auth.login");
+
+    if (login) {
+        if (clients.find(login) == std::end(clients)) {
+            long long id = freeId++;
+            clients[login] = id;
+            IForm former = ServerAuthSucceed(id, ports[ServerPorts::recv], ports[ServerPorts::send]);
+            authData = former.getForm();
+        }
+        else {
+            IForm former = ServerAuthFailed("Login already exist");
+            authData = former.getForm();
+        }
+    }
+    else {
+        IForm former = ServerAuthFailed("Invalid authentication data: Auth.login field don't found");
+        authData = former.getForm();
+    }
+
+    return authData;
+}
+
+Server::Server(std::string _IP, std::vector<unsigned short> _ports, IMessageManager & _messageManager)
     : IP(_IP)
-    , port1(_port1)
-    , port2(_port2)
+    , ports(_ports)
+    , messageManager(_messageManager)
     , context(1)
     , servSocketSend(context, ZMQ_PUB)
-    , servSocketRecv(context, ZMQ_PULL) {
+    , servSocketRecv(context, ZMQ_PULL)
+    , servSocketAuth(context, ZMQ_REP) {
+    
+    size_t portsSize = _ports.size();
+    if (portsSize != 3) {
+        throw std::invalid_argument("Server must get 3 free ports. " + std::to_string(portsSize) + "given");
+    }
+    
     std::stringstream addrStream;
     addrStream << "tcp://" << IP << ':';
 
-    servSocketSend.bind((addrStream.str() + std::to_string(port1)).c_str());
-    servSocketRecv.bind((addrStream.str() + std::to_string(port2)).c_str());
+    servSocketAuth.bind((addrStream.str() + std::to_string(ports[ServerPorts::auth])).c_str());
+    servSocketSend.bind((addrStream.str() + std::to_string(ports[ServerPorts::send])).c_str());
+    servSocketRecv.bind((addrStream.str() + std::to_string(ports[ServerPorts::recv])).c_str());
 
     std::thread(&Server::startRecieving, this).detach();
+    std::thread(&Server::startAuth, this).detach();
+}
+
+void Server::startAuth()
+{
+    isNowAuth = true;
+
+    while (isNowAuth) {
+        zmq::message_t request;
+
+        servSocketAuth.recv(request, zmq::recv_flags::none);
+
+        std::istringstream iss(std::string(request.data(), request.size()));
+
+        pt::ptree data;
+        pt::read_json(iss, data);
+
+        pt::ptree result = checkAndSetNewUser(data);
+
+        std::ostringstream oss;
+        pt::write_json(oss, result);
+
+        zmq::message_t response(oss.str());
+
+        servSocketAuth.send(response, zmq::send_flags::none);
+    }
+}
+
+void Server::stopAuth()
+{
+    isNowAuth = false;
 }
 
 void Server::sendTo(long long id, pt::ptree data) {
+    data.put<unsigned short>("Message.sender", ports[ServerPorts::send]);
     std::stringstream messageStream;
 
     messageStream << id << ' ';
@@ -51,16 +115,43 @@ bool Server::isThereMessages()
     return !dataMQ.empty();
 }
 
-Message Server::getMessage()
+boost::optional<Message> Server::getMessage()
 {
     if (dataMQ.empty()) {
-        throw std::runtime_error("There are no free messages");
+        return boost::none;
     }
 
     Message result = dataMQ.front();
     dataMQ.pop();
 
     return result;
+}
+
+Socket Server::getAuthSocket()
+{
+    return Socket(IP, ports[ServerPorts::auth]);
+}
+
+std::list<long long> Server::ping(std::list<long long> ids)
+{
+    for (long long& id : ids) {
+        IForm former = ServerPing(id);
+        sendTo(id, former.getForm());
+    }
+
+    std::this_thread::sleep_for(300ms);
+
+    for (int i = 0; i < pingMQ.size(); ++i) {
+        Message message = pingMQ.front();
+        pingMQ.pop();
+        long long id = message.data.get<long long>("Message.sender");
+        
+        if (in(ids, id)) {
+            ids.erase(std::find(std::begin(ids), std::end(ids), id));
+        }
+    }
+
+    return ids;
 }
 
 void Server::startRecieving() {
@@ -70,13 +161,13 @@ void Server::startRecieving() {
 
         servSocketRecv.recv(message, zmq::recv_flags::none);
 
-        std::string strMessage(reinterpret_cast<char*>(message.data()), message.size());
+        std::string strMessage(static_cast<char*>(message.data()), message.size());
         std::istringstream iss(strMessage);
         pt::ptree data;
 
         pt::read_json(iss, data);
 
-        dataMQ.push(Message( id, data ));
+        messageManager.push(data);
     }
 }
 
@@ -84,3 +175,12 @@ void Server::stopRecieving() {
     isNowRecieving = false;
 }
 
+boost::optional<long long> Server::getIdByLogin(std::string login)
+{
+    auto clientIt = clients.find(login);
+    if (clientIt == std::end(clients)) {
+        return boost::none;
+    }
+
+    return clientIt->second;
+}

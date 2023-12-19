@@ -6,13 +6,13 @@
 #include <mutex>
 
 class print : public std::stringstream {
-	static std::mutex mutex;
 public:
-	~print() {
-		std::unique_lock<std::mutex>(mutex);
+	~print();
+};
 
-		std::cout << str();
-	}
+class printErr : public std::stringstream {
+public:
+	~printErr();
 };
 
 #endif

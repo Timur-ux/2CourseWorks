@@ -72,7 +72,7 @@ pt::ptree game::GameActionForm::getForm()
 {
 	pt::ptree data;
 	data.put<std::string>("Message.type", "GameAction");
-	data.put<GameAction>("Game.action.type", action);
+	data.put<game::Action>("Game.action.type", action);
 
 	return data;
 }
@@ -90,6 +90,15 @@ pt::ptree game::reply::SelectWordForm::getForm() {
 	pt::ptree data = Form::getForm();
 
 	data.put<std::string>("Game.action.word", word);
+
+	return data;
+}
+
+pt::ptree game::reply::GuessWordForm::getForm() {
+	pt::ptree data = Form::getForm();
+
+	data.put<std::string>("Game.action.word", word);
+	data.put<std::string>("Game.action.opponent", opponent);
 
 	return data;
 }

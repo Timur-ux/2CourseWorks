@@ -6,6 +6,7 @@
 #include "safeBool.hpp"
 #include "Messages/MessageFormsGenerator.hpp"
 #include "Messages/MessageManager.hpp"
+#include "GameLogger.hpp"
 
 #include <thread>
 #include <map>
@@ -41,7 +42,7 @@ class GameManager : public IMessageManager {
 private:
 	std::map<std::string, Player> players;
 
-	bool isGameRunning = false;
+	bool isNowGameRunning = false;
 	Server* server = nullptr;
 
 	int guessCounter = 0;

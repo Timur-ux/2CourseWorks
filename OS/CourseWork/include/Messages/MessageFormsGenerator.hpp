@@ -34,24 +34,6 @@ public:
     pt::ptree getForm() override;
 };
 
-class ServerPing : public IForm {
-private:
-    long long id;
-public:
-    ServerPing(long long clientId) : id(clientId) {}
-
-    pt::ptree getForm() override;
-};
-
-class ClientPing : public IForm {
-private:
-    long long id;
-public:
-    ClientPing(long long clientId) : id(clientId) {}
-
-    pt::ptree getForm() override;
-};
-
 class MessageForAll : public IForm {
 private:
     std::string message;
@@ -71,21 +53,67 @@ public:
     pt::ptree getForm() override;
 };
 
-enum class GameAction {
-    selectWord,
-    guessWord
-};
+namespace game {
+    enum class Action {
+        selectWord,
+        guessWord
+    };
 
-class GameActionRequest : public IForm {
-private:
-    GameAction action;
-public:
-    GameActionRequest(GameAction _action) : action(_action){}
+    class GameActionForm : public IForm {
+    private:
+        Action action;
+    public:
+        GameActionForm(Action _action) : action(_action) {}
 
-    void setAction(GameAction _action);
+        virtual pt::ptree getForm() override;
+    };
 
-    pt::ptree getForm() override;
-};
+    namespace request {
+        class Form : public GameActionForm {
+        public:
+            Form(Action action) : GameActionForm(action) {}
+        };
+    } // ! request
+
+    namespace reply {
+        class Form : public GameActionForm {
+        private:
+            long long id;
+            std::string login;
+        public:
+            Form(Action action, long long _id, std::string _login) : GameActionForm(action), id(_id), login(_login) {}
+
+            virtual pt::ptree getForm() override;
+        };
+
+        class SelectWordForm : public Form {
+        private:
+            std::string word;
+        public:
+            SelectWordForm(std::string _word, long long id, std::string login) 
+                : Form(Action::selectWord, id, login)
+                , word(_word) {}
+            
+            pt::ptree getForm() override;
+        };
+
+        class GuessWordForm : public Form {
+        private:
+            std::string word;
+            std::string opponent;
+        public:
+            GuessWordForm(std::string _word, std::string _opponent, long long id, std::string login) 
+                : Form(Action::guessWord, id, login)
+                , word(_word)
+                , opponent(_opponent) {}
+
+            pt::ptree getForm() override;
+        };
+    } // ! reply
+} // ! game
+
+
+
 
 class GameActionReply : public IForm {
 private:

@@ -28,7 +28,6 @@ int main(int argc, char* argw[]) {
 	}
 
 	gameManager.startGame();
-	
 
 	return 0;
 }

@@ -56,7 +56,8 @@ public:
 namespace game {
     enum class Action {
         selectWord,
-        guessWord
+        guessWord,
+        endGame
     };
 
     class GameActionForm : public IForm {

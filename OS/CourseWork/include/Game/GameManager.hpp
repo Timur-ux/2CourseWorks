@@ -52,6 +52,8 @@ public:
 		setServer(_server);
 	}
 
+	~GameManager();
+
 	void setServer(Server* _server);
 	
 	void push(pt::ptree data) override;

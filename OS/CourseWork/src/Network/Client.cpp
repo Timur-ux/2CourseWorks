@@ -1,4 +1,4 @@
-#include "Client.hpp"
+#include "Network/Client.hpp"
 #include "print.hpp"
 
 #include <sstream>

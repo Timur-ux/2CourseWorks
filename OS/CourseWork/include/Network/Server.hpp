@@ -37,7 +37,7 @@ struct Message {
 };
 
 class Server {
-private:
+protected:
     std::string IP;
     std::vector<unsigned short> ports;
 
@@ -54,25 +54,24 @@ private:
     IMessageManager& messageManager;
     long long freeId = 1;
     pt::ptree checkAndSetNewUser(pt::ptree authData);
+    pt::ptree provideAuthAndGetResult();
 public:
     Server(std::string IP, std::vector<unsigned short> _ports, IMessageManager & _messageManager);
 
     void startRecieving();
     void stopRecieving();
 
-    void startAuth();
+    virtual void startAuth();
     void stopAuth();
 
     void sendTo(long long id, pt::ptree data);
-
-    void addClient(long long id);
-    void removeClient(long long id);
+    void sendForAll(pt::ptree data);
 
     Socket getAuthSocket();
 
-    std::list<long long> ping(std::list<long long> ids);
-
     boost::optional<long long> getIdByLogin(std::string login);
+
+    std::map<std::string, long long> getClients() const;
 
 };
 

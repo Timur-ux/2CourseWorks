@@ -1,4 +1,4 @@
-#include "MessageFormsGenerator.hpp"
+#include "Messages/MessageFormsGenerator.hpp"
 
 pt::ptree ClientAuth::getForm()
 {
@@ -68,16 +68,30 @@ pt::ptree MessageForAll::getForm()
 	return data;
 }
 
-void GameActionRequest::setAction(GameClientAction _action)
-{
-	action = _action;
-}
-
-pt::ptree GameActionRequest::getForm()
+pt::ptree game::GameActionForm::getForm()
 {
 	pt::ptree data;
 	data.put<std::string>("Message.type", "GameAction");
 	data.put<GameAction>("Game.action.type", action);
+
+	return data;
+}
+
+pt::ptree game::reply::Form::getForm() {
+	pt::ptree data = GameActionForm::getForm();
+
+	data.put<long long>("Message.id", id);
+	data.put<std::string>("Game.login", login);
+
+	return data;
+}
+
+pt::ptree game::reply::SelectWordForm::getForm() {
+	pt::ptree data = Form::getForm();
+
+	data.put<std::string>("Game.action.word", word);
+
+	return data;
 }
 
 void GameActionRequest::setWord(std::string _word)
@@ -100,8 +114,6 @@ pt::ptree GameActionReply::getForm()
 	pt::ptree data;
 	
 	data.put<std::string>("Message.type", "GameAction");
-	data.put<long long>("Message.id", id);
-	data.put<std::string>("Game.login", login);
 	data.put<GameAction>("Game.action.type", action);
 	data.put<std::string>("Game.action.word", word);
 

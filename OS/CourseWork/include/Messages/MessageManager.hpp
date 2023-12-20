@@ -12,14 +12,6 @@ public:
 	virtual void push(pt::ptree message) = 0;
 };
 
-class GamesMessageManager : public IMessageManager {
-private:
-	std::map<long long, GameManager&> games;
-	MessageQueue<pt::ptree> serverMQ;
-public:
-	void push(pt::ptree data) override;
 
-	MessageQueue<pt::ptree>& getServerMQ();
-};
 
 #endif // !MESSAGE_MANAGER_H_

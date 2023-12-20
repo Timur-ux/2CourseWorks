@@ -73,8 +73,7 @@ public:
 
 enum class GameAction {
     selectWord,
-    guessWord,
-    gameEnd
+    guessWord
 };
 
 class GameActionRequest : public IForm {
@@ -94,10 +93,8 @@ private:
     std::string login;
 
     GameAction action;
-    std::string word;
-    boost::optional<std::string> guessed = "";
 public:
-    GameActionReply(long long _id, std::string _login, GameAction _action, std::string _word) : id(_id), login(_login), action(_action), word(_word) {}
+    GameActionReply(long long _id, std::string _login, GameAction _action) : id(_id), login(_login), action(_action) {}
     
     void setAction(GameAction _action);
     void setGuessed(std::string guessedLogin);

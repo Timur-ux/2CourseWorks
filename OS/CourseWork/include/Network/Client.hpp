@@ -33,6 +33,7 @@ private:
     zmq::socket_t clientSocketAuth;
     zmq::socket_t clientSocketRecv;
     zmq::socket_t clientSocketSend;
+
     IMessageManager& messageManager;
 public:
     Client(std::string _servIP, unsigned short _authPort, IMessageManager & _messageManager);

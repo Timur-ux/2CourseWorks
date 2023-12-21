@@ -23,8 +23,6 @@ void Client::sendData(pt::ptree data) {
     std::ostringstream oss;
 
     data.put<long long>("Client.id", id);
-
-    oss << id << ' ';
     pt::write_json(oss, data);
 
     zmq::message_t message(oss.str());
@@ -113,4 +111,8 @@ void Client::startRecieving()
 
         messageManager.push(message);
     }
+}
+
+void Client::stopRecieving() {
+    isNowRecieving = false;
 }

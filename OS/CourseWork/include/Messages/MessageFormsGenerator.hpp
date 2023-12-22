@@ -122,6 +122,24 @@ namespace game {
     } // ! request
 
     namespace reply {
+        class ReplyFromServerForm : public IForm {
+        private:
+            game::RequestToServer type;
+        public:
+            ReplyFromServerForm(game::RequestToServer _type) : type(_type) {}
+
+            virtual pt::ptree getForm() override;
+        };
+
+        class GetLoginsListForm : public ReplyFromServerForm {
+        private:
+            std::list <std::string> logins;
+        public:
+            GetLoginsListForm(std::list<std::string> _logins) : logins(_logins) {}
+
+            pt::ptree getForm() final;
+        };
+
         class Form : public GameActionForm {
         private:
             long long id;

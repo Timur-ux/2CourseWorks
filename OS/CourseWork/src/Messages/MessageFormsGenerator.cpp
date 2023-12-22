@@ -144,3 +144,16 @@ pt::ptree game::request::CreateNewGameForm::getForm() {
 
 	return data;
 }
+
+pt::ptree game::reply::ReplyFromServerForm::getForm() {
+	pt::ptree data;
+
+	data.put<std::string>("Message.type", "ReplyFromServer");
+	data.put<int>("Reply.type", static_cast<int>(type));
+
+	return data;
+}
+
+pt::ptree game::reply::GetLoginsListForm::getForm() {
+	pt::ptree data = 
+}

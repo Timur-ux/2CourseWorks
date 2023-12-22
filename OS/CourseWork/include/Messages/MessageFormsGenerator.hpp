@@ -3,6 +3,7 @@ i#ifndef MESSAGE_FORMS_GENERATOR_H_
 
 #include <boost/property_tree/ptree.hpp>
 #include <map>
+#include <list>
 
 namespace pt = boost::property_tree;
 
@@ -60,6 +61,11 @@ namespace game {
         endGame
     };
 
+    enum class RequestToServer {
+        createNewGame,
+        getLoginsList
+    };
+
     class GameActionForm : public IForm {
     private:
         Action action;
@@ -70,9 +76,48 @@ namespace game {
     };
 
     namespace request {
+        class RequestToServerForm : public IForm {
+        private:
+            RequestToServer type;
+            std::string senderLogin;
+        public:
+            RequestToServerForm(RequestToServer _type, std::string _senderLogin) 
+                : type(_type)
+                , senderLogin(_senderLogin) {}
+
+            virtual pt::ptree getForm() override;
+        };
+
+        class GetLoginsListForm : public RequestToServerForm {
+        public:
+            GetLoginsListForm(std::string senderLogin)
+                : RequestToServerForm(RequestToServer::getLoginsList, senderLogin) {}
+
+            pt::ptree getForm() final;
+        };
+
+        class CreateNewGameForm : public RequestToServerForm {
+        private:
+            std::list<std::string> logins;
+        public:
+            CreateNewGameForm(std::string senderLogin, std::list<std::string> logins)
+                : RequestToServerForm(RequestToServer::createNewGame, senderLogin) {}
+
+            pt::ptree getForm() final;
+        };
+
         class Form : public GameActionForm {
         public:
             Form(Action action) : GameActionForm(action) {}
+        };
+
+        class CreateNewGameForm : public IForm {
+        private:
+            std::list<std::string> logins;
+        public:
+            CreateNewGameForm(std::list<std::string> _logins) : logins(_logins) {}
+
+            pt::ptree getForm() override;
         };
     } // ! request
 
@@ -112,24 +157,5 @@ namespace game {
         };
     } // ! reply
 } // ! game
-
-
-
-
-class GameActionReply : public IForm {
-private:
-    long long id;
-    std::string login;
-
-    GameAction action;
-public:
-    GameActionReply(long long _id, std::string _login, GameAction _action) : id(_id), login(_login), action(_action) {}
-    
-    void setAction(GameAction _action);
-    void setGuessed(std::string guessedLogin);
-    void setWord(std::string _word);
-
-    pt::ptree getForm() override;
-};
 
 #endif // !MESSAGE_FORMS_GENERATOR_H_

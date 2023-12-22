@@ -8,6 +8,13 @@ print::~print()
 	std::cout << str();
 }
 
+print& print::operator<<(pt::ptree data)
+{
+	pt::write_json(*this, data);
+
+	return *this;
+}
+
 printErr::~printErr()
 {
 	static std::mutex mutex;

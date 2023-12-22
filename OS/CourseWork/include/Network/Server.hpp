@@ -30,16 +30,10 @@ enum class ServerPorts {
     recv = 2
 };
 
-struct Message {
-    pt::ptree data;
-
-    Message(pt::ptree _data) : data(_data) {}
-};
-
 class Server {
 protected:
     std::string IP;
-    std::vector<unsigned short> ports;
+    std::map<ServerPorts, unsigned short> ports;
 
     zmq::context_t context;
     zmq::socket_t servSocketAuth;

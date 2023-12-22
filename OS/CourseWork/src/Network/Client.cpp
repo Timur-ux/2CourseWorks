@@ -19,6 +19,16 @@ Client::Client(std::string _servIP, unsigned short _authPort, IMessageManager & 
     clientSocketAuth.connect((oss.str() + std::to_string(ports[ClientPorts::auth])).c_str());
 }
 
+void Client::connectTo(std::string _servIP, unsigned short _authPort) {
+    servIP = _servIP;
+
+    std::ostringstream oss;
+    oss << "tcp://" << servIP << ':';
+    ports[ClientPorts::auth] = _authPort;
+
+    clientSocketAuth.connect((oss.str() + std::to_string(ports[ClientPorts::auth])).c_str());
+}
+
 void Client::sendData(pt::ptree data) {
     std::ostringstream oss;
 
@@ -76,6 +86,8 @@ bool Client::auth(std::string login)
     if (status.has_value()) {
         if (status.value()) {
             id = recvData.get<long long>("Auth.givenId");
+            this->login = login;
+
             ports[ClientPorts::send] = recvData.get<unsigned short>("Auth.portToSend");
             ports[ClientPorts::recv] = recvData.get<unsigned short>("Auth.portToRecv");
 
@@ -84,7 +96,6 @@ bool Client::auth(std::string login)
 
             clientSocketRecv.connect((oss.str() + std::to_string(ports[ClientPorts::recv])).c_str());
             clientSocketSend.connect((oss.str() + std::to_string(ports[ClientPorts::send])).c_str());
-
             return true;
         }
         else {
@@ -115,4 +126,14 @@ void Client::startRecieving()
 
 void Client::stopRecieving() {
     isNowRecieving = false;
+}
+
+void Client::disconnect() {
+    std::ostringstream oss;
+
+    oss << "tcp://" << servIP << ':';
+
+    clientSocketAuth.disconnect((oss.str() + std::to_string(ports[ClientPorts::auth])).c_str());
+    clientSocketRecv.disconnect((oss.str() + std::to_string(ports[ClientPorts::recv])).c_str());
+    clientSocketSend.disconnect((oss.str() + std::to_string(ports[ClientPorts::send])).c_str());
 }

@@ -4,6 +4,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <map>
 #include <zmq.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -22,10 +23,11 @@ enum class ClientPorts {
 
 class Client {
 private:
-    long long id;
+    long long id = 0;
+    std::string login;
 
     std::string servIP;
-    std::vector<unsigned short> ports(3);
+    std::map<ClientPorts, unsigned short> ports;
 
     SafeBool isNowRecieving{ false };
 
@@ -41,9 +43,20 @@ public:
     void sendData(pt::ptree data);
     boost::optional<pt::ptree> recieve();
     bool auth(std::string login);
+    
+    void connectTo(std::string _servIP, unsigned short _authPort);
+    void disconnect();
 
     void startRecieving();
     void stopRecieving();
+
+    long long getId() {
+        return id;
+    }
+
+    std::string getLogin() {
+        return login;
+    }
 };
 
 #endif // !CLIENT_H_

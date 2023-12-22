@@ -1,4 +1,5 @@
 #include "Messages/MessageFormsGenerator.hpp"
+#include "print.hpp"
 
 pt::ptree ClientAuth::getForm()
 {
@@ -72,7 +73,7 @@ pt::ptree game::GameActionForm::getForm()
 {
 	pt::ptree data;
 	data.put<std::string>("Message.type", "GameAction");
-	data.put<game::Action>("Game.action.type", action);
+	data.put<int>("Game.action.type", static_cast<int>(action));
 
 	return data;
 }
@@ -103,39 +104,43 @@ pt::ptree game::reply::GuessWordForm::getForm() {
 	return data;
 }
 
-void GameActionRequest::setWord(std::string _word)
-{
-	word = _word;
-}
-
-void GameActionReply::setAction(GameAction _action)
-{
-	action = _action;
-}
-
-void GameActionReply::setWord(std::string _word)
-{
-	word = _word;
-}
-
-pt::ptree GameActionReply::getForm()
-{
+pt::ptree game::request::RequestToServerForm::getForm() {
 	pt::ptree data;
-	
-	data.put<std::string>("Message.type", "GameAction");
-	data.put<GameAction>("Game.action.type", action);
-	data.put<std::string>("Game.action.word", word);
-
-	if (action == GameAction::guessWord && !guessed.has_value()) {
-		throw std::logic_error("Guessed not specified. Please set guessed login");
-	}
-
-	data.put<std::string>("Game.action.guessed", guessed);
+	data.put<std::string>("Message.type", "RequestToServer");
+	data.put<int>("Request.type", static_cast<int>(type));
+	data.put<std::string>("Request.sender.login", senderLogin);
 
 	return data;
 }
 
-void GameActionReply::setGuessed(std::string guessedLogin)
-{
-	guessed = guessedLogin
+pt::ptree game::request::GetLoginsListForm::getForm() {
+	pt::ptree data = RequestToServerForm::getForm();
+
+	return data;
+}
+
+pt::ptree game::request::CreateNewGameForm::getForm() {
+	pt::ptree data = RequestToServerForm::getForm();
+
+	pt::ptree loginsData;
+	for (std::string& login : logins) {
+		pt::ptree child;
+		child.put<std::string>("", login);
+		loginsData.push_back(std::make_pair("", child));
+	}
+
+	data.add_child("Request.logins", loginsData);
+
+	print() << data << std::endl;
+
+	return data;
+}
+
+pt::ptree game::request::CreateNewGameForm::getForm() {
+	pt::ptree data;
+
+	data.put<std::string>("Message.type", "CreateNewGame");
+	data.put<std::list<std::string>>("Game.init.logins", players);
+
+	return data;
 }

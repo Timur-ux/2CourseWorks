@@ -6,12 +6,12 @@
 
 int main(int argc, char* argw[]) {
 	if (argc != 5) {
-		throw std::invalid_argument("Usage <program name> <server IP> <free port 1> <free port 2> <free port 3>");
+		throw std::invalid_argument("Usage <program name> <server IP> <free port>");
 	}
 
 	std::string IP(argw[1]);
-
-	std::vector<unsigned short> ports{atoi(argw[2]), atoi(argw[3]), atoi(argw[4])};
+	unsigned short port = atoi(argw[2]);
+	std::vector<unsigned short> ports{port, port + 1, port + 2};
 
 	Server server(IP, ports);
 }

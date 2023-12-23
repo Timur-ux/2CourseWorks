@@ -20,4 +20,8 @@ public:
 	~printErr();
 };
 
+class printLog : public std::stringstream {
+public:
+	~printLog();
+};
 #endif

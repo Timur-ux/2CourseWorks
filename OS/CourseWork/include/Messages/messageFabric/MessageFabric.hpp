@@ -8,6 +8,12 @@
 #include "ConcretFabric/PingMessageFabric.hpp"
 #include "ConcretFabric/InviteToGameFabric.hpp"
 #include "Game/messages/fabric/SelectWordFabric.hpp"
+#include "Game/messages/fabric/GuessWordFabric.hpp"
+
+#include <boost/optional.hpp>
+#include <boost/property_tree/ptree.hpp>
+
+namespace pt = boost::property_tree;
 
 namespace message {
 	namespace fabric {
@@ -18,6 +24,7 @@ namespace message {
 			static MessageFabric& getInstance();
 			message::IMessage getRequest(request::IMessageFabric fabric);
 			message::IMessage getReply(reply::IMessageFabric fabric);
+			boost::optional<message::IMessage> getFromRawData(pt::ptree data);
 		};
 	}
 }

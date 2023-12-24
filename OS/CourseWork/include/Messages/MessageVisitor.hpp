@@ -11,10 +11,10 @@ namespace message {
 
 		class IMessageVisitor {
 		public:
-			virtual void visit(IAuth& message) = 0;
-			virtual void visit(IPing& message) = 0;
-			virtual void visit(IGetLogins& message) = 0;
-			virtual void visit(ICreateNewGame& message) = 0;
+			virtual void visit(IAuth& message) {};
+			virtual void visit(IPing& message) {};
+			virtual void visit(IGetLogins& message) {};
+			virtual void visit(ICreateNewGame& message) {};
 		};
 	} // !request
 
@@ -27,10 +27,10 @@ namespace message {
 
 		class IMessageVisitor {
 		public:
-			virtual void visit(IAuth& message) = 0;
-			virtual void visit(IPing& message) = 0;
-			virtual void visit(IGetLogins& message) = 0;
-			virtual void visit(IInviteToGame& message) = 0;
+			virtual void visit(IAuth& message) {};
+			virtual void visit(IPing& message) {};
+			virtual void visit(IGetLogins& message) {};
+			virtual void visit(IInviteToGame& message) {};
 		};
 	} // !reply
 

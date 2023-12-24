@@ -20,6 +20,7 @@ namespace game {
 		namespace reply {
 			class ISelectWord : public ::message::IMessage {
 			public:
+				virtual long long getId() = 0;
 				virtual std::string getLogin() = 0;
 				virtual std::string getWord() = 0;
 

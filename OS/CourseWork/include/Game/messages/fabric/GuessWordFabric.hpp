@@ -1,25 +1,25 @@
-#ifndef SELECT_WORD_FABRIC_H_
-#define SELECT_WORD_FABRIC_H_
+#ifndef GUESS_WORD_FABRIC_H_
+#define GUESS_WORD_FABRIC_H_
 
 #include "Messages/messageFabric/ConcretFabric/IMessageFabric.hpp"
-#include "../concretMessages/interfaces/ISelectWord.hpp"
+#include "../concretMessages/interfaces/IGuessWord.hpp"
 
 namespace game {
 	namespace message {
 		namespace fabric {
 			namespace request {
-				class SelectWord : public ::message::fabric::request::IMessageFabric {
+				class GuessWord : public ::message::fabric::request::IMessageFabric {
 				public:
-					SelectWord() = default;
+					GuessWord() = default;
 
 					::message::IMessage getMessage() override;
 				};
 			} // !game::message::fabric::request
 
 			namespace reply {
-				class SelectWord : public ::message::fabric::reply::IMessageFabric {
+				class GuessWord : public ::message::fabric::reply::IMessageFabric {
 				public:
-					SelectWord(long long id, std::string login, std::string word);
+					GuessWord(long long id, std::string login, std::string word, std::string opponent);
 
 					::message::IMessage getMessage() override;
 				};
@@ -28,4 +28,4 @@ namespace game {
 	} // !game::message
 } // !game
 
-#endif // !SELECT_WORD_FABRIC_H_
+#endif // !GUESS_WORD_FABRIC_H_

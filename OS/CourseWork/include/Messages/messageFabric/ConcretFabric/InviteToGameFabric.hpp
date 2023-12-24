@@ -2,6 +2,7 @@
 #define INVITE_TO_GAME_FABRIC_H_
 
 #include "IMessageFabric.hpp"
+#include "../../concretMessages/interfaces/IInviteToGame.hpp"
 
 #include <string>
 

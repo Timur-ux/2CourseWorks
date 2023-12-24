@@ -2,6 +2,7 @@
 #define CREATE_NEW_GAME_MESSAGE_FABRIC_H_
 
 #include "IMessageFabric.hpp"
+#include "../../concretMessages/interfaces/ICreateNewGame.hpp"
 
 #include <list>
 

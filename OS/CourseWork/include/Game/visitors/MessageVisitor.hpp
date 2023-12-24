@@ -15,10 +15,10 @@ namespace game {
 
 		class IGameMessageVisitor {
 		public:
-			virtual void visit(IStartGame&) = 0;
-			virtual void visit(ISelectWord&) = 0;
-			virtual void visit(IGuessWord&) = 0;
-			virtual void visit(IDisconnect&) = 0;
+			virtual void visit(IStartGame&) {};
+			virtual void visit(ISelectWord&) {};
+			virtual void visit(IGuessWord&) {};
+			virtual void visit(IDisconnect&) {};
 			virtual void visit(::message::DataMessage&) {}
 		};
 		} // !game::message::request
@@ -29,8 +29,8 @@ namespace game {
 
 			class IGameMessageVisitor {
 			public:
-				virtual void visit(ISelectWord&) = 0;
-				virtual void visit(IGuessWord&) = 0;
+				virtual void visit(ISelectWord&) {};
+				virtual void visit(IGuessWord&) {};
 			};
 		} // !game::message::reply
 	} // !game::message

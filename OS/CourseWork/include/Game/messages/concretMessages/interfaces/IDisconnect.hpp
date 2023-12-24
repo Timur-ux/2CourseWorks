@@ -1,5 +1,5 @@
-#ifndef I_GUESS_WORD_H_
-#define I_GUESS_WORD_H_
+#ifndef I_DISCONNECT_H_
+#define I_DISCONNECT_H_
 
 #include "Messages/Message.hpp"
 #include "Game/visitors/MessageVisitor.hpp"
@@ -22,4 +22,4 @@ namespace game {
 	} // !game::message
 } // !game
 
-#endif // !I_GUESS_WORD_H_
+#endif // !I_DISCONNECT_H_

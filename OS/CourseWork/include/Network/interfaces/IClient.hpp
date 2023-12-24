@@ -7,10 +7,10 @@
 namespace network {
 	class IClient : public message::IObserver {
 	public:
-		virtual void connect() = 0;
+		virtual void connectTo(std::string IP, unsigned short port) = 0;
 		virtual void disconnect() = 0;
 
-		virtual void auth() = 0;
+		virtual void auth(std::string login) = 0;
 
 		virtual void send(message::IMessage) = 0;
 

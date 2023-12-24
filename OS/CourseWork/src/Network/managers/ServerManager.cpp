@@ -1,4 +1,4 @@
-#include "Network/ServerManager.hpp"
+#include "Network/managers/ServerManager.hpp"
 #include "Game/GameProcessCreator.hpp"
 
 #define in(container, item) std::find(std::begin(container), std::end(container), item) != std::end(container)

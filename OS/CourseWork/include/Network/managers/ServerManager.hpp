@@ -1,7 +1,7 @@
 #ifndef SERVER_MANAGER_H_
 #define SERVER_MANAGER_H_
 
-#include "interfaces/IServer.hpp"
+#include "../interfaces/IServer.hpp"
 #include "Messages/MessageVisitor.hpp"
 #include "Messages/concretMessages/allConcretMessages.hpp"
 #include "Messages/messageFabric/MessageFabric.hpp"

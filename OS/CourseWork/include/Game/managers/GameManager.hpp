@@ -4,10 +4,17 @@
 #include "Messages/MessageObserver.hpp"
 #include "../visitors/MessageVisitor.hpp"
 #include "Network/interfaces/IServer.hpp"
+#include "Messages/concretMessages/allConcretMessages.hpp"
+#include "Game/messages/concretMessages/allConcretMessages.hpp"
 #include "Game/player/Player.hpp"
+#include "safeBool.hpp"
 
 #include <map>
 #include <string>
+#include <thread>
+#include <chrono>
+
+using namespace std::chrono_literals;
 
 namespace game {
 	class GameManager
@@ -17,6 +24,9 @@ namespace game {
 	private:
 		network::IServer& server;
 		std::map<long long, Player> clients;
+		SafeBool isNowGameRunning{ false };
+
+		void provideGame();
 	public:
 		GameManager(network::IServer& _server) : server(_server) {}
 
@@ -24,8 +34,6 @@ namespace game {
 		void notify(::message::IMessage) override;
 
 		void visit(message::request::IStartGame&) override;
-		void visit(message::request::ISelectWord&) override;
-		void visit(message::request::IGuessWord&) override;
 		void visit(message::request::IDisconnect&) override;
 
 		void visit(message::reply::ISelectWord&) override;

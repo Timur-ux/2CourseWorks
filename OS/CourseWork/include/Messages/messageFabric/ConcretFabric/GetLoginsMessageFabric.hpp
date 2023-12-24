@@ -2,6 +2,7 @@
 #define GET_LOGINS_MESSAGE_FABRIC_H_
 
 #include "IMessageFabric.hpp"
+#include "../../concretMessages/interfaces/IGetLogins.hpp"
 
 #include <list>
 

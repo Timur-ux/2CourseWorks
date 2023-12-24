@@ -2,6 +2,7 @@
 #define AUTH_MESSAGE_FABRIC_H_
 
 #include "IMessageFabric.hpp"
+#include "../../concretMessages/interfaces/IAuthMessage.hpp"
 
 namespace message {
 	namespace fabric {
@@ -21,7 +22,8 @@ namespace message {
 					, std::string serverIP
 					, unsigned short sendPort
 					, unsigned short recvPort
-					, long long givenId);
+					, long long givenId
+					, std::string acceptedLogin);
 
 				message::reply::IMessage getMessage() override;
 			};

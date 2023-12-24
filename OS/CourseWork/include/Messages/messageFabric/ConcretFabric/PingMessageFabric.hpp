@@ -2,6 +2,7 @@
 #define PING_MESSAGE_FABRIC_H_
 
 #include "IMessageFabric.hpp"
+#include "../../concretMessages/interfaces/IPingMessage.hpp"
 
 namespace message {
 	namespace fabric {
@@ -17,7 +18,7 @@ namespace message {
 		namespace reply {
 			class Ping : public IMessageFabric {
 			public:
-				Ping(std::string login, long long id);
+				Ping(long long id, std::string login);
 
 				message::reply::IMessage getMessage() override;
 			};

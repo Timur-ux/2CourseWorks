@@ -2,14 +2,13 @@
 #define I_START_GAME_H_
 
 #include "Messages/Message.hpp"
-#include "Game/visitors/MessageVisitor.hpp"
 
 namespace game {
 	namespace message {
 		namespace request {
 			class IStartGame : public ::message::IMessage {
 			public:
-				void accept(IGameMessageVisitor& visitor) override {
+				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};
 			};

@@ -2,7 +2,6 @@
 #define I_DISCONNECT_H_
 
 #include "Messages/Message.hpp"
-#include "Game/visitors/MessageVisitor.hpp"
 
 #include <string>
 
@@ -14,7 +13,7 @@ namespace game {
 				virtual std::string getLogin() = 0;
 				virtual long long getId() = 0;
 
-				void accept(IGameMessageVisitor& visitor) override {
+				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};
 			};

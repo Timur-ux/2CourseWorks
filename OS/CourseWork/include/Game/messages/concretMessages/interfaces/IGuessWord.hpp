@@ -11,7 +11,7 @@ namespace game {
 		namespace request {
 			class IGuessWord : public ::message::IMessage {
 			public:
-				void accept(IGameMessageVisitor& visitor) override {
+				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};
 			};
@@ -25,7 +25,7 @@ namespace game {
 				virtual std::string getWord() = 0;
 				virtual std::string getOpponent() = 0;
 
-				void accept(IGameMessageVisitor& visitor) override {
+				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};
 			};

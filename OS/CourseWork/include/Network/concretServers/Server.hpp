@@ -21,8 +21,7 @@ namespace network {
 
 	class Server 
 		: public IServer
-		, public message::request::IMessageVisitor
-		, public message::reply::IMessageVisitor {
+		, public message::IMessageVisitor {
 	private:
 		std::map<ports, zmq::socket_t> sockets;
 		std::map<long long, ClientData> clients;

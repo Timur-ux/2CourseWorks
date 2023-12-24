@@ -8,8 +8,7 @@
 
 class ClientManager
 	: public message::ISubscriber
-	, public message::request::IMessageVisitor
-	, public message::reply::IMessageVisitor {
+	, public message::IMessageVisitor {
 private:
 	long long id = -1;
 	std::string login = "Unset";

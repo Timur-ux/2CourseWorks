@@ -12,7 +12,7 @@
 #include <list>
 
 class ServerManager : public message::ISubscriber
-	, public message::request::IMessageVisitor {
+	, public message::IMessageVisitor {
 private:
 	network::IServer& server;
 	std::map<long long, std::string> clients;
@@ -24,7 +24,6 @@ public:
 	void notify(message::IMessage &) override;
 
 	void visit(message::request::IAuth&) override;
-	void visit(message::request::IPing& message) override {};
 	void visit(message::request::IGetLogins& message) override;
 	void visit(message::request::ICreateNewGame& message) override;
 };

@@ -2,7 +2,7 @@
 #define GAME_MANAGER_H_
 
 #include "Messages/MessageObserver.hpp"
-#include "../visitors/MessageVisitor.hpp"
+#include "Messages/MessageVisitor.hpp"
 #include "Network/interfaces/IServer.hpp"
 #include "Messages/concretMessages/allConcretMessages.hpp"
 #include "Game/messages/concretMessages/allConcretMessages.hpp"
@@ -19,8 +19,7 @@ using namespace std::chrono_literals;
 namespace game {
 	class GameManager
 		: public ::message::ISubscriber
-		, public message::request::IGameMessageVisitor
-		, public message::reply::IGameMessageVisitor {
+		, public ::message::IMessageVisitor {
 	private:
 		network::IServer& server;
 		std::map<long long, Player> clients;

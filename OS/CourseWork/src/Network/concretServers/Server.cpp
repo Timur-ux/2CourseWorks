@@ -43,7 +43,8 @@ void network::Server::startAuth()
 			continue;
 		}
 
-		authMessage.value()->accept(*this);
+		authMessage.value()->accept(static_cast<message::request::IMessageVisitor&>(*this));
+		notify_all(*authMessage.value());
 	}
 }
 
@@ -112,11 +113,32 @@ void network::Server::startRecieving()
 {
 	isNowRecv = true;
 	while (isNowRecv) {
-		zmq::message_t message;
-		sockets[ports::recv].recv(message);
+		zmq::message_t recv;
+		sockets[ports::recv].recv(recv);
 
 		std::istringstream iss(
-			std::string(static_cast<char*>(message.data()), message.size())
-			);
+			std::string(static_cast<char*>(recv.data()), recv.size())
+		);
+		pt::ptree data;
+		pt::read_json(iss, data);
+
+		auto message = message::fabric::MessageFabric::getInstance()
+			.getFromRawData(data);
+		
+		if (!message.has_value()) {
+			printErr() << "Warning: recieved message not recognized" << std::endl;
+			continue;
+		}
+
+		message.value()->accept(static_cast<message::request::IMessageVisitor&>(*this));
+		message.value()->accept(static_cast<message::reply::IMessageVisitor&>(*this));
+
+		notify_all(*message.value());
 	}
 }
+
+void network::Server::stopRecieving()
+{
+	isNowRecv = false;
+}
+

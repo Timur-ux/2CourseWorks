@@ -26,6 +26,7 @@ namespace message {
 			virtual unsigned short getRecvPort() = 0;
 			virtual long long getGivenId() = 0;
 			virtual std::string getLogin() = 0;
+			virtual long long getOverallFilter() = 0;
 
 			virtual void accept(IMessageVisitor& visitor) {
 				visitor.visit(*this);

@@ -14,16 +14,6 @@ namespace game {
 				};
 			};
 		} // !game::message::request
-
-		namespace reply {
-			class IStartGame : public ::message::IMessage {
-			public:
-				virtual std::string getLogin() = 0;
-				void accept(IGameMessageVisitor& visitor) override {
-					visitor.visit(*this);
-				};
-			};
-		} // !game::message::reply
 	} // !game::message
 } // !game
 

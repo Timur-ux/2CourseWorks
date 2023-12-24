@@ -16,15 +16,6 @@ namespace message {
 			}
 		};
 	} // !request
-
-	namespace reply {
-		class ICreateNewGame : public IMessage {
-		public:
-			virtual void accept(IMessageVisitor& visitor) {
-				visitor.visit(*this);
-			}
-		};
-	} // !request
 }
 
 

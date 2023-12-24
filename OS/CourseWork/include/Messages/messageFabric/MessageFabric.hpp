@@ -6,6 +6,8 @@
 #include "ConcretFabric/CreateNewGameFabric.hpp"
 #include "ConcretFabric/GetLoginsMessageFabric.hpp"
 #include "ConcretFabric/PingMessageFabric.hpp"
+#include "ConcretFabric/InviteToGameFabric.hpp"
+#include "Game/messages/fabric/SelectWordFabric.hpp"
 
 namespace message {
 	namespace fabric {
@@ -14,8 +16,8 @@ namespace message {
 			MessageFabric() = default;
 		public:
 			static MessageFabric& getInstance();
-			message::request::IMessage getRequest(request::IMessageFabric fabric);
-			message::reply::IMessage getReply(reply::IMessageFabric fabric);
+			message::IMessage getRequest(request::IMessageFabric fabric);
+			message::IMessage getReply(reply::IMessageFabric fabric);
 		};
 	}
 }

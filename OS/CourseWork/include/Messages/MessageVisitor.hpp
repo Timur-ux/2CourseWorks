@@ -22,7 +22,7 @@ namespace message {
 		class IAuth;
 		class IPing;
 		class IGetLogins;
-		class ICreateNewGame;
+		class IInviteToGame;
 
 
 		class IMessageVisitor {
@@ -30,7 +30,7 @@ namespace message {
 			virtual void visit(IAuth& message) = 0;
 			virtual void visit(IPing& message) = 0;
 			virtual void visit(IGetLogins& message) = 0;
-			virtual void visit(ICreateNewGame& message) = 0;
+			virtual void visit(IInviteToGame& message) = 0;
 		};
 	} // !reply
 

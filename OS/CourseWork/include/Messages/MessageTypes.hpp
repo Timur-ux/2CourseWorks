@@ -7,6 +7,7 @@ namespace message {
 		, ping
 		, getLogins
 		, createNewGame
+		, gameAction
 	};
 
 }

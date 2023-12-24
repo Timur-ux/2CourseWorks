@@ -3,7 +3,7 @@
 
 namespace game {
 	namespace message {
-		enum class MessageType {
+		enum class Type {
 			startGame
 			, selectWord
 			, guessWord

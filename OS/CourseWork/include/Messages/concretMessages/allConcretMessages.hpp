@@ -5,5 +5,7 @@
 #include "interfaces/ICreateNewGame.hpp"
 #include "interfaces/IGetLogins.hpp"
 #include "interfaces/IPingMessage.hpp"
+#include "interfaces/IInviteToGame.hpp"
+#include "DataMessage.hpp"
 
 #endif // !ALL_CONCRET_MESSAGES_H_

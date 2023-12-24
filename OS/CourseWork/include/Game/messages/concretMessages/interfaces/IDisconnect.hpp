@@ -9,25 +9,16 @@
 namespace game {
 	namespace message {
 		namespace request {
-			class IGuessWord : public ::message::IMessage {
+			class IDisconnect : public ::message::IMessage {
 			public:
+				virtual std::string getLogin() = 0;
+				virtual long long getId() = 0;
+
 				void accept(IGameMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};
 			};
 		} // !game::message::request
-
-		namespace reply {
-			class IGuessWord : public ::message::IMessage {
-			public:
-				virtual std::string getWord() = 0;
-				virtual std::string getOpponent() = 0;
-
-				void accept(IGameMessageVisitor& visitor) override {
-					visitor.visit(*this);
-				};
-			};
-		} // !game::message::reply
 	} // !game::message
 } // !game
 

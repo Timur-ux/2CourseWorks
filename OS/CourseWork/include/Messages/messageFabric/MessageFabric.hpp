@@ -12,6 +12,7 @@
 
 #include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <memory>
 
 namespace pt = boost::property_tree;
 
@@ -22,9 +23,9 @@ namespace message {
 			MessageFabric() = default;
 		public:
 			static MessageFabric& getInstance();
-			message::IMessage getRequest(request::IMessageFabric fabric);
-			message::IMessage getReply(reply::IMessageFabric fabric);
-			boost::optional<message::IMessage> getFromRawData(pt::ptree data);
+			std::shared_ptr<IMessage> getRequest(request::IMessageFabric&& fabric);
+			std::shared_ptr<IMessage> getReply(reply::IMessageFabric&& fabric);
+			boost::optional<std::shared_ptr<IMessage>> getFromRawData(pt::ptree data);
 		};
 	}
 }

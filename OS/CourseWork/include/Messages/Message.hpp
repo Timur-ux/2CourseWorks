@@ -5,18 +5,22 @@
 #include "Game/visitors/MessageVisitor.hpp"
 
 #include <boost/property_tree/ptree.hpp>
+#include <concepts>
+#include <type_traits>
 
 namespace pt = boost::property_tree;
 
 namespace message {
+	class IMessage;
+
 	class IMessage {
 	public:
 		virtual pt::ptree getData() = 0;
 
-		virtual accept(request::IMessageVisitor&) {};
-		virtual accept(reply::IMessageVisitor&) {};
-		virtual accept(game::message::request::IGameMessageVisitor&) {};
-		virtual accept(game::message::reply::IGameMessageVisitor&) {};
+		virtual void accept(request::IMessageVisitor&) {};
+		virtual void accept(reply::IMessageVisitor&) {};
+		virtual void accept(game::message::request::IGameMessageVisitor&) {};
+		virtual void accept(game::message::reply::IGameMessageVisitor&) {};
 	};
 } // !message
 

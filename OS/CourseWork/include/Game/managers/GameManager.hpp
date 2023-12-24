@@ -31,7 +31,7 @@ namespace game {
 		GameManager(network::IServer& _server) : server(_server) {}
 
 		void subscribeTo(::message::IObserver*) override;
-		void notify(::message::IMessage) override;
+		void notify(::message::IMessage&) override;
 
 		void visit(message::request::IStartGame&) override;
 		void visit(message::request::IDisconnect&) override;

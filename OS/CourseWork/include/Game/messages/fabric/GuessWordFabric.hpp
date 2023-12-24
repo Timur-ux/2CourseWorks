@@ -12,7 +12,7 @@ namespace game {
 				public:
 					GuessWord() = default;
 
-					::message::IMessage getMessage() override;
+					std::shared_ptr<::message::IMessage> getMessage() override;
 				};
 			} // !game::message::fabric::request
 
@@ -21,7 +21,8 @@ namespace game {
 				public:
 					GuessWord(long long id, std::string login, std::string word, std::string opponent);
 
-					::message::IMessage getMessage() override;
+					std::shared_ptr<::message::IMessage>
+						getMessage() override;
 				};
 			} // !game::message::fabric::reply
 		} // !game::message::fabric

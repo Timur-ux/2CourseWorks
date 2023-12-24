@@ -13,7 +13,7 @@ namespace message {
 			public:
 				CreateNewGame(std::list<std::string> logins);
 
-				message::request::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
 
@@ -22,7 +22,7 @@ namespace message {
 			public:
 				CreateNewGame();
 
-				message::reply::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply
 	} // !message::fabric

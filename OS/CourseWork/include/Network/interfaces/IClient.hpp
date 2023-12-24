@@ -12,14 +12,14 @@ namespace network {
 
 		virtual void auth(std::string login) = 0;
 
-		virtual void send(message::IMessage) = 0;
+		virtual void send(message::IMessage&) = 0;
 
 		virtual void startRecieving() = 0;
 		virtual void stopRecieving() = 0;
 
 		virtual void subscribe(message::ISubscriber&) = 0;
 		virtual void unsubscribe(message::ISubscriber&) = 0;
-		virtual void notify_all(message::IMessage) = 0;
+		virtual void notify_all(message::IMessage&) = 0;
 	};
 
 }

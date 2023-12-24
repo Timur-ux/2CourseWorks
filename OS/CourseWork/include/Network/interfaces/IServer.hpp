@@ -13,19 +13,19 @@ namespace network {
 		virtual void startAuth() = 0;
 		virtual void stopAuth() = 0;
 
-		boost::optional<long long> getIdByLogin(std::string) = 0;
+		virtual boost::optional<long long> getIdByLogin(std::string) = 0;
 
-		virtual void sendForAll(::message::IMessage) = 0;
-		virtual void sendFor(long long id, ::message::IMessage) = 0;
+		virtual void sendForAll(::message::IMessage&) = 0;
+		virtual void sendFor(long long id, ::message::IMessage&) = 0;
 
 		virtual void startRecieving() = 0;
 		virtual void stopRecieving() = 0;
 
 		virtual std::list<long long> ping(std::list<long long> identificators) = 0; // return bad id
 
-		virtual void subscribe(message::ISubscriber&) = 0;
-		virtual void unsubscribe(message::ISubscriber&) = 0;
-		virtual void notify_all(message::IMessage) = 0;
+		virtual void subscribe(::message::ISubscriber&) = 0;
+		virtual void unsubscribe(::message::ISubscriber&) = 0;
+		virtual void notify_all(::message::IMessage&) = 0;
 	};
 } // !network
 

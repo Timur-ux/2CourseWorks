@@ -11,7 +11,7 @@ namespace message {
 			public:
 				Auth(std::string login);
 
-				message::request::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
 
@@ -23,9 +23,10 @@ namespace message {
 					, unsigned short sendPort
 					, unsigned short recvPort
 					, long long givenId
-					, std::string acceptedLogin);
+					, std::string acceptedLogin
+					, long long overallFilter);
 
-				message::reply::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
 	}

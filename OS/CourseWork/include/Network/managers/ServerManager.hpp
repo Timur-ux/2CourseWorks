@@ -21,7 +21,7 @@ public:
 	ServerManager(network::IServer& _server) : server(_server) {}
 
 	void subscribeTo(message::IObserver*) override;
-	void notify(message::IMessage) override;
+	void notify(message::IMessage &) override;
 
 	void visit(message::request::IAuth&) override;
 	void visit(message::request::IPing& message) override {};

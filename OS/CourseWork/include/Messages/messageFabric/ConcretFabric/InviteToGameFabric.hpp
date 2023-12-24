@@ -13,7 +13,7 @@ namespace message {
 			public:
 				InviteToGame(std::string gameServerIP, unsigned short gameServerAuthPort);
 
-				message::reply::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply
 	} // !message::fabric

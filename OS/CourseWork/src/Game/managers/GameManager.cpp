@@ -9,7 +9,7 @@ void GameManager::subscribeTo(::message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void GameManager::notify(::message::IMessage message) {
+void GameManager::notify(::message::IMessage& message) {
 	message.accept(*static_cast<message::request::IGameMessageVisitor*>(this));
 	message.accept(*static_cast<message::reply::IGameMessageVisitor*>(this));
 }
@@ -21,19 +21,19 @@ void GameManager::visit(message::request::IStartGame&) {
 
 	isNowGameRunning = true;
 
-	std::thread(GameManager::provideGame, this).detach();
+	std::thread(&GameManager::provideGame, this).detach();
 }
 
 void GameManager::provideGame() {
 	server.sendForAll(::message::DataMessage("Game has started, be ready!"));
 
-	::message::IMessage request = ::message::fabric::MessageFabric::getInstance()
+	std::shared_ptr<::message::IMessage> request = ::message::fabric::MessageFabric::getInstance()
 		.getRequest(
-			game::message::fabric::request::SelectWord();
+			game::message::fabric::request::SelectWord()
 	);
 
 	server.sendForAll(::message::DataMessage("Please, select word for 2 minutes"));
-	server.sendForAll(request);
+	server.sendForAll(*request);
 
 	std::this_thread::sleep_for(120s);
 
@@ -42,14 +42,14 @@ void GameManager::provideGame() {
 		
 		request = ::message::fabric::MessageFabric::getInstance()
 			.getRequest(
-				game::message::fabric::request::GuessWord();
+				game::message::fabric::request::GuessWord()
 		);
-		server.sendForAll(request);
+		server.sendForAll(*request);
 
 		std::this_thread::sleep_for(120s);
 	}
 
-	server.sendForAll(::message::DataMessage("Game has finished, thanks for you time");)
+	server.sendForAll(::message::DataMessage("Game has finished, thanks for you time"));
 }
 
 
@@ -89,7 +89,7 @@ void GameManager::visit(message::reply::IGuessWord& message) {
 	std::string login = message.getLogin();
 	std::string word = message.getWord();
 	std::string opponent = message.getOpponent();
-	std::string opponentWord;
+	boost::optional<std::string> opponentWord;
 
 	auto clientIt = std::end(clients);
 	for (auto client = std::begin(clients); client != std::end(clients); ++client) {

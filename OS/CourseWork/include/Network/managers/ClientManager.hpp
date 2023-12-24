@@ -11,8 +11,8 @@ class ClientManager
 	, public message::request::IMessageVisitor
 	, public message::reply::IMessageVisitor {
 private:
-	long long id;
-	std::string login;
+	long long id = -1;
+	std::string login = "Unset";
 
 	network::IClient& client;
 public:
@@ -21,7 +21,7 @@ public:
 	void provideAuth();
 
 	void subscribeTo(message::IObserver*) override;
-	void notify(message::IMessage) override;
+	void notify(message::IMessage&) override;
 
 	void visit(message::request::IPing&) override;
 

@@ -11,6 +11,7 @@
 #include <map>
 #include <thread>
 #include <zmq.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 namespace network {
 	struct ClientData {
@@ -18,7 +19,10 @@ namespace network {
 		std::string login;
 	};
 
-	class Server : public IServer {
+	class Server 
+		: public IServer
+		, public message::request::IMessageVisitor
+		, public message::reply::IMessageVisitor {
 	private:
 		std::map<ports, zmq::socket_t> sockets;
 		std::map<long long, ClientData> clients;
@@ -27,23 +31,32 @@ namespace network {
 		SafeBool isNowRecv{ false };
 
 		std::list<message::ISubscriber*> subscribers;
+		
+		zmq::context_t context;
+		std::map<ports, zmq::socket_t> sockets;
+		std::map<ports, unsigned short> ports;
+		std::string serverIP;
+		long long freeId = 1;
+		long long overallFilter = 0;
 	public:
 		Server(std::string servIP, PortsTriplet freePorts);
 
 		void startAuth() override;
 		void stopAuth() override;
+		void visit(message::request::IAuth&) override;
 
-		void sendForAll(message::IMessage) override;
-		void sendFor(long long, message::IMessage) override;
+		void sendForAll(message::IMessage&) override;
+		void sendFor(long long, message::IMessage&) override;
 
 		void startRecieving() override;
 		void stopRecieving() override;
 
 		std::list<long long> ping(std::list<long long>) override;
+		void visit(message::reply::IPing&) override;
 
 		void subscribe(message::ISubscriber&) override;
 		void unsubscribe(message::ISubscriber&) override;
-		void notify_all(message::IMessage) override;
+		void notify_all(message::IMessage&) override;
 	};
 
 } // !network

@@ -11,7 +11,7 @@ namespace message {
 			public:
 				Ping();
 
-				message::request::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
 
@@ -20,7 +20,7 @@ namespace message {
 			public:
 				Ping(long long id, std::string login);
 
-				message::reply::IMessage getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply
 	} // !message::fabric

@@ -9,7 +9,7 @@ namespace message {
 	namespace request {
 		class ICreateNewGame : public IMessage {
 		public:
-			std::list<std::string> getLogins() = 0;
+			virtual std::list<std::string> getLogins() = 0;
 
 			virtual void accept(IMessageVisitor& visitor) {
 				visitor.visit(*this);

@@ -6,18 +6,18 @@ void ClientManager::subscribeTo(message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void ClientManager::notify(message::IMessage message) {
+void ClientManager::notify(message::IMessage& message) {
 	message.accept(*static_cast<message::request::IMessageVisitor*>(this));
 	message.accept(*static_cast<message::reply::IMessageVisitor*>(this));
 }
 
 void ClientManager::visit(message::request::IPing& message) {
-	message::IMessage reply = message::fabric::MessageFabric
+	auto reply = message::fabric::MessageFabric
 		::getInstance().getReply(
-			message::fabric::reply::Ping(id, login);
+			message::fabric::reply::Ping(id, login)
 	);
 
-	client.send(reply);
+	client.send(*reply);
 }
 
 void ClientManager::visit(message::reply::IAuth& message) {
@@ -32,4 +32,36 @@ void ClientManager::visit(message::reply::IAuth& message) {
 	std::cout << "Auth succeed; given id: " << id 
 		<< "; accepted login: " << login << std::endl;
 }
+
+void ClientManager::visit(message::reply::IGetLogins& message) {
+	std::list<std::string> logins = message.getLogins();
+
+	std::cout << "Here list of all authorized players:" << std::endl;
+	
+	int i = 1;
+	for (auto& login : logins) {
+		std::cout << i++ << ") " << login << std::endl;
+	}
+}
+
+void ClientManager::visit(message::reply::IInviteToGame& message) {
+	int acceptCode = 1;
+	std::cout << "Here invite to game, input " << acceptCode
+		<< " to accept, any other -- to decline" << std::endl;
+
+	int choosenCode;
+	std::cin >> choosenCode;
+
+	if (choosenCode == acceptCode) {
+		std::string IP = message.getGameServerIP();
+		unsigned short authPort = message.getGameServerAuthPort();
+		client.connectTo(IP, authPort);
+
+		std::cout << "Provide authentication on game server..." << std::endl;
+		client.auth(login);
+	}
+}
+
+
+
 

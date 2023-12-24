@@ -7,7 +7,7 @@ void ServerManager::subscribeTo(message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void ServerManager::notify(message::request::IMessage message) {
+void ServerManager::notify(message::IMessage &message) {
 	message.accept(*this);
 }
 
@@ -29,10 +29,10 @@ void ServerManager::visit(message::request::IGetLogins& message) {
 		logins.push_back(client.second);
 	}
 
-	message::reply::IMessage reply = message::fabric::MessageFabric::getInstance()
+	std::shared_ptr<message::IMessage> reply = message::fabric::MessageFabric::getInstance()
 		.getReply(message::fabric::reply::GetLogins(logins));
 
-	server.sendFor(message.getId(), reply);
+	server.sendFor(message.getId(), *reply);
 }
 
 void ServerManager::visit(message::request::ICreateNewGame& message) {
@@ -40,14 +40,14 @@ void ServerManager::visit(message::request::ICreateNewGame& message) {
 	unsigned short authPort = freePort++;
 	GameProcessCreator::createNewGameProcess(IP, { authPort, freePort++, freePort++ });
 
-	message::reply::IMessage reply = message::fabric::MessageFabric::getInstance()
+	std::shared_ptr<message::IMessage> reply = message::fabric::MessageFabric::getInstance()
 		.getReply(message::fabric::reply::InviteToGame(IP, authPort));
 
 	std::list<std::string> logins = message.getLogins();
 	
 	for (auto& client : clients) {
 		if (in(logins, client.second)) {
-			server.sendFor(client.first, reply);
+			server.sendFor(client.first, *reply);
 		}
 	}
 }

@@ -2,7 +2,6 @@
 #define I_GUESS_WORD_H_
 
 #include "Messages/Message.hpp"
-#include "Game/visitors/MessageVisitor.hpp"
 
 #include <string>
 

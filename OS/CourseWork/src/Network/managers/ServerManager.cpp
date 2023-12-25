@@ -15,9 +15,13 @@ void ServerManager::visit(message::request::IAuth& message) {
 	std::string login = message.getLogin();
 	boost::optional<long long> id = server.getIdByLogin(login);
 	
+	printLog() << "authentication: " << login << ". Status: ";
 	if (!id.has_value()) {
-		printLog() << "authentication: " << login << ". Status: failed" << std::endl;
+		printLog() << "failed"<< std::endl;
 		return;
+	}
+	else {
+		printLog() << "succeed" << std::endl;
 	}
 
 	clients[id.value()] = login;

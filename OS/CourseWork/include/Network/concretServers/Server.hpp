@@ -10,8 +10,11 @@
 #include <algorithm>
 #include <map>
 #include <thread>
+#include <chrono>
 #include <zmq.hpp>
 #include <boost/property_tree/json_parser.hpp>
+
+using namespace std::chrono_literals;
 
 namespace network {
 	struct ClientData {
@@ -31,12 +34,14 @@ namespace network {
 
 		std::list<message::ISubscriber*> subscribers;
 		
-		zmq::context_t context;
+		zmq::context_t context{1};
 		std::map<ports, zmq::socket_t> sockets;
 		std::map<ports, unsigned short> ports;
 		std::string serverIP;
 		long long freeId = 1;
 		long long overallFilter = 0;
+
+		std::list<long long> pingList;
 	public:
 		Server(std::string servIP, PortsTriplet freePorts);
 

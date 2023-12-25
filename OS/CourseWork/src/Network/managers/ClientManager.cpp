@@ -7,8 +7,7 @@ void ClientManager::subscribeTo(message::IObserver* observer) {
 }
 
 void ClientManager::notify(message::IMessage& message) {
-	message.accept(*static_cast<message::request::IMessageVisitor*>(this));
-	message.accept(*static_cast<message::reply::IMessageVisitor*>(this));
+	message.accept(*this);
 }
 
 void ClientManager::visit(message::request::IPing& message) {

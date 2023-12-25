@@ -2,9 +2,12 @@
 #include "Messages/messageFabric/MessageFabric.hpp"
 #include "print.hpp"
 #include <sstream>
+
+#define in(container, item) (std::find(std::begin(container), std::end(container), item) != std::end(container))
+
 using namespace network;
 
-network::Server::Server(std::string servIP, PortsTriplet freePorts) : context(1) {
+network::Server::Server(std::string servIP, PortsTriplet freePorts) {
 	std::ostringstream oss;
 	oss << "tcp://" << servIP << ':';
 
@@ -43,7 +46,7 @@ void network::Server::startAuth()
 			continue;
 		}
 
-		authMessage.value()->accept(static_cast<message::request::IMessageVisitor&>(*this));
+		authMessage.value()->accept(*this);
 		notify_all(*authMessage.value());
 	}
 }
@@ -130,8 +133,7 @@ void network::Server::startRecieving()
 			continue;
 		}
 
-		message.value()->accept(static_cast<message::request::IMessageVisitor&>(*this));
-		message.value()->accept(static_cast<message::reply::IMessageVisitor&>(*this));
+		message.value()->accept(*this);
 
 		notify_all(*message.value());
 	}
@@ -142,3 +144,55 @@ void network::Server::stopRecieving()
 	isNowRecv = false;
 }
 
+std::list<long long> network::Server::ping(std::list<long long> idToPing)
+{
+	pingList.erase(std::begin(pingList), std::end(pingList));
+
+	std::shared_ptr<message::IMessage> pingMessage = message::fabric::MessageFabric::getInstance()
+		.getRequest(
+			message::fabric::request::Ping()
+		);
+
+	for (auto id : idToPing) {
+		sendFor(id, *pingMessage);
+	}
+
+	std::this_thread::sleep_for(1s);
+	
+	std::list<long long> result;
+
+	for (auto id : idToPing) {
+		if (!in(pingList, id)) {
+			result.push_back(id);
+		}
+	}
+	
+	return result;
+}
+
+void network::Server::visit(message::reply::IPing& message)
+{
+	pingList.push_back(message.getId());
+}
+
+void network::Server::subscribe(message::ISubscriber& subscriber)
+{
+	subscribers.push_back(&subscriber);
+}
+
+void network::Server::unsubscribe(message::ISubscriber& subscriber)
+{
+	auto subscriberIt = std::find(std::begin(subscribers), std::end(subscribers), &subscriber);
+	if (subscriberIt == std::end(subscribers)) {
+		return;
+	}
+
+	subscribers.erase(subscriberIt);
+}
+
+void network::Server::notify_all(message::IMessage& message)
+{
+	for (auto subs : subscribers) {
+		subs->notify(message);
+	}
+}

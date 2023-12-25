@@ -10,35 +10,37 @@ void GameManager::subscribeTo(::message::IObserver* observer) {
 }
 
 void GameManager::notify(::message::IMessage& message) {
-	message.accept(*static_cast<message::request::IGameMessageVisitor*>(this));
-	message.accept(*static_cast<message::reply::IGameMessageVisitor*>(this));
+	message.accept(*this);
 }
 
 void GameManager::visit(message::request::IStartGame&) {
-	if (isNowGameRunning) {
+	if (state.load(std::memory_order_relaxed) == State::GameRunning) {
 		return;
 	}
 
-	isNowGameRunning = true;
+	state.store(State::GameRunning, std::memory_order_relaxed);
 
 	std::thread(&GameManager::provideGame, this).detach();
 }
 
 void GameManager::provideGame() {
-	server.sendForAll(::message::DataMessage("Game has started, be ready!"));
+	auto dataMessage = ::message::DataMessage("Game has started, be ready!");
+	server.sendForAll(dataMessage);
 
 	std::shared_ptr<::message::IMessage> request = ::message::fabric::MessageFabric::getInstance()
 		.getRequest(
 			game::message::fabric::request::SelectWord()
 	);
 
-	server.sendForAll(::message::DataMessage("Please, select word for 2 minutes"));
+	dataMessage = ::message::DataMessage("Please, select word for 2 minutes");
+	server.sendForAll(dataMessage);
 	server.sendForAll(*request);
 
 	std::this_thread::sleep_for(120s);
 
-	while (isNowGameRunning) {
-		server.sendForAll(::message::DataMessage("New round start, please choose opponent and word to guess for 2 minute"));
+	while (state.load(std::memory_order_relaxed) == State::GameRunning) {
+		dataMessage = ::message::DataMessage("New round start, please choose opponent and word to guess for 2 minute");
+		server.sendForAll(dataMessage);
 		
 		request = ::message::fabric::MessageFabric::getInstance()
 			.getRequest(
@@ -49,7 +51,8 @@ void GameManager::provideGame() {
 		std::this_thread::sleep_for(120s);
 	}
 
-	server.sendForAll(::message::DataMessage("Game has finished, thanks for you time"));
+	dataMessage = ::message::DataMessage("Game has finished, thanks for you time");
+	server.sendForAll(dataMessage);
 }
 
 
@@ -63,7 +66,8 @@ void GameManager::visit(message::request::IDisconnect& message) {
 
 	Player& player = clientIt->second;
 
-	server.sendForAll(::message::DataMessage(player.getLogin() + ": disconnected"));
+	auto dataMessage = ::message::DataMessage(player.getLogin() + ": disconnected");
+	server.sendForAll(dataMessage);
 
 	clients.erase(clientIt);
 }
@@ -81,7 +85,8 @@ void GameManager::visit(message::reply::ISelectWord& message) {
 	Player& player = clientIt->second;
 	player.setWord(word);
 
-	server.sendForAll(::message::DataMessage(login + ": select word right now"));
+	auto dataMessage = ::message::DataMessage(login + ": select word now");
+	server.sendForAll(dataMessage);
 }
 
 void GameManager::visit(message::reply::IGuessWord& message) {
@@ -107,11 +112,10 @@ void GameManager::visit(message::reply::IGuessWord& message) {
 	if (opponentWord == word) {
 		oss << "Congratulations! " << login << " right guess "
 			<< opponent << " word. Word: " << word << std::endl;
-		server.sendForAll(
-			::message::DataMessage(oss.str())
-		);
+		auto dataMessage = ::message::DataMessage(oss.str());
+		server.sendForAll(dataMessage);
 
-		isNowGameRunning = false;
+		state.store(State::Preparing, std::memory_order_relaxed);
 		return;
 	}
 	auto cowsAndBulls = clientIt->second.calcCowsAndBulls(word);
@@ -120,8 +124,7 @@ void GameManager::visit(message::reply::IGuessWord& message) {
 		<< "Word: " << word << "; Cows: " << cowsAndBulls.first
 		<< "; Bulls: " << cowsAndBulls.second << std::endl;
 
-	server.sendForAll(
-		::message::DataMessage(oss.str())
-	);
+	auto dataMessage = ::message::DataMessage(oss.str());
+	server.sendForAll(dataMessage);
 }
 

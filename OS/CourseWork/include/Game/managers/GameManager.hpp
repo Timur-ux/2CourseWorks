@@ -7,8 +7,8 @@
 #include "Messages/concretMessages/allConcretMessages.hpp"
 #include "Game/messages/concretMessages/allConcretMessages.hpp"
 #include "Game/player/Player.hpp"
-#include "safeBool.hpp"
 
+#include <atomic>
 #include <map>
 #include <string>
 #include <thread>
@@ -17,13 +17,19 @@
 using namespace std::chrono_literals;
 
 namespace game {
+	enum class State {
+		Preparing
+		, GameRunning
+	};
+
 	class GameManager
 		: public ::message::ISubscriber
 		, public ::message::IMessageVisitor {
 	private:
 		network::IServer& server;
 		std::map<long long, Player> clients;
-		SafeBool isNowGameRunning{ false };
+		
+		std::atomic<State> state;
 
 		void provideGame();
 	public:

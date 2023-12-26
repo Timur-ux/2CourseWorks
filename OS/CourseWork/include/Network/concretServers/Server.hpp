@@ -26,6 +26,7 @@ namespace network {
 		: public IServer
 		, public message::IMessageVisitor {
 	private:
+		zmq::context_t& context;
 		std::map<long long, ClientData> clients;
 		
 		SafeBool isNowAuth{ false };
@@ -33,7 +34,6 @@ namespace network {
 
 		std::list<message::ISubscriber*> subscribers;
 		
-		zmq::context_t context{1};
 		std::map<ports, zmq::socket_t> sockets;
 		std::map<ports, unsigned short> ports;
 		std::string serverIP;

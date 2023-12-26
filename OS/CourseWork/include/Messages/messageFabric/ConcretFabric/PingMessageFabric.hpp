@@ -11,6 +11,7 @@ namespace message {
 			public:
 				Ping();
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
@@ -18,8 +19,12 @@ namespace message {
 		namespace reply {
 			class Ping : public IMessageFabric {
 			public:
+				Ping(pt::ptree data) {
+					configureFromRaw(data);
+				}
 				Ping(long long id, std::string login);
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply

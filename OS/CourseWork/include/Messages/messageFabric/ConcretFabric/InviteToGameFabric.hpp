@@ -11,8 +11,13 @@ namespace message {
 		namespace reply {
 			class InviteToGame : public IMessageFabric {
 			public:
+				InviteToGame(pt::ptree data) {
+					configureFromRaw(data);
+				}
+
 				InviteToGame(std::string gameServerIP, unsigned short gameServerAuthPort);
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply

@@ -11,8 +11,13 @@ namespace message {
 		namespace request {
 			class CreateNewGame : public IMessageFabric {
 			public:
+				CreateNewGame(pt::ptree data) {
+					configureFromRaw(data);
+				}
+
 				CreateNewGame(std::list<std::string> logins);
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
@@ -22,6 +27,7 @@ namespace message {
 			public:
 				CreateNewGame();
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::reply

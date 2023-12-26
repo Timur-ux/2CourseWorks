@@ -8,21 +8,26 @@ namespace game {
 	namespace message {
 		namespace fabric {
 			namespace request {
-				class GuessWord : public ::message::fabric::request::IMessageFabric {
+				class GuessWord : public ::message::fabric::IMessageFabric {
 				public:
 					GuessWord() = default;
 
+					IMessageFabric& configureFromRaw(pt::ptree) override;
 					std::shared_ptr<::message::IMessage> getMessage() override;
 				};
 			} // !game::message::fabric::request
 
 			namespace reply {
-				class GuessWord : public ::message::fabric::reply::IMessageFabric {
+				class GuessWord : public ::message::fabric::IMessageFabric {
 				public:
+					GuessWord(pt::ptree data) {
+						configureFromRaw(data);
+					}
+
 					GuessWord(long long id, std::string login, std::string word, std::string opponent);
 
-					std::shared_ptr<::message::IMessage>
-						getMessage() override;
+					IMessageFabric& configureFromRaw(pt::ptree) override;
+					std::shared_ptr<::message::IMessage> getMessage() override;
 				};
 			} // !game::message::fabric::reply
 		} // !game::message::fabric

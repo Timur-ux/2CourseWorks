@@ -24,6 +24,10 @@ file(GLOB_RECURSE GAME_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Game/*.cpp)
 file(GLOB_RECURSE MESSAGES_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Messages/*.cpp)
 file(GLOB_RECURSE NETWORK_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Network/*.cpp)
 
+foreach(ITEM ${NETWORK_SRC})
+	message(${ITEM}"\n")
+endforeach()
+
 add_library(utils_lib STATIC ${UTILS_SRC})
 add_library(game_lib STATIC ${GAME_SRC})
 add_library(network_lib STATIC ${NETWORK_SRC})

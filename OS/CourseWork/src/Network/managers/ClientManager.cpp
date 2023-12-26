@@ -61,6 +61,12 @@ void ClientManager::visit(message::reply::IInviteToGame& message) {
 	}
 }
 
+void ClientManager::provideAuth()
+{
+	std::string login;
+	std::cout << "[Auth] Input login: " << login << std::endl;
+	std::getline(std::cin, login);
 
-
+	client.auth(login);
+}
 

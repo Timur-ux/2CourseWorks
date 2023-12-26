@@ -7,7 +7,10 @@
 
 using namespace network;
 
-network::Server::Server(std::string servIP, PortsTriplet freePorts) {
+static zmq::context_t _context{1};
+
+network::Server::Server(std::string servIP, PortsTriplet freePorts) : context(_context) {
+
 	std::ostringstream oss;
 	oss << "tcp://" << servIP << ':';
 
@@ -195,4 +198,15 @@ void network::Server::notify_all(message::IMessage& message)
 	for (auto subs : subscribers) {
 		subs->notify(message);
 	}
+}
+
+boost::optional<long long> network::Server::getIdByLogin(std::string login)
+{
+	for (auto& client : clients) {
+		if (client.second.login == login) {
+			return client.first;
+		}
+	}
+
+	return boost::none;
 }

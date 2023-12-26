@@ -9,8 +9,13 @@ namespace message {
 		namespace request {
 			class Auth : public IMessageFabric {
 			public:
+				Auth(pt::ptree data) {
+					configureFromRaw(data);
+				}
+
 				Auth(std::string login);
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request
@@ -18,6 +23,10 @@ namespace message {
 		namespace reply {
 			class Auth : public IMessageFabric {
 			public:
+				Auth(pt::ptree data) {
+					configureFromRaw(data);
+				}
+
 				Auth(bool status
 					, std::string serverIP
 					, unsigned short sendPort
@@ -26,6 +35,7 @@ namespace message {
 					, std::string acceptedLogin
 					, long long overallFilter);
 
+				IMessageFabric& configureFromRaw(pt::ptree) override;
 				std::shared_ptr<IMessage> getMessage() override;
 			};
 		} // !message::fabric::request

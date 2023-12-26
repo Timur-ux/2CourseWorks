@@ -73,5 +73,30 @@ void network::Client::auth(std::string login)
 	}
 
 	recvMessage.value()->accept(*this);
+	notify_all(*recvMessage.value());
+}
+
+void network::Client::visit(message::reply::IAuth& message)
+{
+	bool status = message.getAuthStatus();
+	if (!status) {
+		printErr() << "[Client] Error: Auth failed, please retry" << std::endl;
+	}
+
+	login = message.getGivenId();
+	id = message.getGivenId();
+	overallFilter = message.getOverallFilter();
+
+	ports[ports::send] = message.getSendPort();
+	ports[ports::recv] = message.getRecvPort();
+
+	std::ostringstream oss;
+	oss << "tcp://" << IP << ':';
+
+	sockets[ports::send] = zmq::socket_t(context, ZMQ_PULL);
+	sockets[ports::recv] = zmq::socket_t(context, ZMQ_PUB);
+
+	sockets[ports::send].connect((oss.str() + std::to_string(ports[ports::send]).c_str()));
+	sockets[ports::recv].connect((oss.str() + std::to_string(ports[ports::recv]).c_str()));
 }
 

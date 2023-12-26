@@ -14,7 +14,8 @@
 namespace network {
 	class Client 
 		: public IClient
-		, public message::IObserver {
+		, public message::IObserver
+		, public message::IMessageVisitor {
 	private:
 		zmq::context_t& context;
 		std::string IP;
@@ -22,6 +23,10 @@ namespace network {
 		std::map<ports, unsigned short> ports;
 
 		std::list<message::ISubscriber*> subscribers;
+
+		std::string login = "Unset";
+		long long id = -1;
+		long long overallFilter = 0;
 	public:
 		Client(std::string _IP, unsigned short authPort);
 
@@ -29,6 +34,7 @@ namespace network {
 		void disconnect() override;
 
 		void auth(std::string login) override;
+		void visit(message::reply::IAuth&) override;
 
 		void send(message::IMessage&) override;
 

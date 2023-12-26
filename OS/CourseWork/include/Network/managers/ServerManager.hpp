@@ -11,21 +11,24 @@
 #include <algorithm>
 #include <list>
 
-class ServerManager : public message::ISubscriber
-	, public message::IMessageVisitor {
-private:
-	network::IServer& server;
-	std::map<long long, std::string> clients;
-	unsigned short freePort = 5000;
-public:
-	ServerManager(network::IServer& _server) : server(_server) {}
+namespace network {
+	class ServerManager : public message::ISubscriber
+		, public message::IMessageVisitor {
+	private:
+		IServer& server;
+		std::map<long long, std::string> clients;
+		unsigned short freePort = 5000;
+	public:
+		ServerManager(IServer& _server) : server(_server) {}
 
-	void subscribeTo(message::IObserver*) override;
-	void notify(message::IMessage &) override;
+		void subscribeTo(message::IObserver*) override;
+		void notify(message::IMessage&) override;
 
-	void visit(message::request::IAuth&) override;
-	void visit(message::request::IGetLogins& message) override;
-	void visit(message::request::ICreateNewGame& message) override;
-};
+		void visit(message::request::IAuth&) override;
+		void visit(message::request::IGetLogins& message) override;
+		void visit(message::request::ICreateNewGame& message) override;
+	};
+}
+
 
 #endif // !SERVER_MANAGER_H_

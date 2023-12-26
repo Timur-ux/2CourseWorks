@@ -28,8 +28,23 @@ add_library(utils_lib STATIC ${UTILS_SRC})
 add_library(game_lib STATIC ${GAME_SRC})
 add_library(network_lib STATIC ${NETWORK_SRC})
 
-target_include_directories(utils_lib PUBLIC )
-
-
 add_executable(GameHub GameHub.cpp)
+target_link_libraries(GameHub 
+	PUBLIC network_lib 
+	PUBLIC utils_lib
+)
+
+add_executable(Game Game.cpp)
+target_link_libraries(Game
+	PUBLIC network_lib 
+	PUBLIC game_lib 
+	PUBLIC utils_lib
+)
+
+add_executable(GameClient GameClient.cpp)
+target_link_libraries ( GameClient
+	PUBLIC network_lib
+	PUBLIC game_lib
+	PUBLIC utils_lib
+)
 

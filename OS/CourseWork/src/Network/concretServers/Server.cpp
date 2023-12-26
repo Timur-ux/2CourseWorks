@@ -80,7 +80,7 @@ void network::Server::visit(message::request::IAuth& message) {
 	pt::write_json(oss, data->getData());
 
 	zmq::message_t reply(oss.str());
-	sockets[ports::auth].send(reply);
+	sockets[ports::auth].send(reply, zmq::send_flags::none);
 }
 
 void network::Server::stopAuth()

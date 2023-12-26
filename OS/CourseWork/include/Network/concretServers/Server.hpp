@@ -26,7 +26,6 @@ namespace network {
 		: public IServer
 		, public message::IMessageVisitor {
 	private:
-		std::map<ports, zmq::socket_t> sockets;
 		std::map<long long, ClientData> clients;
 		
 		SafeBool isNowAuth{ false };
@@ -48,6 +47,8 @@ namespace network {
 		void startAuth() override;
 		void stopAuth() override;
 		void visit(message::request::IAuth&) override;
+
+		virtual boost::optional<long long> getIdByLogin(std::string) override;
 
 		void sendForAll(message::IMessage&) override;
 		void sendFor(long long, message::IMessage&) override;

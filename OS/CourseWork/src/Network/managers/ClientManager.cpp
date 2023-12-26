@@ -51,7 +51,7 @@ void ClientManager::visit(message::reply::IInviteToGame& message) {
 	int choosenCode;
 	std::cin >> choosenCode;
 
-	if (choosenCode == acceptCode) {
+	if (choosenCode == acceptCode) { // TODO: rewrite to create inner client, client game manager and provide all game here
 		std::string IP = message.getGameServerIP();
 		unsigned short authPort = message.getGameServerAuthPort();
 		client.connectTo(IP, authPort);

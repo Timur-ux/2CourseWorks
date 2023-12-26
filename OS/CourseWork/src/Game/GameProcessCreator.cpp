@@ -1,9 +1,9 @@
-#include "GameProcessCreator.hpp"
+#include "Game/GameProcessCreator.hpp"
 #include "print.hpp"
 #include <sstream>
 
-GameProcessCreator::gameApplicationName = "BullsAndCows.exe";
-GameProcessCreator::games{};
+const std::string GameProcessCreator::gameApplicationName = "BullsAndCows.exe";
+std::list<PROCESS_INFORMATION> GameProcessCreator::games{};
 
 void GameProcessCreator::createNewGameProcess(std::string gameServerIP, network::PortsTriplet freePorts)
 {

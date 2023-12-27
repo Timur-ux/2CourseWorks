@@ -15,7 +15,6 @@
 namespace network {
 	class Client 
 		: public IClient
-		, public message::IObserver
 		, public message::IMessageVisitor {
 	private:
 		zmq::context_t& context;

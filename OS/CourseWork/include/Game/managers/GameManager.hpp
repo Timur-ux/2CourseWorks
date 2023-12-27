@@ -1,9 +1,9 @@
 #ifndef GAME_MANAGER_H_
 #define GAME_MANAGER_H_
 
+#include "Network/interfaces/IServer.hpp"
 #include "Messages/MessageObserver.hpp"
 #include "Messages/MessageVisitor.hpp"
-#include "Network/interfaces/IServer.hpp"
 #include "Messages/concretMessages/allConcretMessages.hpp"
 #include "Game/messages/concretMessages/allConcretMessages.hpp"
 #include "Game/player/Player.hpp"

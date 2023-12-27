@@ -9,7 +9,7 @@
 class ClientManager
 	: public message::ISubscriber
 	, public message::IMessageVisitor {
-private:
+protected:
 	long long id = -1;
 	std::string login = "Unset";
 
@@ -19,7 +19,7 @@ public:
 	
 	void provideAuth();
 	void provideGetLogins();
-	void provideGameStart();
+	void provideCreateNewGame();
 
 	void subscribeTo(message::IObserver*) override;
 	void notify(std::shared_ptr<message::IMessage>) override;

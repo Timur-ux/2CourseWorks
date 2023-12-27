@@ -1,4 +1,7 @@
 #include "Network/managers/ClientManager.hpp"
+#include "Network/concretServers/Client.hpp"
+#include "Game/managers/GameManager.hpp"
+
 #include <sstream>
 #include <iostream>
 
@@ -43,24 +46,6 @@ void ClientManager::visit(message::reply::IGetLogins& message) {
 	}
 }
 
-void ClientManager::visit(message::reply::IInviteToGame& message) {
-	int acceptCode = 1;
-	std::cout << "Here invite to game, input " << acceptCode
-		<< " to accept, any other -- to decline" << std::endl;
-
-	int choosenCode;
-	std::cin >> choosenCode;
-
-	if (choosenCode == acceptCode) { // TODO: rewrite to create inner client, client game manager and provide all game here
-		std::string IP = message.getGameServerIP();
-		unsigned short authPort = message.getGameServerAuthPort();
-		client.connectTo(IP, authPort);
-
-		std::cout << "Provide authentication on game server..." << std::endl;
-		client.auth(login);
-	}
-}
-
 void ClientManager::provideAuth()
 {
 	std::string login;
@@ -75,6 +60,27 @@ void ClientManager::provideGetLogins()
 	std::shared_ptr<message::IMessage> message = message::fabric::MessageFabric::getInstance()
 		.getRequest(
 			message::fabric::request::GetLogins(login, id)
+		);
+
+	client.send(*message);
+}
+
+void ClientManager::provideCreateNewGame()
+{
+	std::cout << "¬ведите логин игрока, которого хотите пригласить." << std::endl;
+	std::cout << "¬ведите \"Done\", чтобы начать игру" << std::endl;
+
+	std::list<std::string> logins;
+	std::string login;
+	std::cout << ">>: ";
+	std::getline(std::cin, login);
+	while (login != "Done") {
+		logins.push_back(login);
+	}
+
+	std::shared_ptr<message::IMessage> message = message::fabric::MessageFabric::getInstance()
+		.getRequest(
+			message::fabric::request::CreateNewGame(logins)
 		);
 
 	client.send(*message);

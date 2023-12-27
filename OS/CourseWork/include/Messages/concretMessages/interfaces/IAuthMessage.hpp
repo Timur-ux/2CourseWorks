@@ -11,6 +11,7 @@ namespace message {
 		public:
 			virtual std::string getLogin() = 0;
 
+			virtual pt::ptree getData() = 0;
 			virtual void accept(IMessageVisitor& visitor) override {
 				visitor.visit(*this);
 			}
@@ -28,6 +29,7 @@ namespace message {
 			virtual std::string getLogin() = 0;
 			virtual long long getOverallFilter() = 0;
 
+			virtual pt::ptree getData() = 0;
 			virtual void accept(IMessageVisitor& visitor) {
 				visitor.visit(*this);
 			}

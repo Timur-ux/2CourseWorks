@@ -2,6 +2,9 @@
 #include "Network/concretServers/Client.hpp"
 
 #include <iostream>
+
+void chooseAction();
+
 int main() {
 	std::string IP;
 	unsigned short port;
@@ -17,7 +20,20 @@ int main() {
 	manager->subscribeTo(client.get());
 	manager->provideAuth();
 
-	client->startRecieving();
+	std::thread(&network::IClient::startRecieving, client).detach();
+
+	while (true) {
+
+	}
 
 	return 0;
+}
+
+void chooseAction() {
+	std::cout << "Выберите действие:" << std::endl;
+
+	std::cout << "1) Получить список логинов" << std::endl;
+	std::cout << "2) Начать игру" << std::endl;
+
+
 }

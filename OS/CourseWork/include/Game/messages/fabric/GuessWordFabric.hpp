@@ -24,7 +24,7 @@ namespace game {
 						configureFromRaw(data);
 					}
 
-					GuessWord(long long id, std::string login, std::string word, std::string opponent);
+					GuessWord(long long id, std::string login, std::string opponent, std::string word);
 
 					IMessageFabric& configureFromRaw(pt::ptree) override;
 					std::shared_ptr<::message::IMessage> getMessage() override;

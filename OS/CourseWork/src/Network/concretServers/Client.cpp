@@ -55,7 +55,7 @@ void network::Client::auth(std::string login)
 	pt::write_json(oss, data);
 
 	zmq::message_t messageToSend(oss.str());
-	sockets[ports::auth].send(messageToSend);
+	sockets[ports::auth].send(messageToSend, zmq::send_flags::none);
 
 	zmq::message_t recievedMessage;
 	sockets[ports::auth].recv(recievedMessage);
@@ -83,7 +83,7 @@ void network::Client::visit(message::reply::IAuth& message)
 		printErr() << "[Client] Error: Auth failed, please retry" << std::endl;
 	}
 
-	login = message.getGivenId();
+	login = message.getLogin();
 	id = message.getGivenId();
 	overallFilter = message.getOverallFilter();
 

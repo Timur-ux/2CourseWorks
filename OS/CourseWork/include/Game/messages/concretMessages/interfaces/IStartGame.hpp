@@ -8,6 +8,9 @@ namespace game {
 		namespace request {
 			class IStartGame : public ::message::IMessage {
 			public:
+				virtual long long getId() = 0;
+				virtual std::string getLogin() = 0;
+
 				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};

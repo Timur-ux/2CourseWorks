@@ -18,6 +18,8 @@ public:
 	ClientManager(network::IClient& _client) : client(_client) {}
 	
 	void provideAuth();
+	void provideGetLogins();
+	void provideGameStart();
 
 	void subscribeTo(message::IObserver*) override;
 	void notify(std::shared_ptr<message::IMessage>) override;

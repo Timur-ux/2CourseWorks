@@ -131,5 +131,34 @@ void network::Client::startRecieving()
 			continue;
 		}
 
+		message.value()->accept(*this);
+		notify_all(message.value());
+	}
+}
+
+void network::Client::stopRecieving()
+{
+	isNowRecieving = false;
+}
+
+void network::Client::subscribe(message::ISubscriber& sub)
+{
+	subscribers.push_back(&sub);
+}
+
+void network::Client::unsubscribe(message::ISubscriber& sub)
+{
+	auto subIt = std::find(std::begin(subscribers), std::end(subscribers), &sub);
+	if (subIt == std::end(subscribers)) {
+		return;
+	}
+
+	subscribers.erase(subIt);
+}
+
+void network::Client::notify_all(std::shared_ptr<message::IMessage> message)
+{
+	for (auto& subscriber : subscribers) {
+		subscriber->notify(message);
 	}
 }

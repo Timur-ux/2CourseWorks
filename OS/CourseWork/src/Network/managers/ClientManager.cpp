@@ -70,3 +70,13 @@ void ClientManager::provideAuth()
 	client.auth(login);
 }
 
+void ClientManager::provideGetLogins()
+{
+	std::shared_ptr<message::IMessage> message = message::fabric::MessageFabric::getInstance()
+		.getRequest(
+			message::fabric::request::GetLogins(login, id)
+		);
+
+	client.send(*message);
+}
+

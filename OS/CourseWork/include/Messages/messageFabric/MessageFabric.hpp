@@ -23,8 +23,8 @@ namespace message {
 			MessageFabric() = default;
 		public:
 			static MessageFabric& getInstance();
-			std::shared_ptr<IMessage> getRequest(request::IMessageFabric&& fabric);
-			std::shared_ptr<IMessage> getReply(reply::IMessageFabric&& fabric);
+			std::shared_ptr<IMessage> getRequest(IMessageFabric&& fabric);
+			std::shared_ptr<IMessage> getReply(IMessageFabric&& fabric);
 			boost::optional<std::shared_ptr<IMessage>> getFromRawData(pt::ptree data);
 		};
 	}

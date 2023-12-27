@@ -50,7 +50,7 @@ void network::Server::startAuth()
 		}
 
 		authMessage.value()->accept(*this);
-		notify_all(*authMessage.value());
+		notify_all(authMessage.value());
 	}
 }
 
@@ -138,7 +138,7 @@ void network::Server::startRecieving()
 
 		message.value()->accept(*this);
 
-		notify_all(*message.value());
+		notify_all(message.value());
 	}
 }
 
@@ -193,7 +193,7 @@ void network::Server::unsubscribe(message::ISubscriber& subscriber)
 	subscribers.erase(subscriberIt);
 }
 
-void network::Server::notify_all(message::IMessage& message)
+void network::Server::notify_all(std::shared_ptr<message::IMessage> message)
 {
 	for (auto subs : subscribers) {
 		subs->notify(message);

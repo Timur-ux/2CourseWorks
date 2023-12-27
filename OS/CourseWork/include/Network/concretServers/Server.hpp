@@ -61,7 +61,7 @@ namespace network {
 
 		void subscribe(message::ISubscriber&) override;
 		void unsubscribe(message::ISubscriber&) override;
-		void notify_all(message::IMessage&) override;
+		void notify_all(std::shared_ptr<message::IMessage>) override;
 	};
 
 } // !network

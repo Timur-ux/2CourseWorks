@@ -22,7 +22,7 @@ namespace network {
 		ServerManager(IServer& _server) : server(_server) {}
 
 		void subscribeTo(message::IObserver*) override;
-		void notify(message::IMessage&) override;
+		void notify(std::shared_ptr<message::IMessage>) override;
 
 		void visit(message::request::IAuth&) override;
 		void visit(message::request::IGetLogins& message) override;

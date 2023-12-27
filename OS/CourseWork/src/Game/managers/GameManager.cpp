@@ -9,8 +9,8 @@ void GameManager::subscribeTo(::message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void GameManager::notify(::message::IMessage& message) {
-	message.accept(*this);
+void GameManager::notify(std::shared_ptr<::message::IMessage> message) {
+	message->accept(*this);
 }
 
 void GameManager::visit(message::request::IStartGame&) {

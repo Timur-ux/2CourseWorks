@@ -6,8 +6,8 @@ void ClientManager::subscribeTo(message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void ClientManager::notify(message::IMessage& message) {
-	message.accept(*this);
+void ClientManager::notify(std::shared_ptr<message::IMessage> message) {
+	message->accept(*this);
 }
 
 void ClientManager::visit(message::request::IPing& message) {

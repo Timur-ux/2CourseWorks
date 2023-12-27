@@ -5,6 +5,7 @@
 #include "../ports.hpp"
 #include "Messages/MessageObserver.hpp"
 #include "Messages/messageFabric/MessageFabric.hpp"
+#include "safeBool.hpp"
 
 #include <string>
 #include <map>
@@ -19,6 +20,7 @@ namespace network {
 	private:
 		zmq::context_t& context;
 		std::string IP;
+
 		std::map<ports, zmq::socket_t> sockets;
 		std::map<ports, unsigned short> ports;
 
@@ -27,6 +29,8 @@ namespace network {
 		std::string login = "Unset";
 		long long id = -1;
 		long long overallFilter = 0;
+
+		SafeBool isNowRecieving{ false };
 	public:
 		Client(std::string _IP, unsigned short authPort);
 
@@ -43,7 +47,7 @@ namespace network {
 
 		void subscribe(message::ISubscriber&) override;
 		void unsubscribe(message::ISubscriber&) override;
-		void notify_all(message::IMessage&) override;
+		void notify_all(std::shared_ptr<message::IMessage>) override;
 	};
 }
 

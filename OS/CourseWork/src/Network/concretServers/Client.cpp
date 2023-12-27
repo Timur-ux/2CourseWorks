@@ -73,7 +73,7 @@ void network::Client::auth(std::string login)
 	}
 
 	recvMessage.value()->accept(*this);
-	notify_all(*recvMessage.value());
+	notify_all(recvMessage.value());
 }
 
 void network::Client::visit(message::reply::IAuth& message)
@@ -100,3 +100,36 @@ void network::Client::visit(message::reply::IAuth& message)
 	sockets[ports::recv].connect((oss.str() + std::to_string(ports[ports::recv]).c_str()));
 }
 
+void network::Client::send(message::IMessage& message)
+{
+	std::ostringstream oss;
+	pt::ptree data = message.getData();
+	
+	pt::write_json(oss, data);
+
+	zmq::message_t messageToSend(oss.str());
+	sockets[ports::send].send(messageToSend, zmq::send_flags::none);
+}
+
+void network::Client::startRecieving()
+{
+	isNowRecieving = true;
+	while (isNowRecieving) {
+		zmq::message_t recv;
+		sockets[ports::recv].recv(recv);
+
+		std::istringstream iss(std::string(static_cast<char*>(recv.data()), recv.size()));
+		pt::ptree data;
+
+		pt::read_json(iss, data);
+
+		boost::optional <std::shared_ptr< message::IMessage >> message = message::fabric::MessageFabric::getInstance()
+			.getFromRawData(data);
+
+		if (!message.has_value()) {
+			printErr() << "[Client] Error: " << "undefined recieved data" << std::endl;
+			continue;
+		}
+
+	}
+}

@@ -9,8 +9,8 @@ void ServerManager::subscribeTo(message::IObserver* observer) {
 	observer->subscribe(*this);
 }
 
-void ServerManager::notify(message::IMessage &message) {
-	message.accept(*this);
+void ServerManager::notify(std::shared_ptr<message::IMessage> message) {
+	message->accept(*this);
 }
 
 void ServerManager::visit(message::request::IAuth& message) {

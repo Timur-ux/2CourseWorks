@@ -7,7 +7,7 @@ namespace message {
 	class IObserver;
 	class ISubscriber {
 	public:
-		virtual void notify(IMessage&) = 0;
+		virtual void notify(std::shared_ptr<IMessage>) = 0;
 		virtual void subscribeTo(IObserver*) = 0;
 	};
 
@@ -16,7 +16,7 @@ namespace message {
 		virtual void subscribe(ISubscriber&) = 0;
 		virtual void unsubscribe(ISubscriber&) = 0;
 
-		virtual void notify_all(IMessage &) = 0;
+		virtual void notify_all(std::shared_ptr<IMessage>) = 0;
 	};
 
 } // !message

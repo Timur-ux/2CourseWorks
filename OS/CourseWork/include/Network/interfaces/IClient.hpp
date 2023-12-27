@@ -19,7 +19,7 @@ namespace network {
 
 		virtual void subscribe(message::ISubscriber&) = 0;
 		virtual void unsubscribe(message::ISubscriber&) = 0;
-		virtual void notify_all(message::IMessage&) = 0;
+		virtual void notify_all(std::shared_ptr<message::IMessage>) = 0;
 	};
 
 }

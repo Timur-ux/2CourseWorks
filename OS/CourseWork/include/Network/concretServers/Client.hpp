@@ -30,6 +30,7 @@ namespace network {
 		long long overallFilter = 0;
 
 		SafeBool isNowRecieving{ false };
+		SafeBool authorized{ false };
 	public:
 		Client(std::string _IP, unsigned short authPort);
 

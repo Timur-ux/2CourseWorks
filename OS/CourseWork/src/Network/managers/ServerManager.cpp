@@ -13,20 +13,14 @@ void ServerManager::notify(std::shared_ptr<message::IMessage> message) {
 	message->accept(*this);
 }
 
-void ServerManager::visit(message::request::IAuth& message) {
-	std::string login = message.getLogin();
-	boost::optional<long long> id = server.getIdByLogin(login);
-	
-	printLog() << "authentication: " << login << ". Status: ";
-	if (!id.has_value()) {
-		printLog() << "failed"<< std::endl;
+void ServerManager::visit(message::reply::IAuth& message) {
+	if (!message.getAuthStatus()) {
 		return;
 	}
-	else {
-		printLog() << "succeed" << std::endl;
-	}
+	long long id = message.getGivenId();
+	std::string login = message.getLogin();
 
-	clients[id.value()] = login;
+	clients[id] = login;
 }
 
 void ServerManager::visit(message::request::IGetLogins& message) {

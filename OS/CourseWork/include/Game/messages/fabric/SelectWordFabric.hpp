@@ -12,8 +12,11 @@ namespace game {
 				private:
 					std::shared_ptr<::message::IMessage> message;
 				public:
+					SelectWord(pt::ptree data) {
+						configureFromRaw(data);
+					}
 					SelectWord();
-
+					
 					IMessageFabric& configureFromRaw(pt::ptree) override;
 					std::shared_ptr<::message::IMessage> getMessage() override {
 						return message;

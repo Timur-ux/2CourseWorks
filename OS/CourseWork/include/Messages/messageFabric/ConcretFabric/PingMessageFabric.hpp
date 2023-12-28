@@ -11,6 +11,9 @@ namespace message {
 			private:
 				std::shared_ptr<message::request::IPing> message;
 			public:
+				Ping(pt::ptree data) {
+					configureFromRaw(data);
+				}
 				Ping();
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;

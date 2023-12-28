@@ -1,5 +1,7 @@
 #include "Game/managers/GameClientManager.hpp"
 #include "Network/concretServers/Client.hpp"
+#include "print.hpp"
+#include <iostream>
 
 void GameClientManager::provideDisconnect()
 {
@@ -13,10 +15,6 @@ void GameClientManager::provideDisconnect()
 
 void GameClientManager::provideGameStart()
 {
-	std::cout << "[Game] Input word to select: ";
-	std::string word;
-
-	std::cin >> word;
 	std::shared_ptr<::message::IMessage> message = ::message::fabric::MessageFabric::getInstance()
 		.getRequest(
 			game::message::fabric::request::StartGame(id, login)
@@ -28,10 +26,10 @@ void GameClientManager::provideGameStart()
 void GameClientManager::visit(game::message::request::IGuessWord&)
 {
 	std::string opponent, word;
-	std::cout << "[Game] Input opponent's login and word to guess: " << std::endl;
-	std::cout << "Opponent: ";
+	print() << "[Game] Input opponent's login and word to guess: " << std::endl;
+	print() << "Opponent: ";
 	std::cin >> opponent;
-	std::cout << "Word: ";
+	print() << "Word: ";
 	std::cin >> word;
 
 	std::shared_ptr<::message::IMessage> message = ::message::fabric::MessageFabric::getInstance()
@@ -45,8 +43,8 @@ void GameClientManager::visit(game::message::request::IGuessWord&)
 void GameClientManager::visit(game::message::request::ISelectWord&)
 {
 	std::string word;
-	std::cout << "[Game] Input word to select: " << std::endl;
-	std::cout << "Word: ";
+	print() << "[Game] Input word to select: " << std::endl;
+	print() << "Word: ";
 	std::cin >> word;
 
 	std::shared_ptr<::message::IMessage> message = ::message::fabric::MessageFabric::getInstance()
@@ -59,7 +57,7 @@ void GameClientManager::visit(game::message::request::ISelectWord&)
 
 void ClientManager::visit(message::reply::IInviteToGame& message) {
 	int acceptCode = 1;
-	std::cout << "Here invite to game, input " << acceptCode
+	print() << "Here invite to game, input " << acceptCode
 		<< " to accept, any other -- to decline" << std::endl;
 
 	int choosenCode;
@@ -70,5 +68,10 @@ void ClientManager::visit(message::reply::IInviteToGame& message) {
 		unsigned short authPort = message.getGameServerAuthPort();
 		std::shared_ptr<network::IClient> gameClient = std::make_shared<network::Client>(IP, authPort);
 		std::shared_ptr<GameClientManager> gameManager = std::make_shared<GameClientManager>(*gameClient);
+
+		gameManager->subscribeTo(gameClient.get());
+		gameManager->provideAuth();
+		std::thread(&network::IClient::startRecieving, gameClient);
+		gameManager->provideGameStart();
 	}
 }

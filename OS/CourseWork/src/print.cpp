@@ -6,13 +6,7 @@ print::~print()
 	std::unique_lock<std::mutex> lock(mutex);
 
 	std::cout << str();
-}
-
-print& print::operator<<(pt::ptree data)
-{
-	pt::write_json(*this, data);
-
-	return *this;
+	std::cout.flush();
 }
 
 printErr::~printErr()

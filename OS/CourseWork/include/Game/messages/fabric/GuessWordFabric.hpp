@@ -12,6 +12,10 @@ namespace game {
 				private:
 					std::shared_ptr<message::request::IGuessWord> message;
 				public:
+					GuessWord(pt::ptree data) {
+						configureFromRaw(data);
+					}
+
 					GuessWord();
 
 					IMessageFabric& configureFromRaw(pt::ptree) override;

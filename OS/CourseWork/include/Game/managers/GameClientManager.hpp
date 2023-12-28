@@ -5,6 +5,7 @@
 #include "Network/interfaces/IClient.hpp"
 #include "Game/messages/concretMessages/allConcretMessages.hpp"
 
+
 #include <iostream>
 
 class GameClientManager : public ClientManager {
@@ -16,6 +17,10 @@ public:
 
 	void visit(game::message::request::IGuessWord&) override;
 	void visit(game::message::request::ISelectWord&) override;
+
+	~GameClientManager() {
+		provideDisconnect();
+	}
 };
 
 #endif // !GAME_CLIENT_MANAGER_H_

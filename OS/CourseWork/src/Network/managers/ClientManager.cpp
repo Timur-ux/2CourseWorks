@@ -1,6 +1,8 @@
 #include "Network/managers/ClientManager.hpp"
 #include "Network/concretServers/Client.hpp"
 #include "Game/managers/GameManager.hpp"
+#include "print.hpp"
+#include "isNowScanning.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -24,33 +26,40 @@ void ClientManager::visit(message::request::IPing& message) {
 
 void ClientManager::visit(message::reply::IAuth& message) {
 	if (message.getAuthStatus() == false) {
-		std::cout << "Auth failed, please try again with another login" << std::endl;
+		print() << "Auth failed, please try again with another login" << std::endl;
 		provideAuth();
 		return;
 	}
 
 	id = message.getGivenId();
 	login = message.getLogin();
-	std::cout << "Auth succeed; given id: " << id 
+	print() << "Auth succeed; given id: " << id 
 		<< "; accepted login: " << login << std::endl;
 }
 
 void ClientManager::visit(message::reply::IGetLogins& message) {
 	std::list<std::string> logins = message.getLogins();
 
-	std::cout << "Here list of all authorized players:" << std::endl;
+	print() << "Here list of all authorized players:" << std::endl;
 	
 	int i = 1;
 	for (auto& login : logins) {
-		std::cout << i++ << ") " << login << std::endl;
+		print() << i++ << ") " << login << std::endl;
 	}
 }
 
 void ClientManager::provideAuth()
 {
 	std::string login;
-	std::cout << "[Auth] Input login: " << login << std::endl;
-	std::getline(std::cin, login);
+	print() << "[Auth] Input login(1 word): " << login << std::endl;
+	
+	{
+		std::unique_lock<std::mutex> lock(isNowScanning);
+		std::cin >> login;
+		while (login == "") {
+			std::cin >> login;
+		}
+	}
 
 	client.auth(login);
 }
@@ -67,16 +76,23 @@ void ClientManager::provideGetLogins()
 
 void ClientManager::provideCreateNewGame()
 {
-	std::cout << "¬ведите логин игрока, которого хотите пригласить." << std::endl;
-	std::cout << "¬ведите \"Done\", чтобы начать игру" << std::endl;
+	print() << "Input players login you want invite to." << std::endl;
+	print() << "Input \"Done\", to begin game" << std::endl;
 
 	std::list<std::string> logins;
 	std::string login;
-	std::cout << ">>: ";
-	std::getline(std::cin, login);
-	while (login != "Done") {
-		logins.push_back(login);
+
+	{
+		std::unique_lock<std::mutex> lock(isNowScanning);
+		print() << ">>: ";
+		std::cin >> login;
+		while (login != "Done") {
+			logins.push_back(login);
+			print() << ">>: ";
+			std::cin >> login;
+		}
 	}
+	logins.push_back(this->login);
 
 	std::shared_ptr<message::IMessage> message = message::fabric::MessageFabric::getInstance()
 		.getRequest(

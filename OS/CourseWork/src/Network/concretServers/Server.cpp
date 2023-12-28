@@ -9,10 +9,10 @@ using namespace network;
 
 static zmq::context_t _context{1};
 
-network::Server::Server(std::string servIP, PortsTriplet freePorts) : context(_context) {
+network::Server::Server(std::string servIP, PortsTriplet freePorts) : context(_context), serverIP(servIP) {
 
 	std::ostringstream oss;
-	oss << "tcp://" << servIP << ':';
+	oss << "tcp://" << serverIP << ':';
 
 	ports[ports::auth] = freePorts.port1;
 	ports[ports::send] = freePorts.port2;
@@ -40,6 +40,7 @@ void network::Server::startAuth()
 
 		pt::ptree data;
 		pt::read_json(iss, data);
+		std::cout << iss.str() << std::endl;
 
 		auto authMessage = message::fabric::MessageFabric::getInstance()
 			.getFromRawData(data);
@@ -56,7 +57,6 @@ void network::Server::startAuth()
 
 void network::Server::visit(message::request::IAuth& message) {
 	std::string login = message.getLogin();
-	
 	bool found = false;
 	for (auto& client : clients) {
 		if (client.second.login == login) {
@@ -73,17 +73,23 @@ void network::Server::visit(message::request::IAuth& message) {
 			);
 	}
 	else {
+		long long id = freeId++;
 		data = message::fabric::MessageFabric::getInstance()
 			.getReply(
-				message::fabric::reply::Auth(true, serverIP, ports[ports::recv], ports[ports::send], freeId++, login, overallFilter)
+				
+				message::fabric::reply::Auth(true, serverIP, ports[ports::recv], ports[ports::send], id, login, overallFilter)
 			);
+		clients[id] = { id, login };
 	}
 
 	std::ostringstream oss;
 	pt::write_json(oss, data->getData());
 
+	std::cout << oss.str() << std::endl;
+
 	zmq::message_t reply(oss.str());
 	sockets[ports::auth].send(reply, zmq::send_flags::none);
+	notify_all(data);
 }
 
 void network::Server::stopAuth()
@@ -111,6 +117,7 @@ void network::Server::sendFor(long long id, message::IMessage& message)
 	oss << id << ' ';
 	pt::write_json(oss, data);
 
+	print() << "Sending :" << oss.str() << std::endl;
 	zmq::message_t sendMessage(oss.str());
 	sockets[ports::send].send(sendMessage, zmq::send_flags::none);
 }
@@ -127,6 +134,8 @@ void network::Server::startRecieving()
 		);
 		pt::ptree data;
 		pt::read_json(iss, data);
+
+		print() << "Recieved: " << iss.str() << std::endl;
 
 		auto message = message::fabric::MessageFabric::getInstance()
 			.getFromRawData(data);

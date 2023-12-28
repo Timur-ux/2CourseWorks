@@ -73,17 +73,20 @@ void network::Client::auth(std::string login)
 	}
 
 	recvMessage.value()->accept(*this);
-	notify_all(recvMessage.value());
 }
 
 void network::Client::visit(message::reply::IAuth& message)
 {
 	bool status = message.getAuthStatus();
 	if (!status) {
-		printErr() << "[Client] Error: Auth failed, please retry" << std::endl;
+		print() << "[Client] Error: Auth failed, please retry" << std::endl;
+		std::shared_ptr<message::IMessage> copyMessage = message::fabric::MessageFabric::getInstance()
+			.getFromRawData(message.getData()).value();
+		notify_all(copyMessage);
 		return;
 	}
 
+	IP = message.getServerIP();
 	login = message.getLogin();
 	id = message.getGivenId();
 	overallFilter = message.getOverallFilter();
@@ -93,19 +96,29 @@ void network::Client::visit(message::reply::IAuth& message)
 
 	std::ostringstream oss;
 	oss << "tcp://" << IP << ':';
-
-	sockets[ports::send] = zmq::socket_t(context, ZMQ_PULL);
+	sockets[ports::send] = zmq::socket_t(context, ZMQ_PUSH);
 	sockets[ports::recv] = zmq::socket_t(context, ZMQ_SUB);
 
 	sockets[ports::send].connect((oss.str() + std::to_string(ports[ports::send]).c_str()));
 	sockets[ports::recv].connect((oss.str() + std::to_string(ports[ports::recv]).c_str()));
 
-	sockets[ports::recv].setsockopt(ZMQ_SUBSCRIBE, id);
-	sockets[ports::recv].setsockopt(ZMQ_SUBSCRIBE, overallFilter);
+	std::cout << id << ' ' << overallFilter << std::endl;
+	sockets[ports::recv].set(zmq::sockopt::subscribe, std::to_string(id));
+	sockets[ports::recv].set(zmq::sockopt::subscribe, std::to_string(overallFilter));
+
+	print() << "Authorized" << std::endl;
+	authorized = true;
+
+	std::shared_ptr<message::IMessage> copyMessage = message::fabric::MessageFabric::getInstance()
+		.getFromRawData(message.getData()).value();
+	notify_all(copyMessage);
 }
 
 void network::Client::send(message::IMessage& message)
 {
+	if (!authorized) {
+		print() << "[Client] Error: not authorized";
+	}
 	std::ostringstream oss;
 	pt::ptree data = message.getData();
 	
@@ -118,14 +131,17 @@ void network::Client::send(message::IMessage& message)
 void network::Client::startRecieving()
 {
 	isNowRecieving = true;
-	while (isNowRecieving) {
+	while (isNowRecieving && authorized) {
 		zmq::message_t recv;
 		sockets[ports::recv].recv(recv);
 
 		std::istringstream iss(std::string(static_cast<char*>(recv.data()), recv.size()));
 		pt::ptree data;
 
+		long long id;
+		iss >> id;
 		pt::read_json(iss, data);
+		print() << "Resieved: " << iss.str() << std::endl;
 
 		boost::optional <std::shared_ptr< message::IMessage >> message = message::fabric::MessageFabric::getInstance()
 			.getFromRawData(data);

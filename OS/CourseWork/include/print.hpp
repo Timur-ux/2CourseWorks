@@ -12,7 +12,6 @@ namespace pt = boost::property_tree;
 class print : public std::stringstream {
 public:
 	~print();
-	print& operator<<(pt::ptree data);
 };
 
 class printErr : public std::stringstream {

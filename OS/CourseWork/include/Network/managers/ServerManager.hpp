@@ -24,7 +24,7 @@ namespace network {
 		void subscribeTo(message::IObserver*) override;
 		void notify(std::shared_ptr<message::IMessage>) override;
 
-		void visit(message::request::IAuth&) override;
+		void visit(message::reply::IAuth&) override;
 		void visit(message::request::IGetLogins& message) override;
 		void visit(message::request::ICreateNewGame& message) override;
 	};

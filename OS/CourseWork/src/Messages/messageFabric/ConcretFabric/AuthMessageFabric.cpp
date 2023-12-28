@@ -1,6 +1,10 @@
 #include "Messages/messageFabric/ConcretFabric/AuthMessageFabric.hpp"
 #include "Messages/concretMessages/realizations/AuthMessage.hpp"
 
+message::fabric::request::Auth::Auth(std::string login) {
+	message = std::make_shared<message::request::Auth>(login);
+}
+
 message::fabric::IMessageFabric& message::fabric::request::Auth::configureFromRaw(pt::ptree data)
 {
 	boost::optional<int> _type = data.get_optional<int>("Message.Type");
@@ -20,8 +24,14 @@ message::fabric::IMessageFabric& message::fabric::request::Auth::configureFromRa
 	return *this;
 }
 
-message::fabric::request::Auth::Auth(std::string login) {
-	message = std::make_shared<message::request::Auth>(login);
+message::fabric::reply::Auth::Auth(bool status
+	, std::string serverIP
+	, unsigned short sendPort
+	, unsigned short recvPort
+	, long long id
+	, std::string login
+	, long long filter) {
+	message = std::make_shared<message::reply::Auth>(status, serverIP, sendPort, recvPort, id, login, filter);
 }
 
 message::fabric::IMessageFabric& message::fabric::reply::Auth::configureFromRaw(pt::ptree data) {
@@ -47,14 +57,4 @@ message::fabric::IMessageFabric& message::fabric::reply::Auth::configureFromRaw(
 	message = std::make_shared<message::reply::Auth>(status, serverIP, sendPort, recvPort, id, login, filter);
 
 	return *this;
-}
-
-message::fabric::reply::Auth::Auth(bool status
-	, std::string serverIP
-	, unsigned short sendPort
-	, unsigned short recvPort
-	, long long id
-	, std::string login
-	, long long filter) {
-	message = std::make_shared<message::reply::Auth>(status, serverIP, sendPort, recvPort, id, login, filter);
 }

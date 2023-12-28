@@ -80,7 +80,7 @@ void ClientManager::provideCreateNewGame()
 
 	std::shared_ptr<message::IMessage> message = message::fabric::MessageFabric::getInstance()
 		.getRequest(
-			message::fabric::request::CreateNewGame(logins)
+			message::fabric::request::CreateNewGame(id, this->login, logins)
 		);
 
 	client.send(*message);

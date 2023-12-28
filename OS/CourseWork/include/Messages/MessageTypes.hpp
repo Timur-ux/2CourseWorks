@@ -8,6 +8,7 @@ namespace message {
 		, getLogins
 		, createNewGame
 		, dataMessage
+		, inviteToGame
 		, gameAction
 	};
 	

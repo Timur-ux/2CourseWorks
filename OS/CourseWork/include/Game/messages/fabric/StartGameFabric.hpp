@@ -10,6 +10,8 @@ namespace game {
 		namespace fabric {
 			namespace request {
 				class StartGame : public ::message::fabric::IMessageFabric {
+				private:
+					std::shared_ptr<::message::IMessage> message;
 				public:
 					StartGame(pt::ptree data) {
 						configureFromRaw(data);
@@ -18,7 +20,9 @@ namespace game {
 					StartGame(long long id, std::string login);
 
 					::message::fabric::IMessageFabric& configureFromRaw(pt::ptree) override;
-					std::shared_ptr<::message::IMessage> getMessage() override;
+					std::shared_ptr<::message::IMessage> getMessage() override {
+						return message;
+					}
 				};
 			} // !game::message::fabric::request
 		} // !game::message::fabric

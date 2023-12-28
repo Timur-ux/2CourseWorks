@@ -10,6 +10,8 @@ namespace message {
 		class ICreateNewGame : public IMessage {
 		public:
 			virtual std::list<std::string> getLogins() = 0;
+			virtual long long getId() = 0;
+			virtual std::string getLogin() = 0;
 
 			virtual pt::ptree getData() = 0;
 

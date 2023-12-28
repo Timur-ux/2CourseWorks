@@ -13,8 +13,6 @@ namespace game {
 				virtual std::string getLogin() = 0;
 				virtual long long getId() = 0;
 
-				pt::ptree getData() override;
-
 				void accept(::message::IMessageVisitor& visitor) override {
 					visitor.visit(*this);
 				};

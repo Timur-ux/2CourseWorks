@@ -11,6 +11,8 @@ namespace game {
 		namespace fabric {
 			namespace request {
 				class Disconnect : public ::message::fabric::IMessageFabric {
+				private:
+					std::shared_ptr<message::request::IDisconnect> message;
 				public:
 					Disconnect(pt::ptree data) {
 						configureFromRaw(data);
@@ -19,7 +21,9 @@ namespace game {
 					Disconnect(long long id, std::string login);
 
 					::message::fabric::IMessageFabric& configureFromRaw(pt::ptree) override;
-					std::shared_ptr<::message::IMessage> getMessage() override;
+					std::shared_ptr<::message::IMessage> getMessage() override {
+						return message;
+					}
 				};
 			} // !game::message::fabric::request
 		} // !game::message::fabric

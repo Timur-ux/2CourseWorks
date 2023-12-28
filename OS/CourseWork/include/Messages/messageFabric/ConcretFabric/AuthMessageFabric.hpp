@@ -9,7 +9,7 @@ namespace message {
 		namespace request {
 			class Auth : public IMessageFabric {
 			private:
-				std::shared_ptr<IMessage> message;
+				std::shared_ptr<::message::request::IAuth> message;
 			public:
 				Auth(pt::ptree data) {
 					configureFromRaw(data);
@@ -27,7 +27,7 @@ namespace message {
 		namespace reply {
 			class Auth : public IMessageFabric {
 			private:
-				std::shared_ptr<IMessage> message;
+				std::shared_ptr<::message::reply::IAuth> message;
 			public:
 				Auth(pt::ptree data) {
 					configureFromRaw(data);

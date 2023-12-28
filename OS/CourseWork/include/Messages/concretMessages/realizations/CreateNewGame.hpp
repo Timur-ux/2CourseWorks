@@ -7,9 +7,20 @@ namespace message {
 	namespace request {
 		class CreateNewGame : public ICreateNewGame {
 		private:
+			long long id;
+			std::string login;
 			std::list<std::string> logins;
 		public:
-			CreateNewGame(std::list<std::string> _logins) : logins(_logins) {}
+			CreateNewGame(long long _id, std::string _login, std::list<std::string> _logins) : id(_id), login(_login), logins(_logins) {}
+			
+			long long getId() override {
+				return id;
+			}
+
+			std::string getLogin() {
+				return login;
+			}
+
 			std::list<std::string> getLogins() override {
 				return logins;
 			}

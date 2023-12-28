@@ -7,9 +7,10 @@
 
 namespace message {
 	class DataMessage : public IMessage {
-		std::string data;
+	private:
+		std::string messageData;
 	public:
-		DataMessage(std::string _data) : data(_data) {}
+		DataMessage(std::string _data) : messageData(_data) {}
 
 		pt::ptree getData() override;
 

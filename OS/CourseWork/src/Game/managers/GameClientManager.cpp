@@ -36,7 +36,7 @@ void GameClientManager::visit(game::message::request::IGuessWord&)
 
 	std::shared_ptr<::message::IMessage> message = ::message::fabric::MessageFabric::getInstance()
 		.getReply(
-			game::message::fabric::reply::GuessWord(id, login, opponent, word)
+			game::message::fabric::reply::GuessWord(id, login, word, opponent)
 		);
 
 	client.send(*message);

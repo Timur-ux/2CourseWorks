@@ -11,7 +11,7 @@ namespace message {
 		namespace request {
 			class GetLogins : public IMessageFabric {
 			private:
-					std::shared_ptr<IMessage> message;
+					std::shared_ptr<::message::request::IGetLogins> message;
 			public:
 				GetLogins(pt::ptree data) {
 					configureFromRaw(data);

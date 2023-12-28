@@ -13,6 +13,8 @@ pt::ptree message::request::CreateNewGame::getData()
 		loginsData.push_back({ "", child });
 	}
 
+	data.put("Message.CreateNewGame.Id", id);
+	data.put("Message.CreateNewGame.Login", login);
 	data.add_child("Message.CreateNewGame.Logins", loginsData);
 
 	return data;

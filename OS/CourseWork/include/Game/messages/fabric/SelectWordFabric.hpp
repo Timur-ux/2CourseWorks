@@ -9,16 +9,22 @@ namespace game {
 		namespace fabric {
 			namespace request {
 				class SelectWord : public ::message::fabric::IMessageFabric {
+				private:
+					std::shared_ptr<::message::IMessage> message;
 				public:
-					SelectWord() = default;
+					SelectWord();
 
 					IMessageFabric& configureFromRaw(pt::ptree) override;
-					std::shared_ptr<::message::IMessage> getMessage() override;
+					std::shared_ptr<::message::IMessage> getMessage() override {
+						return message;
+					}
 				};
 			} // !game::message::fabric::request
 
 			namespace reply {
 				class SelectWord : public ::message::fabric::IMessageFabric {
+				private:
+					std::shared_ptr<::message::IMessage> message;
 				public:
 					SelectWord(pt::ptree data) {
 						configureFromRaw(data);
@@ -27,7 +33,9 @@ namespace game {
 					SelectWord(long long id, std::string login, std::string word);
 
 					IMessageFabric& configureFromRaw(pt::ptree) override;
-					std::shared_ptr<::message::IMessage> getMessage() override;
+					std::shared_ptr<::message::IMessage> getMessage() override {
+						return message;
+					}
 				};
 			} // !game::message::fabric::reply
 		} // !game::message::fabric

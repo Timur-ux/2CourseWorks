@@ -8,16 +8,22 @@ namespace message {
 	namespace fabric {
 		namespace request {
 			class Ping : public IMessageFabric {
+			private:
+				std::shared_ptr<message::request::IPing> message;
 			public:
 				Ping();
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::request
 
 		namespace reply {
 			class Ping : public IMessageFabric {
+			private:
+				std::shared_ptr<message::reply::IPing> message;
 			public:
 				Ping(pt::ptree data) {
 					configureFromRaw(data);
@@ -25,7 +31,9 @@ namespace message {
 				Ping(long long id, std::string login);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::reply
 	} // !message::fabric

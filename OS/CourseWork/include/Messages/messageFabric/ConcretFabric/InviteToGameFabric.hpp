@@ -10,6 +10,8 @@ namespace message {
 	namespace fabric {
 		namespace reply {
 			class InviteToGame : public IMessageFabric {
+			private:
+				std::shared_ptr<::message::reply::IInviteToGame> message;
 			public:
 				InviteToGame(pt::ptree data) {
 					configureFromRaw(data);
@@ -18,7 +20,9 @@ namespace message {
 				InviteToGame(std::string gameServerIP, unsigned short gameServerAuthPort);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::reply
 	} // !message::fabric

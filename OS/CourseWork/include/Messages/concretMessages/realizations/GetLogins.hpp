@@ -32,7 +32,7 @@ namespace message {
 		public:
 			GetLogins(std::list<std::string> _logins) : logins(_logins) {};
 
-			std::string getLogins() override {
+			std::list<std::string> getLogins() override {
 				return logins;
 			}
 

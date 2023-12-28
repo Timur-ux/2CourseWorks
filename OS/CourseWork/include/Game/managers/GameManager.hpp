@@ -4,8 +4,7 @@
 #include "Network/interfaces/IServer.hpp"
 #include "Messages/MessageObserver.hpp"
 #include "Messages/MessageVisitor.hpp"
-#include "Messages/concretMessages/allConcretMessages.hpp"
-#include "Game/messages/concretMessages/allConcretMessages.hpp"
+#include "Messages/messageFabric/MessageFabric.hpp"
 #include "Game/player/Player.hpp"
 
 #include <atomic>

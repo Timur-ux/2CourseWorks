@@ -44,7 +44,7 @@ void network::Client::auth(std::string login)
 			message::fabric::request::Auth(login)
 		);
 
-	if (!sockets[ports::auth].connected()) {
+	if (!sockets[ports::auth]) {
 		printErr() << "Error: not connected, please connect to server first" << std::endl;
 		return;
 	}
@@ -81,6 +81,7 @@ void network::Client::visit(message::reply::IAuth& message)
 	bool status = message.getAuthStatus();
 	if (!status) {
 		printErr() << "[Client] Error: Auth failed, please retry" << std::endl;
+		return;
 	}
 
 	login = message.getLogin();
@@ -94,10 +95,13 @@ void network::Client::visit(message::reply::IAuth& message)
 	oss << "tcp://" << IP << ':';
 
 	sockets[ports::send] = zmq::socket_t(context, ZMQ_PULL);
-	sockets[ports::recv] = zmq::socket_t(context, ZMQ_PUB);
+	sockets[ports::recv] = zmq::socket_t(context, ZMQ_SUB);
 
 	sockets[ports::send].connect((oss.str() + std::to_string(ports[ports::send]).c_str()));
 	sockets[ports::recv].connect((oss.str() + std::to_string(ports[ports::recv]).c_str()));
+
+	sockets[ports::recv].setsockopt(ZMQ_SUBSCRIBE, id);
+	sockets[ports::recv].setsockopt(ZMQ_SUBSCRIBE, overallFilter);
 }
 
 void network::Client::send(message::IMessage& message)

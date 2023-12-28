@@ -7,10 +7,14 @@ namespace message {
 		, ping
 		, getLogins
 		, createNewGame
-		, data
+		, dataMessage
 		, gameAction
 	};
-
+	
+	enum class ReqRepType {
+		request,
+		reply
+	};
 }
 
 #endif // ! MESSAGE_TYPES_H_

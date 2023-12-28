@@ -11,6 +11,8 @@ namespace message {
 		public:
 			virtual std::list<std::string> getLogins() = 0;
 
+			virtual pt::ptree getData() = 0;
+
 			virtual void accept(IMessageVisitor& visitor) {
 				visitor.visit(*this);
 			}

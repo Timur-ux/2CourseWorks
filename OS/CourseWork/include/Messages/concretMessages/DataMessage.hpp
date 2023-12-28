@@ -13,7 +13,7 @@ namespace message {
 
 		pt::ptree getData() override;
 
-		void accept(::message::IMessageVisitor& visitor) {
+		void accept(message::IMessageVisitor& visitor) override {
 			visitor.visit(*this);
 		}
 	};

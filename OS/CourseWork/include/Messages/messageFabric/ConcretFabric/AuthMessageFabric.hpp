@@ -8,6 +8,8 @@ namespace message {
 	namespace fabric {
 		namespace request {
 			class Auth : public IMessageFabric {
+			private:
+				std::shared_ptr<IMessage> message;
 			public:
 				Auth(pt::ptree data) {
 					configureFromRaw(data);
@@ -16,12 +18,16 @@ namespace message {
 				Auth(std::string login);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				};
 			};
 		} // !message::fabric::request
 
 		namespace reply {
 			class Auth : public IMessageFabric {
+			private:
+				std::shared_ptr<IMessage> message;
 			public:
 				Auth(pt::ptree data) {
 					configureFromRaw(data);
@@ -36,7 +42,9 @@ namespace message {
 					, long long overallFilter);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::request
 	}

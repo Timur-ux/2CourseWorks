@@ -2,6 +2,7 @@
 #define DISCONNECT_MESSAGE_FABRIC_H_
 
 #include "Messages/messageFabric/ConcretFabric/IMessageFabric.hpp"
+#include "../concretMessages/interfaces/IDisconnect.hpp"
 
 #include <string>
 

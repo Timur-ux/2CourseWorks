@@ -21,7 +21,6 @@ namespace message {
 		class IGetLogins : public IMessage {
 		public:
 			virtual std::list<std::string> getLogins() = 0;
-			virtual void setLogins(std::list<std::string>) = 0;
 
 			virtual void accept(IMessageVisitor& visitor) {
 				visitor.visit(*this);

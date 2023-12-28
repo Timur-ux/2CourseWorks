@@ -19,36 +19,29 @@ set(SOURCE_DIR "src")
 
 include_directories(${INCLUDE_DIR})
 
-file(GLOB_RECURSE MESSAGES_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Messages/*.cpp)
-file(GLOB_RECURSE NETWORK_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Network/*.cpp)
-file(GLOB UTILS_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
-file(GLOB_RECURSE GAME_SRC LIST_DIRECTORIES FALSE ${SOURCE_DIR}/Game/*.cpp)
+file(GLOB_RECURSE SOURCES LIST_DIRECTORIES FALSE ${SOURCE_DIR}/*.cpp)
 
-foreach(ITEM ${NETWORK_SRC})
+foreach(ITEM ${SOURCES}) 
 	message(${ITEM}"\n")
 endforeach()
 
-add_library(utils_lib STATIC ${UTILS_SRC})
-add_library(game_lib STATIC ${GAME_SRC})
-add_library(network_lib STATIC ${NETWORK_SRC})
+add_library(main_lib STATIC ${SOURCES})
 
 add_executable(GameHub GameHub.cpp)
 target_link_libraries(GameHub 
-	PUBLIC network_lib 
-	PUBLIC utils_lib
+	PUBLIC main_lib
+	PRIVATE libzmq libzmq-static
 )
 
 add_executable(Game Game.cpp)
 target_link_libraries(Game
-	PUBLIC network_lib 
-	PUBLIC game_lib 
-	PUBLIC utils_lib
+	PUBLIC main_lib
+	PRIVATE libzmq libzmq-static
 )
 
 add_executable(GameClient GameClient.cpp)
 target_link_libraries ( GameClient
-	PUBLIC network_lib
-	PUBLIC game_lib
-	PUBLIC utils_lib
+	PUBLIC main_lib
+	PRIVATE libzmq libzmq-static
 )
 

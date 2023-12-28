@@ -11,6 +11,7 @@
 #include "Game/messages/fabric/GuessWordFabric.hpp"
 #include "Game/messages/fabric/DisconnectFabric.hpp"
 #include "Game/messages/fabric/StartGameFabric.hpp"
+#include "../concretMessages/DataMessage.hpp"
 
 #include <boost/optional.hpp>
 #include <boost/property_tree/ptree.hpp>

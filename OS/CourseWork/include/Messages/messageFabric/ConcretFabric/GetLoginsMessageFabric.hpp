@@ -10,6 +10,8 @@ namespace message {
 	namespace fabric {
 		namespace request {
 			class GetLogins : public IMessageFabric {
+			private:
+					std::shared_ptr<IMessage> message;
 			public:
 				GetLogins(pt::ptree data) {
 					configureFromRaw(data);
@@ -18,12 +20,16 @@ namespace message {
 				GetLogins(std::string login, long long id);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::request
 
 		namespace reply {
 			class GetLogins : public IMessageFabric {
+			private:
+					std::shared_ptr<IMessage> message;
 			public:
 				GetLogins(pt::ptree data) {
 					configureFromRaw(data);
@@ -32,7 +38,9 @@ namespace message {
 				GetLogins(std::list<std::string> logins);
 
 				IMessageFabric& configureFromRaw(pt::ptree) override;
-				std::shared_ptr<IMessage> getMessage() override;
+				std::shared_ptr<IMessage> getMessage() override {
+					return message;
+				}
 			};
 		} // !message::fabric::reply
 	} // !message::fabric
